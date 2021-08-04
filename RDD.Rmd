@@ -41,6 +41,8 @@ library(knitr)
 library(mediocrethemes)
 library(fixest)
 library(tictoc)
+library(DiagrammeR)
+library(here)
 
 set_mediocre_all()
 ```
@@ -53,17 +55,66 @@ In this document, we run a simulation exercise to illustrate the existence of a 
 
 We first implement a very simple example to get our hands on simulating a RDD with an omitted variable bias.
 
-We set baseline values for all the parameters and generate the data. Note that the bandwidth is defined as a proportion of the standard deviation of the variable x.
+### Modelisation choices
+
+The Data Generating Process (DGP) can be represented using the following Directed Acyclic Graph (DAG) where X is the forcing variable, T is the treatment, Y the outcome variable and U an unobserved variable.
+
+```{r echo=FALSE}
+# library(dagitty)
+# library(ggdag)
+# 
+# dagitty("dag {
+#     y <- x <- z1 <- v -> z2 -> y
+#     z1 <- w1 <-> w2 -> z2
+#     x <- w1 -> y
+#     x <- w2 -> y
+#     x [exposure]
+#     y [outcome]
+#   }"
+# ) %>% 
+# tidy_dagitty() %>% 
+# ggdag()
+# 
+
+DiagrammeR::grViz("digraph {
+  graph [layout = dot, rankdir = LR]
+
+  node [shape = plaintext]
+  Y
+  X
+  T
+  U
+
+  # edge definitions with the node IDs
+  U -> X -> T -> Y
+  U -> Y
+  }")
+  # width = 1000)
+```
+
+We set: 
+
+- $n_{indiv}$ the number of individuals and $n_{period}$ the number of period (for now, we set $n_{period}$ to 1)
+- $U \sim \mathcal{N}(\mu_u, \sigma_u)$
+- X as the sum of a normal distribution, $d_x \sim \mathcal{N}(\mu_x, \sigma_x)$, and add the effect of the unobserved variable: $X = d_x + \delta_x U$
+- $Y(0) = \alpha + \gamma X + \delta_y U + e$, where $e \sim \mathcal{N}(0, \sigma_e)$
+- To define the treatment, we randomly draw a threshold position $s \sim \mathcal{U}(0.2, 0.8)$. Units that are above the $s^{th}$ quantile of the distribution of X are treated
+- $Y(1) = Y(0) + \beta T + t$, where $t \sim \mathcal{N}(0, \sigma_t)$ 
+- We define the bandwidth as a proportion of the standard deviation of the variable X.
+
+### Data generation
 
 ```{r DGP}
-generate_data_rdd <- function(n_indiv = 10000, 
+beta <- 1
+
+generate_data_rdd <- function(n_indiv = 1000, 
                               n_period = 1,  
                               sigma_e = 0.4, 
                               mu_u = 1, 
                               sigma_u = 0.2, 
                               mu_x = 2, 
                               sigma_x = 4, 
-                              intensity_ovb = 10, 
+                              ovb_intensity = 10, 
                               # delta_y = 10, 
                               alpha = 0, 
                               gamma = 0.3, 
@@ -73,17 +124,17 @@ generate_data_rdd <- function(n_indiv = 10000,
                               ) {
   
   threshold_pos <- runif(1, 0.2, 0.8) 
-  delta_x <- intensity_ovb
-  delta_y <- intensity_ovb
+  delta_x <- ovb_intensity
+  delta_y <- ovb_intensity
   
   data <- 
     tibble(indiv = 1:n_indiv) %>% 
     crossing(period = 1:n_period) %>% 
     mutate(
       uniq_id = paste(indiv, period, sep = "_"),
-      e = rnorm(n_indiv*n_period, 0, sigma_e),
-      u = rnorm(n_indiv*n_period, mu_u, sigma_u),
-      x = rnorm(n_indiv*n_period, mu_x, sigma_x)+ delta_x*u,
+      u = rnorm(nrow(.), mu_u, sigma_u),
+      x = rnorm(nrow(.), mu_x, sigma_x) + delta_x*u,
+      e = rnorm(nrow(.), 0, sigma_e),
       Y0 = alpha + gamma*x + delta_y*u + e, 
       treated = .data[["x"]] > quantile(.data[["x"]], threshold_pos, names = FALSE),
       Y1 = Y0 + beta*treated + rnorm(nrow(.), 0, sigma_t), 
@@ -94,16 +145,14 @@ generate_data_rdd <- function(n_indiv = 10000,
 }
 ```
 
+### Estimation
+
 We want to vary two parameters only: the bandwidth and the intensity of the omitted variable bias. The function `estimate_rdd` therefore only takes two parameters. 
 
 ```{r estimate}
-# data_rdd_treated %>% 
-#   ggplot(aes(x = x, y = u)) +
-#   geom_point()
-
-estimate_rdd <- function(intensity_ovb, bw) {
+estimate_rdd <- function(ovb_intensity, bw) {
   lm(
-    data = generate_data_rdd(intensity_ovb = intensity_ovb, bw = bw), 
+    data = generate_data_rdd(ovb_intensity = ovb_intensity, bw = bw), 
     formula = Y1 ~ treated + x
   ) %>% 
   broom::tidy() %>% 
@@ -111,34 +160,84 @@ estimate_rdd <- function(intensity_ovb, bw) {
   rename(p_value = p.value, se = std.error) %>%
   select(estimate, p_value, se) %>% 
   mutate(
-    intensity_ovb = intensity_ovb,
+    ovb_intensity = ovb_intensity,
     bw = bw
   )
 }
 
-# estimate_rdd(intensity_ovb = 5, bw = 0.1)
+# estimate_rdd(ovb_intensity = 5, bw = 0.1)
 ```
 
-We then create a table with all the values of the parameters we want to test. We consider 
+### Simulations
 
-```{r simulate, eval=FALSE}
-vect_bw <- c(0.05, 0.1, 0.2, 0.5, 1)
-vect_intensity_ovb <- c(1, 10)
-n_iter <- 100
+We then create a table with all the values of the parameters we want to test. 
 
-param_rdd <- crossing(vect_bw, vect_intensity_ovb) %>% 
-  rename(bw = vect_bw, intensity_ovb = vect_intensity_ovb) %>% 
+```{r simulate}
+vect_bw <- c(0.01, 0.05, 0.1, 0.2, 0.5, 1)
+vect_ovb_intensity <- c(1, 10)
+n_iter <- 1000
+
+param_rdd <- crossing(vect_bw, vect_ovb_intensity) %>% 
+  rename(bw = vect_bw, ovb_intensity = vect_ovb_intensity) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
+```
 
+We then run the simulations.
+
+```{r, eval=FALSE}
 tic()
 simulations_rdd <- pmap_dfr(param_rdd, estimate_rdd)
 toc()
+
+saveRDS(simulations_rdd, "Outputs/simulations_rdd.RDS")
 ```
 
+## Analysis of the results
 
+We want to compute $\mathbb{E}[| \beta_0 - \widehat{\beta_{RDD}}|]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$
 
+```{r}
+simulations_rdd <- readRDS("Outputs/simulations_rdd.RDS")
 
+summarise_simulations <- function(data) {
+  data %>% 
+    group_by(ovb_intensity, bw) %>%
+    summarise(
+      power = mean(p_value <= 0.05, na.rm = TRUE)*100, 
+      type_m = mean(ifelse(p_value <= 0.05, abs(estimate - beta), NA), na.rm = TRUE),
+      bias = mean(abs(estimate - beta), na.rm = TRUE),
+      .groups	= "drop"
+    ) %>% 
+    ungroup()
+} 
+
+summary_simulations_rdd <- summarise_simulations(simulations_rdd)
+
+saveRDS(summary_simulations_rdd, "Outputs/summary_simulations_rdd.RDS")
+```
+
+### Graph
+
+```{r}
+summary_simulations_rdd %>% 
+  pivot_longer(cols = c(type_m, bias), names_to = "measure") %>% 
+  mutate(
+    measure = ifelse(measure == "type_m", "Significant", "Non significant"),
+    ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
+  ) %>% 
+  ggplot() + 
+  # geom_point() + 
+  geom_line(aes(x = bw, y = value, color = measure), linetype = "dashed") +
+  facet_wrap(~ ovb_intensity_name) +
+  labs(
+    x = "Bandwidth size", 
+    y = "Bias",
+    title = "Evolution of bias with bandwith size, conditional on significativity",
+    subtitle = "For several values of OVB intensity",
+    caption ="Bandwidth as a proportion of the standard deviation of X"
+  )
+```
 
 
 
