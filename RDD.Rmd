@@ -1,5 +1,5 @@
 ---
-title: "Regression Discontinuity Design"
+title: "Simulations OVB/type M trade-off: RDD"
 author:
   - name: Vincent Bagilet 
     url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet
@@ -35,84 +35,114 @@ opts_chunk$set(fig.path = "images/",
                fig.align = "center")  
 ```  
 
-## Purpose of the document
-
-In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the case of the Regression Discontinuity Design (RDD). This trade-off is mediated by the size of the bandwidth considered in the analysis.
-
 ```{r packages, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
+library(fixest)
+library(tictoc)
 
 set_mediocre_all()
 ```
 
+## Purpose of the document
+
+In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the case of the Regression Discontinuity Design (RDD). This trade-off is mediated by the size of the bandwidth considered in the analysis. The idea behind this is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of OVB is. Yet, with a smaller bandwidth, sample size, and thus power, decreases, increasing the risk of type M error. 
 
 ## Extremely simple example
 
 We first implement a very simple example to get our hands on simulating a RDD with an omitted variable bias.
 
-First, we define the values of the various parameters: 
+We set baseline values for all the parameters and generate the data. Note that the bandwidth is defined as a proportion of the standard deviation of the variable x.
 
-```{r}
-n_indiv <- 10000
-n_period <- 1
-mu_x <- 2
-sigma_x <- 4
-sigma_e <- 0.4
-mu_u <- 1
-sigma_u <- 0.2
-
-alpha <- 0
-gamma <- 0.3
-delta_y <- 10
-delta_x <- 10
-beta <- 1
-sigma_t <- 2
-```
-
-Then, we create a tibble containing the main variables along with Y(0):
-
-```{r}
-data_rdd <- 
-  tibble(indiv = 1:n_indiv) %>% 
-  crossing(period = 1:n_period) %>% 
-  mutate(
-    uniq_id = paste(indiv, period, sep = "_"),
-    e = rnorm(n_indiv*n_period, 0, sigma_e),
-    u = rnorm(n_indiv*n_period, mu_u, sigma_u),
-    x = rnorm(n_indiv*n_period, mu_x, sigma_x)+ delta_x*u,
-    Y0 = alpha + gamma*x + delta_y*u + e
-  )
-```
-
-We then draw the treated
-
-```{r}
-draw_treated <- function(data) {
-    threshold_pos <- runif(1, 0, 1) 
-    
-    data <- data %>%
-      mutate(
-        threshold = quantile(.data[["x"]], threshold_pos, names = FALSE),
-        treated = .data[["x"]] > threshold
-      ) %>%
-      select(-threshold) 
-    
+```{r DGP}
+generate_data_rdd <- function(n_indiv = 10000, 
+                              n_period = 1,  
+                              sigma_e = 0.4, 
+                              mu_u = 1, 
+                              sigma_u = 0.2, 
+                              mu_x = 2, 
+                              sigma_x = 4, 
+                              intensity_ovb = 10, 
+                              # delta_y = 10, 
+                              alpha = 0, 
+                              gamma = 0.3, 
+                              beta = 1, 
+                              sigma_t = 2,
+                              bw = 0.1
+                              ) {
+  
+  threshold_pos <- runif(1, 0.2, 0.8) 
+  delta_x <- intensity_ovb
+  delta_y <- intensity_ovb
+  
+  data <- 
+    tibble(indiv = 1:n_indiv) %>% 
+    crossing(period = 1:n_period) %>% 
+    mutate(
+      uniq_id = paste(indiv, period, sep = "_"),
+      e = rnorm(n_indiv*n_period, 0, sigma_e),
+      u = rnorm(n_indiv*n_period, mu_u, sigma_u),
+      x = rnorm(n_indiv*n_period, mu_x, sigma_x)+ delta_x*u,
+      Y0 = alpha + gamma*x + delta_y*u + e, 
+      treated = .data[["x"]] > quantile(.data[["x"]], threshold_pos, names = FALSE),
+      Y1 = Y0 + beta*treated + rnorm(nrow(.), 0, sigma_t), 
+      in_bw = dplyr::between(x, mu_x - bw/2*sigma_x, mu_x + bw/2*sigma_x)
+    ) 
+  
   return(data)
 }
+```
 
-data_rdd_treated <- draw_treated(data_rdd) %>% 
-  mutate(Y1 = Y0 + beta*treated + rnorm(nrow(.), 0, sigma_t))
+We want to vary two parameters only: the bandwidth and the intensity of the omitted variable bias. The function `estimate_rdd` therefore only takes two parameters. 
+
+```{r estimate}
+# data_rdd_treated %>% 
+#   ggplot(aes(x = x, y = u)) +
+#   geom_point()
+
+estimate_rdd <- function(intensity_ovb, bw) {
+  lm(
+    data = generate_data_rdd(intensity_ovb = intensity_ovb, bw = bw), 
+    formula = Y1 ~ treated + x
+  ) %>% 
+  broom::tidy() %>% 
+  filter(term == "treatedTRUE") %>%
+  rename(p_value = p.value, se = std.error) %>%
+  select(estimate, p_value, se) %>% 
+  mutate(
+    intensity_ovb = intensity_ovb,
+    bw = bw
+  )
+}
+
+# estimate_rdd(intensity_ovb = 5, bw = 0.1)
+```
+
+We then create a table with all the values of the parameters we want to test. We consider 
+
+```{r simulate, eval=FALSE}
+vect_bw <- c(0.05, 0.1, 0.2, 0.5, 1)
+vect_intensity_ovb <- c(1, 10)
+n_iter <- 100
+
+param_rdd <- crossing(vect_bw, vect_intensity_ovb) %>% 
+  rename(bw = vect_bw, intensity_ovb = vect_intensity_ovb) %>% 
+  crossing(rep_id = 1:n_iter) %>% 
+  select(-rep_id)
+
+tic()
+simulations_rdd <- pmap_dfr(param_rdd, estimate_rdd)
+toc()
 ```
 
 
-```{r}
-data_rdd_treated %>% 
-  ggplot(aes(x = x, y = u)) +
-  geom_point()
 
-lm(data = data_rdd_treated, formula = Y1 ~ treated + x)
-```
+
+
+
+
+
+
 
 
