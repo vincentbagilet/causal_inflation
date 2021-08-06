@@ -190,7 +190,7 @@ tic()
 simulations_rdd <- pmap_dfr(param_rdd, estimate_rdd)
 toc()
 
-saveRDS(simulations_rdd, "Outputs/simulations_rdd.RDS")
+saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
 ```
 
 ## Analysis of the results
@@ -198,7 +198,7 @@ saveRDS(simulations_rdd, "Outputs/simulations_rdd.RDS")
 We want to compute $\mathbb{E}[| \beta_0 - \widehat{\beta_{RDD}}|]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$
 
 ```{r}
-simulations_rdd <- readRDS("Outputs/simulations_rdd.RDS")
+simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS"))
 
 summarise_simulations <- function(data) {
   data %>% 
@@ -214,7 +214,7 @@ summarise_simulations <- function(data) {
 
 summary_simulations_rdd <- summarise_simulations(simulations_rdd)
 
-saveRDS(summary_simulations_rdd, "Outputs/summary_simulations_rdd.RDS")
+saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS"))
 ```
 
 ### Graph
