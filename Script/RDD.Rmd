@@ -100,7 +100,6 @@ We set:
 - $Y(0) = \alpha + \gamma X + \delta_y U + e$, where $e \sim \mathcal{N}(0, \sigma_e)$
 - To define the treatment, we randomly draw a threshold position $s \sim \mathcal{U}(0.2, 0.8)$. Units that are above the $s^{th}$ quantile of the distribution of X are treated
 - $Y(1) = Y(0) + \beta T + t$, where $t \sim \mathcal{N}(0, \sigma_t)$ 
-- We define the bandwidth as a proportion of the standard deviation of the variable X.
 
 ### Data generation
 
@@ -116,14 +115,14 @@ generate_data_rdd <- function(n_indiv = 1000,
                               sigma_x = 4, 
                               ovb_intensity = 10, 
                               # delta_y = 10, 
+                              threshold_pos = 0.5,
                               alpha = 0, 
                               gamma = 0.3, 
                               beta = 1, 
-                              sigma_t = 2,
-                              bw = 0.1
+                              sigma_t = 2
                               ) {
   
-  threshold_pos <- runif(1, 0.2, 0.8) 
+  # threshold_pos <- runif(1, 0.2, 0.8) 
   delta_x <- ovb_intensity
   delta_y <- ovb_intensity
   
@@ -137,9 +136,8 @@ generate_data_rdd <- function(n_indiv = 1000,
       e = rnorm(nrow(.), 0, sigma_e),
       Y0 = alpha + gamma*x + delta_y*u + e, 
       treated = .data[["x"]] > quantile(.data[["x"]], threshold_pos, names = FALSE),
-      Y1 = Y0 + beta*treated + rnorm(nrow(.), 0, sigma_t), 
-      in_bw = dplyr::between(x, mu_x - bw/2*sigma_x, mu_x + bw/2*sigma_x)
-    ) 
+      Y1 = Y0 + beta*treated + rnorm(nrow(.), 0, sigma_t)
+    )
   
   return(data)
 }
@@ -147,33 +145,54 @@ generate_data_rdd <- function(n_indiv = 1000,
 
 ### Estimation
 
-We want to vary two parameters only: the bandwidth and the intensity of the omitted variable bias. The function `estimate_rdd` therefore only takes two parameters. 
+We want to vary two parameters only: the bandwidth and the intensity of the omitted variable bias. The function `estimate_rdd` therefore only takes two parameters. The bandwidth is defined as a proportion of the standard deviation of the variable X.
 
 ```{r estimate}
-estimate_rdd <- function(ovb_intensity, bw) {
-  lm(
-    data = generate_data_rdd(ovb_intensity = ovb_intensity, bw = bw), 
+compute_true_effect_rdd <- function(data) {
+  treated_data <- data %>% 
+    filter(.data$treated) 
+  
+  return(mean(treated_data$Y1 - treated_data$Y0))
+}  
+
+estimate_rdd <- function(data, bw = 0.5) {
+  data_in_bw <- data %>% 
+    filter(dplyr::between(x, mean(x) - bw/2*sd(x), mean(x) + bw/2*sd(x)))
+  
+  reg <- lm(
+    data = data_in_bw, 
     formula = Y1 ~ treated + x
   ) %>% 
   broom::tidy() %>% 
   filter(term == "treatedTRUE") %>%
   rename(p_value = p.value, se = std.error) %>%
   select(estimate, p_value, se) %>% 
-  mutate(
-    ovb_intensity = ovb_intensity,
-    bw = bw
-  )
+  mutate(true_effect = compute_true_effect_rdd(data))
+  
+  return(reg)
 }
-
-# estimate_rdd(ovb_intensity = 5, bw = 0.1)
 ```
 
 ### Simulations
 
+We first create a function to run one simulation. It creates the data and run the estimations (it is just a simple combination of `generate_data_rdd` and `estimate_rdd`)
+
+```{r}
+compute_simulation_rdd <- function(ovb_intensity = 10, bw = 0.5) {
+  generate_data_rdd(ovb_intensity = ovb_intensity) %>% 
+    estimate_rdd(bw = bw) %>% 
+    mutate(
+      bw = bw,
+      ovb_intensity = ovb_intensity
+    )
+} 
+```
+
+
 We then create a table with all the values of the parameters we want to test. 
 
 ```{r simulate}
-vect_bw <- c(0.01, 0.05, 0.1, 0.2, 0.5, 1)
+vect_bw <- c(0.1, 1)
 vect_ovb_intensity <- c(1, 10)
 n_iter <- 1000
 
@@ -187,7 +206,7 @@ We then run the simulations.
 
 ```{r, eval=FALSE}
 tic()
-simulations_rdd <- pmap_dfr(param_rdd, estimate_rdd)
+simulations_rdd <- pmap_dfr(param_rdd, compute_simulation_rdd)
 toc()
 
 saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
@@ -238,8 +257,6 @@ summary_simulations_rdd %>%
     caption ="Bandwidth as a proportion of the standard deviation of X"
   )
 ```
-
-
 
 
 
