@@ -1,0 +1,58 @@
+# library(tidyverse)
+# library(mediocrethemes)
+# 
+# set_mediocre_all()
+
+n <- 10000
+n_iter <- 2000
+res <- rep(NA, n_iter)
+alpha <- 1
+delta <- 20
+beta <- 1
+gamma <- 1
+bw <- 0.05 #bw as the proportion of observations considered below or above the threshold
+
+for (i in 1:n_iter) {
+  u <- rnorm(n, 0, 1)
+  x <- rnorm(n, 0, 1)  + delta*u^2/10
+  treated <-  ifelse(x < median(x), 1, 0)
+  treated <- ifelse(dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw)), treated, NA)
+  e <- rnorm(n, 0, 0.5)
+  y <- alpha + beta*treated + gamma*x + delta*u^2/10 + e
+
+  res[i] <- lm(y ~ treated + x) %>% coef() %>% .[["treated"]]/beta
+}
+
+res %>% qplot()
+mean(res) - 1
+
+#Paper Magdalena Bennett
+
+# n <- 2000
+# n_iter <- 500
+# res <- rep(NA, n_iter)
+# beta_rx <- 1
+# beta_ru <- 1
+# beta_yx <- 1
+# beta_yu <- 1
+# bw <- 0.2 #bw as the proportion of observations considered below or above the threshold
+# 
+# for (i in 1:n_iter) {
+#   u <- rnorm(n, 0, 10)
+#   x <- rnorm(n, 0, 10)
+#   r <- beta_rx*x + beta_ru*u + rnorm(n, 0, 1)
+#   y0 <- beta_yx*x + beta_yu*u + rnorm(n, 0, 1)
+#   tau <- 0.2*var(y0)
+#   treated <-  ifelse(r < median(r), 1, 0)
+#   treated <- ifelse(dplyr::between(r, quantile(r, 0.5 - bw), quantile(r, 0.5 + bw)), treated, NA)
+#   y <- y0 + tau*treated
+#   
+#   # qplot(r, y0)
+#   # qplot(r, y0, color = factor(treated))
+# 
+#   res[i] <- lm(y ~ treated + x + r) %>% coef() %>% .[["treated"]]
+#   res[i] <- res[i]/tau
+# }
+# 
+# res %>% qplot()
+# mean(res) - 1
