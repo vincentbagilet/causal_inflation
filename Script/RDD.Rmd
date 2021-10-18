@@ -116,7 +116,7 @@ generate_data_rdd <- function(delta,
       e = rnorm(nrow(.), 0, sigma_e),
       threshold = quantile(qual, 0.5),
       treated = qual < threshold,
-      final0 = alpha + gamma*qual + delta*u^2/10 + e,
+      final0 = alpha + gamma*qual + delta*u^2 + e,
       final1 = final0 + beta,
       final = final0 + beta*treated
     )
@@ -128,7 +128,7 @@ generate_data_rdd <- function(delta,
 Before running the estimation, we will need to define the bandwidth and consider observations only in this bandwidth when running our regression. We therefore create a function to define this bandwidth by adding a variable to the data set `treated_bw` that is equal to `NA` if the observations is outside of the bandwidth, `TRUE` if the observation falls in the bandwidth and the student is treated and `FALSE`  if the observation falls in the bandwidth and the student is not treated. We define the band width as a proportion of the standard deviation of the qualification test score.
 
 ```{r}
-define_bw <- function (data, bw = 1) {
+define_bw <- function (data, bw = 0.1) {
   data <- data %>% 
     mutate(
       treated_bw = ifelse(
@@ -162,7 +162,7 @@ test_data %>%
   geom_point()
 
 generate_data_rdd(delta = 1, N = 10000) %>% 
-  define_bw(5) %>% 
+  define_bw(0.5) %>% 
   ggplot(aes(x = qual, y = final, color = treated_bw)) + 
   geom_point() +
   geom_smooth(method = "lm", fullrange = TRUE)
@@ -235,8 +235,8 @@ compute_simulation_rdd <- function(ovb_intensity, bw) {
 We then create a table with all the values of the parameters we want to test. 
 
 ```{r set_param}
-vect_bw <- c(0.05, 0.1, 0.2, 0.4, 0.5)
-vect_ovb_intensity <- c(0, 2)
+vect_bw <- seq(0.05, 0.4, 0.05)
+vect_ovb_intensity <- c(2)
 n_iter <- 1000
 
 param_rdd <- crossing(vect_bw, vect_ovb_intensity) %>% 
@@ -277,7 +277,7 @@ simulations_rdd %>%
   facet_wrap(~ ovb_intensity)
 
 simulations_rdd %>% 
-  filter(bw == vect_bw[1]) %>% 
+  filter(bw == 0.4) %>% 
   mutate(significant = (p_value < 0.05)) %>% 
   group_by(ovb_intensity) %>% 
   mutate(sim_id = row_number()) %>% 

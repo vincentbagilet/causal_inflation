@@ -3,28 +3,35 @@
 # 
 # set_mediocre_all()
 
-n <- 10000
-n_iter <- 2000
-res <- rep(NA, n_iter)
-alpha <- 1
-delta <- 20
-beta <- 1
-gamma <- 1
-bw <- 0.05 #bw as the proportion of observations considered below or above the threshold
-
-for (i in 1:n_iter) {
-  u <- rnorm(n, 0, 1)
-  x <- rnorm(n, 0, 1)  + delta*u^2/10
-  treated <-  ifelse(x < median(x), 1, 0)
-  treated <- ifelse(dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw)), treated, NA)
-  e <- rnorm(n, 0, 0.5)
-  y <- alpha + beta*treated + gamma*x + delta*u^2/10 + e
-
-  res[i] <- lm(y ~ treated + x) %>% coef() %>% .[["treated"]]/beta
-}
-
-res %>% qplot()
-mean(res) - 1
+# n <- 10000
+# n_iter <- 1000
+# res <- rep(NA, n_iter)
+# alpha <- 1
+# delta <- 20
+# beta <- 1
+# gamma <- 1
+# bw <- 0.5 #bw as the proportion of observations considered below or above the threshold
+# 
+# for (i in 1:n_iter) {
+#   u <- rnorm(n, 0, 1)
+#   x <- rnorm(n, 0, 1)  + delta*u^2
+#   treated <-  ifelse(x < median(x), 1, 0)
+# 
+#   treated <- ifelse(dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw)), treated, NA)
+#   e <- rnorm(n, 0, 0.5)
+#   y <- alpha + beta*treated + gamma*x + delta*u^2 + e
+#   
+#   #   data_fuzzy <- tibble(x, y, u, treated, in_bw, e)
+# 
+#   res[i] <- lm(y ~ treated + x) %>% coef() %>% .[["treated"]]/beta
+# }
+# 
+# res %>%
+#   qplot() +
+#   geom_vline(aes(xintercept = mean(res))) +
+#   geom_vline(aes(xintercept = 1), linetype ="dashed")
+# 
+# mean(res) - 1
 
 #Paper Magdalena Bennett
 
@@ -56,3 +63,42 @@ mean(res) - 1
 # 
 # res %>% qplot()
 # mean(res) - 1
+
+
+#fuzzy RDD
+# n <- 10000
+# n_iter <- 1000
+# res <- rep(NA, n_iter)
+# alpha <- 1
+# delta <- 4
+# beta <- 1
+# gamma <- 1
+# bw <- 0.5 #bw as the proportion of observations considered below or above the threshold
+# 
+# for (i in 1:n_iter) {
+#   u <- rnorm(n, 0, 0.05)
+#   x <- rnorm(n, 0, 1)
+#   treated <- rbernoulli(n, ifelse(x < median(x), 1 + delta*u^2, delta*u^2))
+#   # treated <- (x < 0)
+#   in_bw <- dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw))
+#   e <- rnorm(n, 0, 0.5)
+#   y <- alpha + beta*treated + gamma*x + delta*u + e
+# 
+#   data_fuzzy <- tibble(x, y, u, treated, in_bw, e)
+#   # data_fuzzy %>%
+#   #   ggplot(aes(x = x, y = y, color = in_bw)) +
+#   #   geom_point()
+# 
+#   res[i] <- lm(y ~ treated*x, data = filter(data_fuzzy, in_bw)) %>% coef() %>% .[["treatedTRUE"]]/beta
+# }
+# 
+# res %>%
+#   qplot() +
+#   geom_vline(aes(xintercept = mean(res))) +
+#   geom_vline(aes(xintercept = 1), linetype ="dashed")
+# 
+# mean(res) - 1
+
+
+
+
