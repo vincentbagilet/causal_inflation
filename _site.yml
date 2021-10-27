@@ -1,0 +1,20 @@
+name: "."
+title: "An OVB-type M trade off"
+theme: OVB_website.css
+description: |
+  OVB-typeM
+output_dir: "docs"
+exclude: ["Documents", "R"]
+navbar:
+  right:
+    - text: "Home"
+      href: index.html
+    - text: "Simulations"
+      menu:
+        - text: "RDD"
+          href: RDD.html
+        - text: "IV"
+          href: IV.html
+  source_url: https://github.com/vincentbagilet/OVB-typeM
+  search: false
+output: distill::distill_article
