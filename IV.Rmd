@@ -77,10 +77,13 @@ More precisely, we set:
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
+Note that the parameter `type_z` describes whether z is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`.
+
 ```{r DGP}
 generate_data_IV <- function(N,
+                             type_z, #"normal" or "bernoulli"
+                             param_z,
                              sigma_u,
-                             sigma_z,
                              sigma_ex,
                              sigma_ey,
                              alpha_y,
@@ -90,10 +93,17 @@ generate_data_IV <- function(N,
                              ovb_intensity
                              ) {
   
+  if (type_z == "bernoulli") {
+    z_gen <- rbernoulli(N, param_z)
+  } else if (type_z == "normal") {
+    z_gen <- rnorm(N, 0, param_z)
+  } else {
+    stop("type_z must be either 'bernoulli' or 'normal'")
+  } 
+  
   data <- tibble(id = 1:N) %>% 
     mutate(
-      z = rnorm(nrow(.), 0, sigma_z),
-      # z = rbernoulli(nrow(.)),
+      z = z_gen,
       u = rnorm(nrow(.), 0, sigma_u),
       e_x = rnorm(nrow(.), 0, sigma_ex),
       e_y = rnorm(nrow(.), 0, sigma_ey),
@@ -149,8 +159,9 @@ We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To 
 
 ```{r}
 compute_simulation_IV <- function(N,
+                                  type_z,
+                                  param_z,
                                   sigma_u,
-                                  sigma_z,
                                   sigma_ex,
                                   sigma_ey,
                                   alpha_y,
@@ -160,8 +171,9 @@ compute_simulation_IV <- function(N,
                                   ovb_intensity) {
   generate_data_IV(
     N = N,
+    type_z = type_z,
     sigma_u = sigma_u,
-    sigma_z = sigma_z,
+    param_z = param_z,
     sigma_ex = sigma_ex,
     sigma_ey = sigma_ey,
     alpha_y = alpha_y,
@@ -185,8 +197,9 @@ We will run the simulations for different sets of parameters by mapping our `com
 ```{r set_param}
 baseline_parameters <- tibble(
   N = 500,
+  type_z = "normal",
+  param_z = 1,
   sigma_u = 1,
-  sigma_z = 1,
   sigma_ex = 1,
   sigma_ey = 1,
   alpha_y = 0,
@@ -198,7 +211,7 @@ fixed_parameters <- baseline_parameters #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
 vect_ovb_intensity <- c(0.4)
-n_iter <- 100
+n_iter <- 1
 
 param_IV <- fixed_parameters %>% 
   crossing(vect_iv_strength, vect_ovb_intensity) %>% 
