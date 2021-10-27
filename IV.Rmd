@@ -62,7 +62,7 @@ In the present analysis, we build our simulations to replicate a similar type of
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
 ```{r echo=FALSE, out.width='40%'}
-include_graphics(here("Graphs/DAG_IV.png"))
+include_graphics(here("images/DAG_IV.png"))
 ```
 
 
@@ -85,9 +85,9 @@ generate_data_IV <- function(N = 1000,
                              sigma_ey = 1,
                              alpha_y = 0,
                              alpha_x = 0,
-                             beta = 1, #treatment effect
-                             gamma = 0.3, #IV strength
-                             delta = 2 #OVB intensity
+                             treatment_effect = 1, #treatment effect
+                             iv_strength = 0.3, #IV strength
+                             ovb_intensity = 2 #OVB intensity
                              ) {
   
   data <- tibble(id = 1:N) %>% 
@@ -96,8 +96,8 @@ generate_data_IV <- function(N = 1000,
       u = rnorm(nrow(.), 0, sigma_u),
       e_x = rnorm(nrow(.), 0, sigma_ex),
       e_y = rnorm(nrow(.), 0, sigma_ey),
-      x = alpha_x + gamma*z + delta*u + e_x,
-      y = alpha_y + beta*x + delta*u + e_y
+      x = alpha_x + iv_strength*z + ovb_intensity*u + e_x,
+      y = alpha_y + treatment_effect*x + ovb_intensity*u + e_y
     )
   
   return(data)
@@ -123,23 +123,28 @@ estimate_IV <- function(data) {
     formula = y ~ x | z
     ) %>% 
     broom::tidy() %>%
-    filter(term == "x") %>%
-    rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se) %>% 
     mutate(model = "IV")
   
-  reg_OLS <- ivreg(
+  reg_OLS <- lm(
     data = data, 
     formula = y ~ x
     ) %>% 
     broom::tidy() %>%
-    filter(term == "x") %>%
-    rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se) %>% 
     mutate(model = "OLS")
   
+  reg_OLS_unbiassed <- lm(
+    data = data, 
+    formula = y ~ x + u
+    ) %>% 
+    broom::tidy() %>%
+    mutate(model = "OLS unbiassed")
+  
   reg <- reg_IV %>% 
-    rbind(reg_OLS)
+    rbind(reg_OLS) %>% 
+    rbind(reg_OLS_unbiassed) %>% 
+    filter(term == "x") %>%
+    rename(p_value = p.value, se = std.error) %>%
+    select(estimate, p_value, se, model) %>% 
   
   return(reg)
 }
@@ -147,7 +152,7 @@ estimate_IV <- function(data) {
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_simulation_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_simulation_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r}
 compute_simulation_IV <- function(N = 500, 
@@ -157,9 +162,9 @@ compute_simulation_IV <- function(N = 500,
                                   sigma_ey = 1,
                                   alpha_y = 0,
                                   alpha_x = 0,
-                                  beta = 1, 
-                                  gamma = 0.3, 
-                                  delta = 2) {
+                                  treatment_effect = 1, 
+                                  iv_strength = 0.3, 
+                                  ovb_intensity = 2) {
   generate_data_IV(
     N = N, 
     sigma_u = sigma_u,
@@ -168,14 +173,14 @@ compute_simulation_IV <- function(N = 500,
     sigma_ey = sigma_ey,
     alpha_y = alpha_y, 
     alpha_x = alpha_x,
-    beta = beta,
-    gamma = gamma,
-    delta = delta
+    treatment_effect = treatment_effect,
+    iv_strength = iv_strength,
+    ovb_intensity = ovb_intensity
   ) %>% 
   estimate_IV() %>% 
   mutate(
-    gamma = gamma,
-    delta = delta
+    iv_strength = iv_strength,
+    ovb_intensity = ovb_intensity
   )
 } 
 ```
@@ -191,12 +196,13 @@ compute_simulation_IV() %>% kable()
 We will run the simulations for different sets of parameters by mapping our `compute_simulation_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param}
-vect_gamma <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
-vect_delta <- c(0.4)
+# vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
+vect_iv_strength <- c(0.1)
+vect_ovb_intensity <- c(0.4)
 n_iter <- 1000
 
-param_IV <- crossing(vect_gamma, vect_delta) %>% 
-  rename(gamma = vect_gamma, delta = vect_delta) %>% 
+param_IV <- crossing(vect_iv_strength, vect_ovb_intensity) %>% 
+  rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
 ```
@@ -209,7 +215,7 @@ simulations_IV <- pmap_dfr(param_IV, compute_simulation_IV)
 beep()
 toc()
 
-# saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
+saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
 ```
 
 ## Analysis of the results
@@ -221,14 +227,35 @@ First, we quickly explore the results.
 ```{r exploration_results, echo=FALSE}
 simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
-simulations_IV %>%
-  mutate(iv_strength = str_c("IV strength: ", gamma))%>% 
-  ggplot(aes(x = estimate)) +
+simulations_IV %>% 
+  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
+  ggplot(aes(x = estimate, fill = model, color = model)) +
+  geom_vline(xintercept = 1) +
   geom_density() +
   facet_wrap(~ iv_strength) +
   labs(
     title = "Distribution of the estimates of the treatement effect",
-    subtitle = "For different IV strengths",
+    subtitle = "For different IV strengths and models",
+    color = "",
+    fill = "",
+    x = "Estimate of the treatement effect",
+    y = "Density",
+  )
+
+simulations_IV %>% 
+  filter(iv_strength == sample(vect_iv_strength, 1)) %>% 
+  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  mutate(significant = (p_value < 0.05)) %>% 
+  ggplot(aes(x = estimate, fill = significant)) +
+  geom_vline(xintercept = 1) +
+  geom_histogram() +
+  facet_wrap(~ model) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "For differentd models",
+    color = "",
+    fill = "",
     x = "Estimate of the treatement effect",
     y = "Density",
   )
@@ -236,13 +263,13 @@ simulations_IV %>%
 
 ### Computing bias and type M
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}[\treatment_effect_0 - \widehat{\treatment_effect_{RDD}}]$ and $\mathbb{E}[|\treatment_effect_0 - \widehat{\treatment_effect_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
 ```{r summarise}
 summarise_simulations <- function(data, true_effect = 1) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>% 
-    group_by(delta, gamma, model) %>%
+    group_by(ovb_intensity, iv_strength, model) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
       type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
@@ -264,12 +291,12 @@ To analyze our results, we build a unique and simple graph:
 ```{r graph_results, echo=FALSE}
 summary_simulations_IV %>% 
   mutate(
-    delta_name = paste("OVB intensity:", delta)
+    ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
-  ggplot(aes(x = gamma, y = bias_sign, color = model)) + 
+  ggplot(aes(x = iv_strength, y = bias_sign, color = model)) + 
   # geom_point() +
   geom_line(size = 0.8) +
-  facet_wrap(~ delta_name) +
+  facet_wrap(~ ovb_intensity_name) +
   labs(
     x = "IV strength", 
     y = "Bias",

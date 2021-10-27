@@ -4,7 +4,7 @@ theme: OVB_website.css
 description: |
   OVB-typeM
 output_dir: "docs"
-exclude: ["Documents", "R"]
+exclude: ["Script", "Misc", "Outputs"]
 navbar:
   right:
     - text: "Home"
