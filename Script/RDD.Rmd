@@ -39,7 +39,6 @@ opts_chunk$set(fig.path = "images/",
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
-library(fixest)
 library(tictoc)
 library(here)
 library(beepr)
@@ -98,27 +97,46 @@ We write a simple function that generates the data. It takes as input the values
 
 Once the fake data is generated, to make things more realistic we consider our data as if it was actual data. We do not take advantage of our knowledge of the data generating process in the estimation procedure. However, we observe both potential outcomes and the unobserved ability. Note that, in a real world setting, one would generally know the value of the threshold (and thus of $q_c$). Based on that and to simplify the computation of the bandwidth, we store $q_c$.
 
+```{r eval=FALSE, include=FALSE}
+#current realistic parameters
+# N = 1000, 
+#                               sigma_u = 0.5,
+#                               mu_h = 75, 
+#                               sigma_h = 7, 
+#                               sigma_e = 4, 
+#                               alpha = 20, 
+#                               beta = 1,
+#                               gamma = 0.7,
+#                               delta = 1,
+#                               q_c = 0.3
+```
+
+
 ```{r DGP}
 generate_data_rdd <- function(N = 1000, 
-                              sigma_u = 0.5,
-                              mu_h = 75, 
-                              sigma_h = 7, 
-                              sigma_e = 4, 
-                              alpha = 20, 
+                              sigma_u = 1,
+                              mu_h = 0, 
+                              sigma_h = 1, 
+                              sigma_e = 1, 
+                              alpha = 1, 
                               beta = 1,
-                              gamma = 0.7,
-                              delta = 1,
-                              q_c = 0.3
+                              gamma = 0.3,
+                              delta = 2,
+                              q_c = 0.5
                               ) {
   
   data <- tibble(id = 1:N) %>% 
     mutate(
+      # qual = rnorm(nrow(.), mu_h, sigma_h),
+      # u = rnorm(nrow(.), 0.5, sigma_u) + qual + 0.3*qual^3,
       u = rnorm(nrow(.), 0, sigma_u),
-      qual = rnorm(nrow(.), mu_h, sigma_h) + delta*u^3,
+      qual = rnorm(nrow(.), mu_h, sigma_h) + delta*u^2,
       e = rnorm(nrow(.), 0, sigma_e),
+      # qual_c = qual - quantile(qual, q_c),
+      # treated = qual_c < 0,
       # threshold = quantile(qual, q_c),
       treated = qual < quantile(qual, q_c),
-      final0 = alpha + gamma*qual + delta*u^3 + e,
+      final0 = alpha + gamma*qual + delta*u^2 + e,
       final1 = final0 + beta,
       final = final0 + beta*treated,
       q_c = q_c
@@ -128,7 +146,7 @@ generate_data_rdd <- function(N = 1000,
 }
 ```
 
-Here is an example of the data created through this process:
+Here is an example of data created through this process:
 
 ```{r example_data, echo=FALSE}
 generate_data_rdd(N = 10) %>% 
@@ -159,8 +177,8 @@ define_bw <- function (data, bw = 0.1) {
 The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
 
 ```{r graph_bandwidth, echo=FALSE}
-generate_data_rdd(N = 10000) %>% 
-  define_bw(0.2) %>% 
+generate_data_rdd(N = 1000, delta = 3) %>% 
+  define_bw(0.9) %>% 
   ggplot(aes(x = qual, y = final, color = treated_bw)) + 
   geom_point() +
   labs(
@@ -210,16 +228,16 @@ estimate_rdd <- function(data, bw) {
 We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_simulation_rdd`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r}
-compute_simulation_rdd <- function(N = 1000, 
-                              sigma_u = 0.5,
-                              mu_h = 75, 
-                              sigma_h = 7, 
-                              sigma_e = 4, 
-                              alpha = 20, 
+compute_simulation_rdd <- function(N = 500, 
+                              sigma_u = 1,
+                              mu_h = 0, 
+                              sigma_h = 1, 
+                              sigma_e = 0.5, 
+                              alpha = 1, 
                               beta = 1,
                               gamma = 0.7,
                               delta = 1,
-                              q_c = 0.3,
+                              q_c = 0.5,
                               bw = 0.1) {
   generate_data_rdd(
     N = N, 
@@ -253,9 +271,9 @@ We will run the simulations for different sets of parameters by mapping our `com
 
 ```{r set_param}
 # vect_bw <- seq(0.05, 0.4, 0.05)
-vect_bw <- seq(0.1, 1, 0.1)
-vect_delta <- c(1)
-n_iter <- 500
+vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
+vect_delta <- c(3)
+n_iter <- 1000
 
 param_rdd <- crossing(vect_bw, vect_delta) %>% 
   rename(bw = vect_bw, delta = vect_delta) %>% 
@@ -284,12 +302,12 @@ First, we quickly explore the results.
 simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS"))
 
 simulations_rdd %>%
-  # filter(bw == vect_bw[1]) %>%
+  # filter(bw == vect_bw[5]) %>%
   mutate(bw_name = str_c("Bandwidth: ", bw)) %>% 
   ggplot(aes(x = estimate)) +
   geom_density() +
   # geom_vline(aes(xintercept = mean(estimate))) +
-  # geom_vline(aes(xintercept = 1), linetype = "dashed") +
+  geom_vline(aes(xintercept = true_effect), linetype = "dashed") +
   facet_wrap(~ bw_name) +
   labs(
     title = "Distribution of the estimates of the treatement effect",
@@ -369,16 +387,16 @@ summary_simulations_rdd %>%
     delta_name = paste("OVB intensity:", delta)
   ) %>% 
   ggplot(aes(x = bw, y = value, color = measure)) + 
-  geom_point() +
-  geom_line(size = 0.8, linetype = "dashed") +
-  facet_wrap(~ delta_name) +
+  # geom_point() +
+  geom_line(size = 0.8) +
+  # facet_wrap(~ delta_name) +
   labs(
     x = "Bandwidth size", 
     y = "Bias",
     color = "Estimates",
     title = "Evolution of bias with bandwith size, conditional on significativity",
     # subtitle = "For several values of OVB intensity",
-    caption ="Bandwidth as a proportion of the standard deviation of the qualification score"
+    caption = "Bandwidth size as a proportion of the total number of observations"
   ) 
 ```
 

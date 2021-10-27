@@ -1,0 +1,282 @@
+---
+title: "Simulations OVB/type M trade-off: IV"
+author:
+  - name: Vincent Bagilet 
+    url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet
+    affiliation: Columbia University
+    affiliation_url: https://www.columbia.edu/
+  - name: Léo Zabrocki 
+    url: https://www.parisschoolofeconomics.eu/en/
+    affiliation: Paris School of Economics
+    affiliation_url: https://www.parisschoolofeconomics.eu/en/
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup, include=FALSE, results='hide', warning=FALSE}
+library(knitr)
+opts_chunk$set(fig.path = "images/",
+               cache.path = "cache/",
+               cache = FALSE,
+               echo = TRUE, #set to false to hide code
+               message = FALSE,
+               warning = FALSE,
+               out.width = "85%",
+               dpi = 200,
+               fig.align = "center")  
+```  
+
+```{r packages, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse) 
+library(knitr) 
+library(mediocrethemes)
+library(AER)
+library(tictoc)
+library(here)
+library(beepr)
+
+set_mediocre_all(pal = "coty")
+```
+
+## Purpose of the document
+
+In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy. This trade-off is mediated by 
+
+## An illustrative example
+
+To illustrate this trade-off between OVB and type M error, we consider a standard application of the IV design in environmental economics.
+
+### Modelisation choices
+
+In the present analysis, we build our simulations to replicate a similar type of quasi-experiment. 
+
+The DGP can be represented using the following Directed Acyclic Graph (DAG): 
+
+```{r echo=FALSE, out.width='40%'}
+include_graphics(here("Graphs/DAG_IV.png"))
+```
+
+
+To simplify, we consider the following assumptions:
+
+More precisely, we set: 
+
+- $N$ the number of observations
+- $U \sim \mathcal{N}(0, \sigma_u^{2})$ the unobserved
+
+### Data generation
+
+We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
+
+```{r DGP}
+generate_data_IV <- function(N = 1000,
+                             sigma_u = 1,
+                             sigma_z = 1,
+                             sigma_ex = 1,
+                             sigma_ey = 1,
+                             alpha_y = 0,
+                             alpha_z = 0,
+                             beta = 1, #treatment effect
+                             gamma = 0.3, #IV strength
+                             delta = 2 #OVB intensity
+                             ) {
+  
+  data <- tibble(id = 1:N) %>% 
+    mutate(
+      z = rnorm(nrow(.), 0, sigma_z),
+      u = rnorm(nrow(.), 0, sigma_u),
+      e_x = rnorm(nrow(.), 0, sigma_ex),
+      e_y = rnorm(nrow(.), 0, sigma_ey),
+      x = alpha_x + gamma*z + delta*u + e_x,
+      y = alpha_y + beta*x + delta*u + e_y
+    )
+  
+  return(data)
+}
+```
+
+The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
+
+```{r graph_bandwidth, echo=FALSE}
+generate_data_IV(N = 1000) %>% 
+  ggplot(aes(x = x, y = y)) + 
+  geom_point() 
+```
+
+### Estimation
+
+After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.
+
+```{r estimate}
+estimate_IV <- function(data) {
+  reg_IV <- ivreg(
+    data = data, 
+    formula = y ~ x | z
+    ) %>% 
+    broom::tidy() %>%
+    filter(term == "x") %>%
+    rename(p_value = p.value, se = std.error) %>%
+    select(estimate, p_value, se) %>% 
+    mutate(model = "IV")
+  
+  reg_OLS <- ivreg(
+    data = data, 
+    formula = y ~ x
+    ) %>% 
+    broom::tidy() %>%
+    filter(term == "x") %>%
+    rename(p_value = p.value, se = std.error) %>%
+    select(estimate, p_value, se) %>% 
+    mutate(model = "OLS")
+  
+  reg <- reg_IV %>% 
+    rbind(reg_OLS)
+  
+  return(reg)
+}
+```
+
+### One simulation
+
+We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_simulation_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+
+```{r}
+compute_simulation_IV <- function(N = 500, 
+                                  sigma_u = 1,
+                                  sigma_z = 1,
+                                  sigma_ex = 1,
+                                  sigma_ey = 1,
+                                  alpha_y = 0,
+                                  alpha_z = 0,
+                                  beta = 1, 
+                                  gamma = 0.3, 
+                                  delta = 2) {
+  generate_data_IV(
+    N = N, 
+    sigma_u = sigma_u,
+    sigma_z = sigma_z, 
+    sigma_ex = sigma_ex, 
+    sigma_ey = sigma_ey,
+    alpha_y = alpha_y, 
+    alpha_z = alpha_z,
+    beta = beta,
+    gamma = gamma,
+    delta = delta
+  ) %>% 
+  estimate_IV() %>% 
+  mutate(
+    gamma = gamma,
+    delta = delta
+  )
+} 
+```
+
+Here is an example of an output of this function.
+
+```{r example_output_simulation, echo=FALSE}
+compute_simulation_IV() %>% kable()
+```
+
+### All simulations
+
+We will run the simulations for different sets of parameters by mapping our `compute_simulation_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+
+```{r set_param}
+vect_gamma <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
+vect_delta <- c(0.4)
+n_iter <- 1000
+
+param_IV <- crossing(vect_gamma, vect_delta) %>% 
+  rename(gamma = vect_gamma, delta = vect_delta) %>% 
+  crossing(rep_id = 1:n_iter) %>% 
+  select(-rep_id)
+```
+
+We then run the simulations by mapping our `compute_simulation_IV` function on `param_IV`.
+
+```{r run_sim, eval=FALSE}
+tic()
+simulations_IV <- pmap_dfr(param_IV, compute_simulation_IV)
+beep()
+toc()
+
+# saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
+```
+
+## Analysis of the results
+
+### Quick exploration
+
+First, we quickly explore the results.
+
+```{r exploration_results, echo=FALSE}
+simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
+
+simulations_IV %>%
+  mutate(iv_strength = str_c("IV strength: ", gamma))%>% 
+  ggplot(aes(x = estimate)) +
+  geom_density() +
+  facet_wrap(~ iv_strength) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "For different IV strengths",
+    x = "Estimate of the treatement effect",
+    y = "Density",
+  )
+```
+
+### Computing bias and type M
+
+We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+
+```{r summarise}
+summarise_simulations <- function(data, true_effect = 1) {
+  data %>%
+    mutate(significant = (p_value <= 0.05)) %>% 
+    group_by(delta, gamma, model) %>%
+    summarise(
+      power = mean(significant, na.rm = TRUE)*100, 
+      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      .groups	= "drop"
+    ) %>% 
+    ungroup()
+} 
+
+summary_simulations_IV <- summarise_simulations(simulations_IV)
+# saveRDS(summary_simulations_IV, here("Outputs/summary_simulations_IV.RDS"))
+```
+
+### Graph
+
+To analyze our results, we build a unique and simple graph:
+
+```{r graph_results, echo=FALSE}
+summary_simulations_IV %>% 
+  mutate(
+    delta_name = paste("OVB intensity:", delta)
+  ) %>%
+  ggplot(aes(x = gamma, y = bias_sign, color = model)) + 
+  # geom_point() +
+  geom_line(size = 0.8) +
+  facet_wrap(~ delta_name) +
+  labs(
+    x = "IV strength", 
+    y = "Bias",
+    color = "Model",
+    title = "Evolution of bias with bandwith size, conditional on significativity",
+    # subtitle = "For several values of OVB intensity"
+  ) 
+```
+
+

@@ -1,31 +1,35 @@
 # library(tidyverse)
 # library(mediocrethemes)
+# library(AER)
 # 
 # set_mediocre_all()
 
 n <- 10000
 n_iter <- 200
 res <- rep(NA, n_iter)
-alpha <- 1
+alpha_y <- 1
+alpha_x <- 1
 delta <- 1
 beta <- 1
-gamma <- 1
-bw <- 0.5 #bw as the proportion of observations considered below or above the threshold
+gamma <- 0.1
 
 for (i in 1:n_iter) {
+  z <- rnorm(n, 0, 1)
   u <- rnorm(n, 0, 1)
-  x <- rnorm(n, 0, 1)  + delta*u^3
-  treated <-  ifelse(x < median(x), 1, 0)
-  in_bw <- dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw))
-  e <- rnorm(n, 0, 0.5)
-  # y <- alpha + rnorm(n, 1, 1)*treated + gamma*x + delta*u + e #non constant effect
-  y <- alpha + beta*treated + gamma*x + delta*u^2 + e
+  e_x <- rnorm(n, 0, 1)
+  e_y <- rnorm(n, 0, 1)
+  x <- alpha_x + gamma*z + delta*u + e_x
+  y <- alpha_y + beta*x + delta*u + e_y
 
-  data_sharp <- tibble(x, y, u, treated, in_bw, e)
-
-  res[i] <- lm(y ~ treated + x, data = filter(data_sharp, in_bw)) %>% 
-    coef() %>% 
-    .[["treated"]]/beta
+  data_iv_homo <- tibble(x, y, z, u, e_x, e_y)
+  
+  # res[i] <- lm(y ~ x) %>% 
+  #   coef() %>% 
+  #   .[["x"]]/beta
+  
+  res[i] <- ivreg(y ~ x | z) %>%
+    coef() %>%
+    .[["x"]]/beta
 }
 
 res %>%
