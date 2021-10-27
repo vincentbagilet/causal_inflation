@@ -78,21 +78,22 @@ More precisely, we set:
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
 ```{r DGP}
-generate_data_IV <- function(N = 1000,
-                             sigma_u = 1,
-                             sigma_z = 1,
-                             sigma_ex = 1,
-                             sigma_ey = 1,
-                             alpha_y = 0,
-                             alpha_x = 0,
-                             treatment_effect = 1, #treatment effect
-                             iv_strength = 0.3, #IV strength
-                             ovb_intensity = 2 #OVB intensity
+generate_data_IV <- function(N,
+                             sigma_u,
+                             sigma_z,
+                             sigma_ex,
+                             sigma_ey,
+                             alpha_y,
+                             alpha_x,
+                             treatment_effect,
+                             iv_strength,
+                             ovb_intensity
                              ) {
   
   data <- tibble(id = 1:N) %>% 
     mutate(
       z = rnorm(nrow(.), 0, sigma_z),
+      # z = rbernoulli(nrow(.)),
       u = rnorm(nrow(.), 0, sigma_u),
       e_x = rnorm(nrow(.), 0, sigma_ex),
       e_y = rnorm(nrow(.), 0, sigma_ey),
@@ -102,14 +103,6 @@ generate_data_IV <- function(N = 1000,
   
   return(data)
 }
-```
-
-The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
-
-```{r graph_data, echo=FALSE}
-generate_data_IV(N = 1000) %>% 
-  ggplot(aes(x = x, y = y)) + 
-  geom_point() 
 ```
 
 ### Estimation
@@ -155,40 +148,34 @@ estimate_IV <- function(data) {
 We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_simulation_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r}
-compute_simulation_IV <- function(N = 500, 
-                                  sigma_u = 1,
-                                  sigma_z = 1,
-                                  sigma_ex = 1,
-                                  sigma_ey = 1,
-                                  alpha_y = 0,
-                                  alpha_x = 0,
-                                  treatment_effect = 1, 
-                                  iv_strength = 0.3, 
-                                  ovb_intensity = 2) {
+compute_simulation_IV <- function(N,
+                                  sigma_u,
+                                  sigma_z,
+                                  sigma_ex,
+                                  sigma_ey,
+                                  alpha_y,
+                                  alpha_x,
+                                  treatment_effect,
+                                  iv_strength,
+                                  ovb_intensity) {
   generate_data_IV(
-    N = N, 
+    N = N,
     sigma_u = sigma_u,
-    sigma_z = sigma_z, 
-    sigma_ex = sigma_ex, 
+    sigma_z = sigma_z,
+    sigma_ex = sigma_ex,
     sigma_ey = sigma_ey,
-    alpha_y = alpha_y, 
+    alpha_y = alpha_y,
     alpha_x = alpha_x,
     treatment_effect = treatment_effect,
     iv_strength = iv_strength,
     ovb_intensity = ovb_intensity
-  ) %>% 
-  estimate_IV() %>% 
-  mutate(
-    iv_strength = iv_strength,
-    ovb_intensity = ovb_intensity
-  )
+  ) %>%
+    estimate_IV() %>%
+    mutate(
+      iv_strength = iv_strength,
+      ovb_intensity = ovb_intensity
+    )
 } 
-```
-
-Here is an example of an output of this function.
-
-```{r example_output_simulation, echo=FALSE}
-compute_simulation_IV() %>% kable()
 ```
 
 ### All simulations
@@ -196,12 +183,25 @@ compute_simulation_IV() %>% kable()
 We will run the simulations for different sets of parameters by mapping our `compute_simulation_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param}
-# vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
-vect_iv_strength <- c(0.1)
-vect_ovb_intensity <- c(0.4)
-n_iter <- 1000
+baseline_parameters <- tibble(
+  N = 500,
+  sigma_u = 1,
+  sigma_z = 1,
+  sigma_ex = 1,
+  sigma_ey = 1,
+  alpha_y = 0,
+  alpha_x = 0,
+  treatment_effect = 1
+)
 
-param_IV <- crossing(vect_iv_strength, vect_ovb_intensity) %>% 
+fixed_parameters <- baseline_parameters #%>% rbind(...)
+vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
+# vect_iv_strength <- c(0.1)
+vect_ovb_intensity <- c(0.4)
+n_iter <- 100
+
+param_IV <- fixed_parameters %>% 
+  crossing(vect_iv_strength, vect_ovb_intensity) %>% 
   rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
@@ -215,7 +215,7 @@ simulations_IV <- pmap_dfr(param_IV, compute_simulation_IV)
 beep()
 toc()
 
-saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
+# saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
 ```
 
 ## Analysis of the results
@@ -225,9 +225,10 @@ saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
 First, we quickly explore the results.
 
 ```{r exploration_results, echo=FALSE}
-simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
+# simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
 simulations_IV %>% 
+  filter(between(estimate, - 1, 4)) %>% 
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
@@ -244,6 +245,7 @@ simulations_IV %>%
   )
 
 simulations_IV %>% 
+  filter(between(estimate, - 1, 2)) %>% 
   filter(iv_strength == sample(vect_iv_strength, 1)) %>% 
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   mutate(significant = (p_value < 0.05)) %>% 
@@ -252,12 +254,11 @@ simulations_IV %>%
   geom_histogram() +
   facet_wrap(~ model) +
   labs(
-    title = "Distribution of the estimates of the treatement effect",
-    subtitle = "For differentd models",
-    color = "",
-    fill = "",
+    title = "Distribution of the estimates of the treatement effect conditional on significativity",
+    subtitle = paste("For different models (IV strength =", .data$iv_strength, "and OVB intensity = ", unique(.data$ovb_intensity), ")"),
     x = "Estimate of the treatement effect",
-    y = "Density",
+    y = "Count",
+    caption = "The sample is restricted to estimates relatively close to the true value"
   )
 ```
 
