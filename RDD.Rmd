@@ -93,37 +93,21 @@ More precisely, we set:
 
 ### Data generation
 
-We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis.
+We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
 Once the fake data is generated, to make things more realistic we consider our data as if it was actual data. We do not take advantage of our knowledge of the data generating process in the estimation procedure. However, we observe both potential outcomes and the unobserved ability. Note that, in a real world setting, one would generally know the value of the threshold (and thus of $q_c$). Based on that and to simplify the computation of the bandwidth, we store $q_c$.
 
-```{r eval=FALSE, include=FALSE}
-#current realistic parameters
-# N = 1000, 
-#                               sigma_u = 0.5,
-#                               mu_h = 75, 
-#                               sigma_h = 7, 
-#                               sigma_e = 4, 
-#                               alpha = 20, 
-#                               beta = 1,
-#                               gamma = 0.7,
-#                               delta = 1,
-#                               q_c = 0.3
-```
-
-
 ```{r DGP}
-generate_data_rdd <- function(N = 1000, 
-                              sigma_u = 1,
-                              mu_h = 0, 
-                              sigma_h = 1, 
-                              sigma_e = 1, 
-                              alpha = 1, 
-                              beta = 1,
-                              gamma = 0.3,
-                              delta = 2,
-                              q_c = 0.5
-                              ) {
+generate_data_rdd <- function(N, 
+                              sigma_u,
+                              mu_h, 
+                              sigma_h, 
+                              sigma_e, 
+                              alpha, 
+                              beta,
+                              gamma,
+                              delta,
+                              q_c) {
   
   data <- tibble(id = 1:N) %>% 
     mutate(
@@ -146,10 +130,28 @@ generate_data_rdd <- function(N = 1000,
 }
 ```
 
-Here is an example of data created through this process:
+We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_RDD`.
+
+```{r baseline_param}
+baseline_parameters_RDD <- tibble(
+  N = 1000,
+  sigma_u = 0.5,
+  mu_h = 75,
+  sigma_h = 7,
+  sigma_e = 4,
+  alpha = 20,
+  beta = 1,
+  gamma = 0.7,
+  q_c = 0.5
+)
+```
+
+Here is an example of data created with our data generating process:
 
 ```{r example_data, echo=FALSE}
-generate_data_rdd(N = 10) %>% 
+baseline_parameters_RDD %>% 
+  mutate(N = 10, delta = 1) %>% 
+  pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
   kable()
 ```
 
@@ -158,7 +160,7 @@ generate_data_rdd(N = 10) %>%
 In a RDD, the model is estimated only for observations close enough to the threshold, *ie* in a given bandwidth. We therefore create a function to define this bandwidth by adding a variable to the data set `treated_bw` that is equal to `NA` if the observations is outside of the bandwidth, `TRUE` if the observation falls in the bandwidth and the student is treated and `FALSE`  if the observation falls in the bandwidth and the student is not treated. The bandwidth parameter `bw` represents the proportion of units that are in the bandwidth. If `bw = 0.1`, 10% of the students are in the bandwidth for instance.
 
 ```{r define_bw}
-define_bw <- function (data, bw = 0.1) {
+define_bw <- function (data, bw) {
   data <- data %>% 
     mutate(
       treated_bw = ifelse(
@@ -177,9 +179,11 @@ define_bw <- function (data, bw = 0.1) {
 The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
 
 ```{r graph_bandwidth, echo=FALSE}
-generate_data_rdd(N = 1000, delta = 3) %>% 
-  define_bw(0.9) %>% 
-  ggplot(aes(x = qual, y = final, color = treated_bw)) + 
+baseline_parameters_RDD %>% 
+  mutate(delta = 1) %>% 
+  pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
+  define_bw(0.5) %>%
+  ggplot(aes(x = qual, y = final, color = treated_bw)) +
   geom_point() +
   labs(
     title = "Final scores against qualification scores",
@@ -228,41 +232,41 @@ estimate_rdd <- function(data, bw) {
 We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_simulation_rdd`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r}
-compute_simulation_rdd <- function(N = 500, 
-                              sigma_u = 1,
-                              mu_h = 0, 
-                              sigma_h = 1, 
-                              sigma_e = 0.5, 
-                              alpha = 1, 
-                              beta = 1,
-                              gamma = 0.7,
-                              delta = 1,
-                              q_c = 0.5,
-                              bw = 0.1) {
+compute_simulation_rdd <- function(N,
+                                   sigma_u,
+                                   mu_h,
+                                   sigma_h,
+                                   sigma_e,
+                                   alpha,
+                                   beta,
+                                   gamma,
+                                   delta,
+                                   q_c,
+                                   bw) {
   generate_data_rdd(
-    N = N, 
+    N = N,
     sigma_u = sigma_u,
-    mu_h = mu_h, 
-    sigma_h = sigma_h, 
+    mu_h = mu_h,
+    sigma_h = sigma_h,
     sigma_e = sigma_e,
-    alpha = alpha, 
+    alpha = alpha,
     beta = beta,
     gamma = gamma,
     delta = delta,
     q_c = q_c
-  ) %>% 
-  estimate_rdd(bw = bw) %>% 
-  mutate(
-    bw = bw,
-    delta = delta
-  )
+  ) %>%
+    estimate_rdd(bw = bw) %>%
+    mutate(bw = bw,
+           delta = delta)
 } 
 ```
 
 Here is an example of an output of this function.
 
 ```{r example_output_simulation, echo=FALSE}
-compute_simulation_rdd() %>% kable()
+baseline_parameters_RDD %>% 
+  mutate(delta = 1, bw = 0.1) %>% 
+  pmap_dfr(compute_simulation_rdd)
 ```
 
 ### All simulations
@@ -270,12 +274,26 @@ compute_simulation_rdd() %>% kable()
 We will run the simulations for different sets of parameters by mapping our `compute_simulation_rdd` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param}
+simple_parameters_RDD <- tibble(
+  N = 500,
+  sigma_u = 1,
+  mu_h = 0,
+  sigma_h = 1,
+  sigma_e = 0.5,
+  alpha = 1,
+  beta = 1,
+  gamma = 0.7,
+  q_c = 0.5
+)
+
+fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...)
 # vect_bw <- seq(0.05, 0.4, 0.05)
 vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
 vect_delta <- c(3)
 n_iter <- 1000
 
-param_rdd <- crossing(vect_bw, vect_delta) %>% 
+param_rdd <- fixed_parameters_RDD %>% 
+  crossing(vect_bw, vect_delta) %>% 
   rename(bw = vect_bw, delta = vect_delta) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
@@ -289,7 +307,7 @@ simulations_rdd <- pmap_dfr(param_rdd, compute_simulation_rdd)
 beep()
 toc()
 
-# saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
+saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
 ```
 
 ## Analysis of the results
