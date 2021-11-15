@@ -22,7 +22,7 @@ body {
 text-align: justify}
 </style>
 
-```{r setup, include=FALSE, results='hide', warning=FALSE}
+```{r setup_RDD, include=FALSE, results='hide', warning=FALSE}
 library(knitr)
 opts_chunk$set(fig.path = "images/",
                cache.path = "cache/",
@@ -35,7 +35,7 @@ opts_chunk$set(fig.path = "images/",
                fig.align = "center")  
 ```  
 
-```{r packages, message=FALSE, warning=FALSE, include=FALSE}
+```{r packages_RDD, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
@@ -64,7 +64,7 @@ We assume that the final score of student $i$, $Final_i$, is correlated with the
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
-```{r echo=FALSE, out.width='40%'}
+```{r DAG_RDD, echo=FALSE, out.width='40%'}
 include_graphics(here("images/DAG_RDD.png"))
 ```
 
@@ -97,7 +97,7 @@ We write a simple function that generates the data. It takes as input the values
 
 Once the fake data is generated, to make things more realistic we consider our data as if it was actual data. We do not take advantage of our knowledge of the data generating process in the estimation procedure. However, we observe both potential outcomes and the unobserved ability. Note that, in a real world setting, one would generally know the value of the threshold (and thus of $q_c$). Based on that and to simplify the computation of the bandwidth, we store $q_c$.
 
-```{r DGP}
+```{r DGP_RDD}
 generate_data_rdd <- function(N, 
                               sigma_u,
                               mu_h, 
@@ -132,7 +132,7 @@ generate_data_rdd <- function(N,
 
 We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_RDD`.
 
-```{r baseline_param}
+```{r baseline_param_RDD}
 baseline_parameters_RDD <- tibble(
   N = 1000,
   sigma_u = 0.5,
@@ -148,7 +148,7 @@ baseline_parameters_RDD <- tibble(
 
 Here is an example of data created with our data generating process:
 
-```{r example_data, echo=FALSE}
+```{r example_data_RDD, echo=FALSE}
 baseline_parameters_RDD %>% 
   mutate(N = 10, delta = 1) %>% 
   pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
@@ -159,7 +159,7 @@ baseline_parameters_RDD %>%
 
 In a RDD, the model is estimated only for observations close enough to the threshold, *ie* in a given bandwidth. We therefore create a function to define this bandwidth by adding a variable to the data set `treated_bw` that is equal to `NA` if the observations is outside of the bandwidth, `TRUE` if the observation falls in the bandwidth and the student is treated and `FALSE`  if the observation falls in the bandwidth and the student is not treated. The bandwidth parameter `bw` represents the proportion of units that are in the bandwidth. If `bw = 0.1`, 10% of the students are in the bandwidth for instance.
 
-```{r define_bw}
+```{r define_bw_RDD}
 define_bw <- function (data, bw) {
   data <- data %>% 
     mutate(
@@ -178,7 +178,7 @@ define_bw <- function (data, bw) {
 
 The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
 
-```{r graph_bandwidth, echo=FALSE}
+```{r graph_bandwidth_RDD, echo=FALSE}
 baseline_parameters_RDD %>% 
   mutate(delta = 1) %>% 
   pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
@@ -197,7 +197,7 @@ After generating the data, we can run an estimation.
 
 Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results. 
 
-```{r compute_true_effect}
+```{r compute_true_effect_RDD}
 compute_true_effect_rdd <- function(data) {
   treated_data <- data %>% 
     filter(treated) 
@@ -207,7 +207,7 @@ compute_true_effect_rdd <- function(data) {
 
 We then run the estimation. To do so, we only consider observations within the bandwidth and regress the final test scores on the treatment, the qualification score and their interaction. Note that we include this interaction term to allow more flexibility and to mimic an realistic estimation. Yet, we know that this interaction term does not appear in the DGP. Including it or not do not change the results. Also note that, of course, we do not include the unobserved ability in this model to create an OVB. 
 
-```{r estimate}
+```{r estimate_RDD}
 estimate_rdd <- function(data, bw) {
   data_in_bw <- data %>% 
     define_bw(bw = bw) %>% 
@@ -231,7 +231,7 @@ estimate_rdd <- function(data, bw) {
 
 We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_simulation_rdd`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
-```{r}
+```{r compute_simulation_RDD}
 compute_simulation_rdd <- function(N,
                                    sigma_u,
                                    mu_h,
@@ -263,7 +263,7 @@ compute_simulation_rdd <- function(N,
 
 Here is an example of an output of this function.
 
-```{r example_output_simulation, echo=FALSE}
+```{r example_output_simulation_RDD, echo=FALSE}
 baseline_parameters_RDD %>% 
   mutate(delta = 1, bw = 0.1) %>% 
   pmap_dfr(compute_simulation_rdd)
@@ -273,7 +273,7 @@ baseline_parameters_RDD %>%
 
 We will run the simulations for different sets of parameters by mapping our `compute_simulation_rdd` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
-```{r set_param}
+```{r set_param_RDD}
 simple_parameters_RDD <- tibble(
   N = 500,
   sigma_u = 1,
@@ -301,13 +301,13 @@ param_rdd <- fixed_parameters_RDD %>%
 
 We then run the simulations by mapping our `compute_simulation_rdd` function on `param_rdd`.
 
-```{r run_sim, eval=FALSE}
+```{r run_sim_RDD, eval=FALSE}
 tic()
 simulations_rdd <- pmap_dfr(param_rdd, compute_simulation_rdd)
 beep()
 toc()
 
-saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
+# saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
 ```
 
 ## Analysis of the results
@@ -316,7 +316,7 @@ saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
 
 First, we quickly explore the results.
 
-```{r exploration_results, echo=FALSE}
+```{r exploration_results_RDD, echo=FALSE}
 simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS"))
 
 simulations_rdd %>%
@@ -374,7 +374,7 @@ simulations_rdd %>%
 
 We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
-```{r summarise}
+```{r summarise_RDD}
 summarise_simulations <- function(data) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>% 
@@ -397,7 +397,7 @@ summary_simulations_rdd <- summarise_simulations(simulations_rdd)
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results, echo=FALSE}
+```{r graph_results_RDD, echo=FALSE}
 summary_simulations_rdd %>% 
   pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure")%>% 
   mutate(

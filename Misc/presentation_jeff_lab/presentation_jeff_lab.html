@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Statistical power outages in observational studies</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Vincent Bagilet, with Leo Zabrocki" />
+    <meta name="date" content="2021-11-15" />
+    <link rel="stylesheet" href="mediocre-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Statistical power outages in observational studies
+## SLab
+### Vincent Bagilet, with Leo Zabrocki
+### November 15, 2021
+
+---
+
+
+
+
+# Objectives of this presentation
+
+--
+
+- Is the pitch convincing? How to improve it?
+
+--
+
+- Is the analysis good? How to improve it?
+
+--
+
+- What to develop/simplify?
+
+--
+
+- Structure of the presentation similar to the (forthcoming) paper
+
+???
+
+- The main objective of the paper is to highlight the existence of this trade off between omitted variable bias and type M error
+- Very illustrative hence, pitch central
+- You know the paper but I will a bit pretend that you don't
+
+- Background: 
+
+  - Submit to a journal like AER: Insights (short format) or to something like Journal of Econometrics
+  - 
+
+---
+class: inverse, middle, center
+
+# Introduction
+
+---
+
+# Motivation
+
+- Causal identification methods to avoid Omitted Variable Bias (OVB)
+
+--
+
+- Throw away variation `\(\Rightarrow\)` `\(\searrow\)` statistical power
+
+--
+
+- Power **considered** crucial when building RCTs but not in observational studies
+
+--
+
+- With low statistical power, statistically significant estimates overestimate the true effect
+
+--
+
+- Linked to publication bias
+
+--
+
+- Replications of papers produce smaller effects
+
+???
+
+- As economists, obsessed with OVB
+- Use neat causal id methods to avoid it
+- Successful in getting rid of OVB
+- But we know that of ten id strat are associated with decreased statistical power because they throw variation away
+- We often do not pay much attention to statistical power
+- Statistical power is **basically** the probability of detecting an effect when there is actually one 
+- Power **considered** as crucial when building RCTs but much less in later stages and observational studies
+- With low statistical power, statistically significant estimates overestimate the true effect
+- Linked to publication bias, file drawer problem and statistical significance filter
+- This may explain why some replications yield smaller effects (Carmerer et al)
+
+---
+
+# Illustration of the issue
+
+&lt;img src="presentation_jeff_lab_files/figure-html/illustration-1.png" width="1200" /&gt;
+
+???
+
+- Consider the original study (in red): statistically significant, great!
+- Now, let's imagine that the replication found the actual true effect of the treatment (dotted line)
+- This effect is consistent with what we observed in the initial study (falls within the confidence interval)
+- Now, let's assume that we can replicate the initial study 5000 times (knowing that the true effect is equal to the one found in the second study)
+- First, we notice that the power is about 35% (the proportion of green points, there is an effect so power is just the proportion of statistically significant points). It is very low
+- We see that the the average of all the estimates is equal to the true effect (dotted line) BUT statistically significant estimates are on average larger than the true effect 
+- That could not be such a problem but due to publication bias/file drawer problem, studies yielding statistically significant estimates are more likely to be published than those yielding non statistically significant ones, either due to selection/screening by the editor or the authors.
+- We can thus consider that, for a given design (question, method, sample size, etc) a study as more chances to be published if the effect found is statistically significant.
+- Now if this design has low statistical power, on average a published estimate will overestimate the true effect
+- That might be what happened in the case of our replications of RCT: the authors had an imprecise study, they got lucky, they found a significant (and large) effect, they published it in a great journal. 
+- Yet, if they would have replicated the study with the same design, they may not have found such a large effect (nor a statistically significant one)
+
+---
+
+# Lessons
+
+- Even RCTs can be wide of the mark of the true effect
+
+- Be mindful of power, in every step of the analysis
+
+- Concerns might be even more prevalent in other identification strategies
+
+# Objective
+
+- Highlight the existence of this trade off between omitted variable bias and type M error
+
+
+???
+
+- How did we get there? We had an RCT but we fell of the mark of the true effect
+- The issue of inflated effect sizes due to low power is not new: several studies underlined this issue in psychology (citation), econ (ioannidis), epidemiology and medecine (citations).
+- Power was definitely too small. How can this be? 
+- When designing a RCT, we define the sample size to have enough power. But this relies on an hypothesized true effect size. If this hypothetical true effect size is too large, for a given design, we will overestimate the power and can then fall into type M error problems.
+- We should therefore also  check the power at the end of the analysis (running robustness tests with true effects as fraction of the estimated effect. But we will develop this later)
+- If find that risk of low power, increase the sample size to increase power (but of course it costs money so there is a trade off here)
+- That illustrates that even RCTs can yield published estimates that are wide of the mark of the true effect
+- 
+
+
+---
+class: inverse, middle, center
+
+# Why could some identification strategies lead to low power?
+
+---
+
+- **RDD**: 
+
+--
+  
+  - When `\(\searrow\)` bandwidth,
+--
+
+  - omitted variable bias `\(\searrow\)`
+--
+
+  - **BUT** number of observations also `\(\searrow\)` 
+--
+
+  - so power `\(\searrow\)` 
+--
+
+  - type M error `\(\nearrow\)`
+  
+--
+
+- **RCT**:
+
+--
+
+  - No omitted variable bias
+--
+
+  - if sample size or effect too small, may still get a statistically significant estimate 
+--
+  
+  - **BUT** it would overestimate the "true" effect
+--
+
+  - (Not the most interesting case for our issue)
+
+---
+
+- **IV**:
+
+--
+
+  - Imprecise
+
+&lt;img src="presentation_jeff_lab_files/figure-html/unnamed-chunk-2-1.png" width="750" style="display: block; margin: auto;" /&gt;
+
+--
+
+  - Lower power, higher type M error
+  
+&lt;!-- --- --&gt;
+
+&lt;!-- - **DID**:  --&gt;
+
+---
+class: inverse, middle, center
+
+# How to illustrate this trade off?
+
+---
+
+# Fake data simulations
+
+--
+
+- Very simple: y, x, binary treatment, omitted variable bias
+
+--
+
+- Different simulations for each identification strategy
+
+--
+
+- **RDD**: variation of omitted variable bias and type M with bandwidth
+
+--
+
+- **RCT**:
+  - Kills omitted variable bias
+  - Evolution of type M with number of observations and effect size
+  
+--
+
+- **IV**:
+  - Compare omitted variable bias in OLS and type M in IV
+  - Vary strength of the instrument
+
+---
+
+# Your opinion
+
+.pull-left[
+
+- **Objective**: highlight the existence of this trade off between omitted variable bias and type M error
+
+- Is this objective a decent one? 
+
+- Should we add other objectives?
+
+- What could/should we do to reach it?
+
+]
+
+.pull-right[
+.center[ &lt;img src="images/jason_momoa.jpg" alt="drawing" width="280"/&gt; ]
+]
+
+---
+
+# Summary of the central issue in this project
+
+.pull-left[
+
+1. We fear omitted variable biases
+
+1. We develop neat identification strategies
+
+1. It sometimes lead to low power
+
+1. It creates type M error
+
+1. The published effect is wide of the mark of the true effect
+
+]
+
+--
+
+.pull-right[
+.center[ &lt;img src="images/hurdles.gif" alt="drawing" width="450"/&gt; ]
+]
+
+
+---
+class: inverse, middle, center
+
+# Thank you
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"countIncrementalSlides": false,
+"highlightLines": true,
+"highlightStyle": "github",
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

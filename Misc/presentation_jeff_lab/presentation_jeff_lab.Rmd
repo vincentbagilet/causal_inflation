@@ -1,0 +1,368 @@
+---
+title: "Statistical power outages in observational studies"
+author: "Vincent Bagilet, with Leo Zabrocki"
+date: "November 15, 2021"
+output:
+  xaringan::moon_reader:
+    css: mediocre-themer.css
+    nature:
+      countIncrementalSlides: no
+      highlightLines: yes
+      highlightStyle: github
+      ratio: '16:9'
+subtitle: "SLab"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r include=FALSE}
+library(tidyverse)
+library(here)
+library(retrodesign)
+library(mediocrethemes)
+library(AER)
+library(ggridges)
+library(readxl)
+library(gganimate)
+
+setwd(here("Misc/presentation_jeff_lab"))
+xaringan_mediocre(pal = "coty")
+
+set.seed(1)
+```
+
+# Objectives of this presentation
+
+--
+
+- Is the pitch convincing? How to improve it?
+
+--
+
+- Is the analysis good? How to improve it?
+
+--
+
+- What to develop/simplify?
+
+--
+
+- Structure of the presentation similar to the (forthcoming) paper
+
+???
+
+- The main objective of the paper is to highlight the existence of this trade off between omitted variable bias and type M error
+- Very illustrative hence, pitch central
+- You know the paper but I will a bit pretend that you don't
+
+- Background: 
+
+  - Submit to a journal like AER: Insights (short format) or to something like Journal of Econometrics
+  - 
+
+---
+class: inverse, middle, center
+
+# Introduction
+
+---
+
+# Motivation
+
+- Causal identification methods to avoid Omitted Variable Bias (OVB)
+
+--
+
+- Throw away variation $\Rightarrow$ $\searrow$ statistical power
+
+--
+
+- Power **considered** crucial when building RCTs but not in observational studies
+
+--
+
+- With low statistical power, statistically significant estimates overestimate the true effect
+
+--
+
+- Linked to publication bias
+
+--
+
+- Replications of papers produce smaller effects
+
+???
+
+- As economists, obsessed with OVB
+- Use neat causal id methods to avoid it
+- Successful in getting rid of OVB
+- But we know that of ten id strat are associated with decreased statistical power because they throw variation away
+- We often do not pay much attention to statistical power
+- Statistical power is **basically** the probability of detecting an effect when there is actually one 
+- Power **considered** as crucial when building RCTs but much less in later stages and observational studies
+- With low statistical power, statistically significant estimates overestimate the true effect
+- Linked to publication bias, file drawer problem and statistical significance filter
+- This may explain why some replications yield smaller effects (Carmerer et al)
+
+---
+
+# Illustration of the issue
+
+```{r illustration, echo=FALSE, fig.height=4.3, fig.width=9, out.width=1200, dpi = 700}
+rep_camerer <- read_excel(here("Misc", "rep_camerer.xlsx"))
+
+random_study <- rep_camerer %>% 
+  # slice_sample(n = 1) %>%
+  slice(10) %>% 
+  mutate(
+    se_original = effect_original/qnorm(1 - pvalue_original), #incorrect
+    se_rep = effect_rep/qnorm(1 - pvalue_rep) #incorrect
+  ) 
+
+data_graph_distrib <- rnorm(random_study$effect_rep, random_study$se_original, n = 5000) %>% 
+  as_tibble() %>% 
+  mutate(
+    n = row_number(),
+    non_significant = dplyr::between(
+      value, 
+      - 1.96*sd(value), 
+      1.96*sd(value)
+    ),
+    significant = ifelse(non_significant, "Non significant", "Significant") 
+  ) %>% 
+  select(-non_significant)
+
+data_graph_distrib %>% 
+  ggplot(aes(x = n, y = value, color = fct_rev(as.factor(significant)))) + 
+  geom_point(alpha = 0.8) +
+  geom_linerange(aes(
+    x = 0,
+    ymin = random_study$effect_original - 1.96*random_study$se_original,
+    ymax = random_study$effect_original + 1.96*random_study$se_original), color = "darkred") +
+  # geom_hline(aes(yintercept = 1.96*sd(value)), color = "#FB9637") +
+  # geom_hline(aes(yintercept = - 1.96*sd(value)), color = "#FB9637") +
+  geom_point(aes(x = 0, y = random_study$effect_original), color = "darkred", size = 2) +
+  geom_hline(aes(yintercept = random_study$effect_rep), size = 0.8) +
+  geom_hline(aes(yintercept = 0), size = 0.3, linetype = "solid") +
+  labs(
+    title = "Illustration of type M errors",
+    subtitle = "5000 draws of an estimate ~ N(Effect size in replication, std err in original study)",
+    x = "Draw",
+    y = "Point estimate",
+    caption = "The red dot represents the estimate found in the original study"
+  ) +
+  scale_color_discrete(name = "") 
+
+summary_stat_distrib <- data_graph_distrib %>% 
+  group_by(significant) %>% 
+  summarise(
+    prop = n()/nrow(.),
+    mean = mean(value)
+  )
+```
+
+???
+
+- Consider the original study (in red): statistically significant, great!
+- Now, let's imagine that the replication found the actual true effect of the treatment (dotted line)
+- This effect is consistent with what we observed in the initial study (falls within the confidence interval)
+- Now, let's assume that we can replicate the initial study 5000 times (knowing that the true effect is equal to the one found in the second study)
+- First, we notice that the power is about 35% (the proportion of green points, there is an effect so power is just the proportion of statistically significant points). It is very low
+- We see that the the average of all the estimates is equal to the true effect (dotted line) BUT statistically significant estimates are on average larger than the true effect 
+- That could not be such a problem but due to publication bias/file drawer problem, studies yielding statistically significant estimates are more likely to be published than those yielding non statistically significant ones, either due to selection/screening by the editor or the authors.
+- We can thus consider that, for a given design (question, method, sample size, etc) a study as more chances to be published if the effect found is statistically significant.
+- Now if this design has low statistical power, on average a published estimate will overestimate the true effect
+- That might be what happened in the case of our replications of RCT: the authors had an imprecise study, they got lucky, they found a significant (and large) effect, they published it in a great journal. 
+- Yet, if they would have replicated the study with the same design, they may not have found such a large effect (nor a statistically significant one)
+
+---
+
+# Lessons
+
+- Even RCTs can be wide of the mark of the true effect
+
+- Be mindful of power, in every step of the analysis
+
+- Concerns might be even more prevalent in other identification strategies
+
+# Objective
+
+- Highlight the existence of this trade off between omitted variable bias and type M error
+
+
+???
+
+- How did we get there? We had an RCT but we fell of the mark of the true effect
+- The issue of inflated effect sizes due to low power is not new: several studies underlined this issue in psychology (citation), econ (ioannidis), epidemiology and medecine (citations).
+- Power was definitely too small. How can this be? 
+- When designing a RCT, we define the sample size to have enough power. But this relies on an hypothesized true effect size. If this hypothetical true effect size is too large, for a given design, we will overestimate the power and can then fall into type M error problems.
+- We should therefore also  check the power at the end of the analysis (running robustness tests with true effects as fraction of the estimated effect. But we will develop this later)
+- If find that risk of low power, increase the sample size to increase power (but of course it costs money so there is a trade off here)
+- That illustrates that even RCTs can yield published estimates that are wide of the mark of the true effect
+- 
+
+
+---
+class: inverse, middle, center
+
+# Why could some identification strategies lead to low power?
+
+---
+
+- **RDD**: 
+
+--
+  
+  - When $\searrow$ bandwidth,
+--
+
+  - omitted variable bias $\searrow$
+--
+
+  - **BUT** number of observations also $\searrow$ 
+--
+
+  - so power $\searrow$ 
+--
+
+  - type M error $\nearrow$
+  
+--
+
+- **RCT**:
+
+--
+
+  - No omitted variable bias
+--
+
+  - if sample size or effect too small, may still get a statistically significant estimate 
+--
+  
+  - **BUT** it would overestimate the "true" effect
+--
+
+  - (Not the most interesting case for our issue)
+
+---
+
+- **IV**:
+
+--
+
+  - Imprecise
+
+```{r echo=FALSE, fig.height=4.3, fig.width=9, message=FALSE, warning=FALSE, fig.align='center', dpi=700, out.width=750}
+IVsamD <- function(sample_size, coef_Z, viol = 0) {
+  num_loops = 500
+  #sample_size = 30
+  #coef_Z = 0.5
+  OLS_biased <- numeric(num_loops)
+  OLS_unbiased <- numeric(num_loops)
+  IV <- numeric(num_loops)
+  for (i in 1: num_loops) {
+    U <- runif(sample_size,
+               min = 1, max = 5)
+    Uy <- rnorm(sample_size)
+    Z <- runif(sample_size,
+               min = 1, max = 5) + viol*Uy
+    X <- U + rnorm(sample_size) + coef_Z *Z
+    Y <- U + X + Uy
+    OLS_biased[i] <- summary(lm(Y ~ X))$coef[2]
+    OLS_unbiased[i] <- summary(lm(Y ~ X + U))$coef[2]
+    IV[i] <- summary(ivreg(Y ~ X | Z))$coef[2]
+  }
+
+  reg_IV <- tibble(OLS_biased, OLS_unbiased, IV)
+  reg_IV
+  
+  reg_IV_s <- reg_IV %>%
+    gather(Estimator,value,OLS_biased:IV)
+  reg_IV_s
+  
+  ggplot(reg_IV_s, aes(value, colour = Estimator, fill = Estimator)) +
+    geom_density(alpha = 0.05) +
+    xlim(c(-1,2)) +
+    geom_vline(xintercept = 1, lty = 2) +
+    labs(
+      title = "Sampling distributions of different estimators",
+      subtitle = "Fake data simulations",
+      x = "Point estimate", 
+      y = "Density"
+    ) +
+  theme_mediocre(background = TRUE)
+}
+
+IVsamD(sample_size = 30, coef_Z = 1, viol = 0)
+```
+
+--
+
+  - Lower power, higher type M error
+  
+<!-- --- -->
+
+<!-- - **DID**:  -->
+
+---
+class: inverse, middle, center
+
+# How to illustrate this trade off?
+
+---
+
+# Fake data simulations
+
+--
+
+- Very simple: y, x, binary treatment, omitted variable bias
+
+--
+
+- Different simulations for each identification strategy
+
+--
+
+- **RDD**: variation of omitted variable bias and type M with bandwidth
+
+--
+
+- **RCT**:
+  - Kills omitted variable bias
+  - Evolution of type M with number of observations and effect size
+  
+--
+
+- **IV**:
+  - Compare omitted variable bias in OLS and type M in IV
+  - Vary strength of the instrument
+
+---
+
+# Your opinion
+
+.pull-left[
+
+- **Objective**: highlight the existence of this trade off between omitted variable bias and type M error
+
+- Is this objective a decent one? 
+
+- Should we add other objectives?
+
+- What could/should we do to reach it?
+
+]
+
+.pull-right[
+.center[ <img src="images/jason_momoa.jpg" alt="drawing" width="280"/> ]
+]
+
+---
+class: inverse, middle, center
+
+# Thank you
+
+
+
+
+
