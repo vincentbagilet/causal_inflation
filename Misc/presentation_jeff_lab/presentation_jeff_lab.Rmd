@@ -63,7 +63,7 @@ set.seed(1)
 ---
 class: inverse, middle, center
 
-# Introduction
+# Motivation
 
 ---
 
@@ -187,7 +187,7 @@ summary_stat_distrib <- data_graph_distrib %>%
 
 # Objective
 
-- Highlight the existence of this trade off between omitted variable bias and type M error
+- Highlight the existence of a trade off between omitted variable bias and type M error
 
 
 ???
@@ -205,7 +205,7 @@ summary_stat_distrib <- data_graph_distrib %>%
 ---
 class: inverse, middle, center
 
-# Why could some identification strategies lead to low power?
+# Why could some identification strategies have low power?
 
 ---
 
@@ -229,7 +229,7 @@ class: inverse, middle, center
   
 --
 
-- **RCT**:
+- **Matching**:
 
 --
 
@@ -307,7 +307,7 @@ IVsamD(sample_size = 30, coef_Z = 1, viol = 0)
 ---
 class: inverse, middle, center
 
-# How to illustrate this trade off?
+# How do we illustrate this trade off?
 
 ---
 

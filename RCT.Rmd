@@ -1,5 +1,5 @@
 ---
-title: "OVB/type M trade-off: RCT"
+title: '"Simulations" RCT'
 author:
   - name: Vincent Bagilet 
     url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet

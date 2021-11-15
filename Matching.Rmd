@@ -1,0 +1,476 @@
+---
+title: "Matching Simulations"
+author:
+  - name: Vincent Bagilet 
+    url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet
+    affiliation: Columbia University
+    affiliation_url: https://www.columbia.edu/
+  - name: Léo Zabrocki 
+    url: https://www.parisschoolofeconomics.eu/en/
+    affiliation: Paris School of Economics
+    affiliation_url: https://www.parisschoolofeconomics.eu/en/
+date: "`r Sys.Date()`"
+output: 
+    distill::distill_article:
+      toc: true
+      toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+opts_chunk$set(fig.path = "images/",
+               cache.path = "cache/",
+               cache = FALSE,
+               echo = TRUE, #set to false to hide code
+               message = FALSE,
+               warning = FALSE,
+               out.width = "85%",
+               dpi = 200,
+               fig.align = "center") 
+```
+
+<style>
+body {
+text-align: justify}
+</style>
+
+In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. To make our simulations more concrete and realistic, we create fake-data similar to those used for analyzing labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at vincent.bagilet@columbia.edu and leo.zabrocki@psemail.eu.
+
+# Packages Loading
+
+We first load the required packages to set-up the simulations:
+
+```{r, echo = TRUE}
+# load required packages
+library(knitr) # for creating the R Markdown document
+library(tidyverse) # for data manipulation and visualization
+library(MatchIt) # for matching analysis
+library(lmtest) # for modifying regression standard errors
+library(sandwich) # for robust and cluster robust standard errors
+library(DT) # for displaying the data as tables
+library(mediocrethemes) # vincent's custom ggplot2 theme
+
+# set ggplot theme
+set_mediocre_all(pal = "coty")
+```
+
+# Data Generating Procedure
+
+### General Approach
+
+To illustrate the the Type M error - OVB trade-off, we simulate fake-data from a labor training program targeting young individuals:
+
+* We first create 1,000 unit identifiers (`id`) and assign 10% of these individuals to the treatment (`treatment`).
+* We then simulate five covariates: 
+  1. `age`: the age of the individual.
+  2. `education`: a dummy equal to one if 1 if the individual obtained post-high education and to 0 otherwise.
+  3. `previous_employment`: a dummy equal to 1 if the the individual was employed in the previous year and to 0 otherwise.
+  4. `minority`:  a dummy equal to 1 if the individual belongs to a minority group and to 0 otherwise.
+  5. `unobserved_motivation`: an unobserved variable measuring the motivation of the individuals to succeed in the job market. It takes discrete values from 0 to 10, where 0 is not motivated and 10 highly motivated.
+  
+* The distribution of these covariates is specific each group in order to create some imbalance.
+* Once the covariates are created, we define the potential outcomes of each individual. Here, potential outcomes represent the income (in euros) of the individuals if they undertake the training program or not. The potential outcome without treatment adoption is simulated using the following equation:
+
+Y(0) = 400 + 50 $\times$ `previous_employment` + 50 $\times$ `unobserved_motivation` + 10 $\times$ `age` + 50 $\times$ `education` - 25 $\times$ `minority`
+
+* We finally simulate the potential outcomes for the treatment adoption. The average treatment effect on the treated was set to 80. The average treatment effect on the control was set to 50.. 
+
+### Function to Generate the Data
+
+We display below the code for the function `generate_data()` which creates the dataset:
+
+```{r, echo = TRUE}
+# create function to generate data
+generate_data <- function() {
+  data <- tibble(id = 1:500) %>%
+    # generate treatment assignment
+    mutate(treatment = rbinom(n = 500, size = 1, prob = 0.1)) %>%
+    # generate covariates
+    rowwise() %>%
+    # previous employment
+    mutate(
+      previous_employment = ifelse(
+        treatment == 1,
+        rbinom(n = 1, size = 1, prob = 0.4),
+        rbinom(n = 1, size = 1, prob = 0.55)
+      ),
+      # unobserved motivation on a scale from 1:10
+      unobserved_motivation = ifelse(
+        treatment == 1,
+        rbinom(n = 1, size = 1, prob = 0.7),
+        rbinom(n = 1, size = 1, prob = 0.4)
+      ),
+      # age
+      age = ifelse(
+        treatment == 1,
+        rnorm(n = 1, mean = 25, sd = 1),
+        rnorm(n = 1, mean = 27, sd = 1)
+      ) %>% round(.),
+      # post high school education
+      education = ifelse(
+        treatment == 1,
+        rbinom(n = 1, size = 1, prob = 0.3),
+        rbinom(n = 1, size = 1, prob = 0.5)
+      ),
+      # minority dummy
+      minority = ifelse(
+        treatment == 1,
+        rbinom(n = 1, size = 1, prob = 0.6),
+        rbinom(n = 1, size = 1, prob = 0.4)
+      )
+    )
+  
+  # generate the potential outcomes
+  data <- data %>%
+    rowwise() %>%
+    mutate(
+      y_0 = (400 + 50 * previous_employment + 100 * unobserved_motivation + 10 * age + 50 *
+            education - 25 * minority) + rnorm(1, mean = 0, sd = 300)
+       %>% round(., 0),
+      y_1 = ifelse(
+        treatment == 1,
+        y_0 + 80,
+        y_0 + 50
+      ),
+    y_obs = ifelse(treatment == 1, y_1, y_0) %>% round(., 0)
+    ) %>%
+    ungroup()
+  
+  return(data)
+}
+```
+
+### EDA for One Dataset
+
+We run the function to explore the resulting data:
+
+```{r, echo = TRUE}
+# run the function
+data <- generate_data()
+```
+
+We display the distribution of covariates by groups:
+
+```{r, echo = FALSE}
+data %>%
+  mutate_at(vars(previous_employment:minority), ~ as.factor(.)) %>%
+  pivot_longer(cols = c(previous_employment:minority), names_to = "covariate", values_to = "value") %>%
+  group_by(treatment, covariate, value) %>%
+  summarise(n_value = n()) %>%
+  group_by(treatment, covariate) %>%
+  mutate(n_total = sum(n_value)) %>%
+  group_by(treatment, covariate, value) %>%
+  summarise(proportion = n_value/n_total*100) %>%
+  ggplot(., aes(x = value, y = proportion, colour = as.factor(treatment), group = treatment)) +
+  geom_line(size = 0.5, linetype = "dashed") +
+  geom_point(size = 2) +
+  facet_wrap(~ covariate, scales = "free_x", nrow = 1) +
+  xlab("Covariate Value") + ylab("Proportion (%)") +
+  theme_mediocre()
+```
+
+We can see that all covariates are imbalanced: treatment assignment is biased. We display below summary statistics for each variable by group:
+
+```{r, echo = FALSE}
+# check distribution of covariates by treatment groups
+data_summary <- data %>%
+  pivot_longer(
+    cols = c(y_obs, previous_employment:minority),
+    names_to = "variable",
+    values_to = "value"
+  ) %>%
+  group_by(variable, treatment) %>%
+  summarise(
+    mean = mean(value),
+    sd = sd(value),
+    min   = min(value),
+    max = max(value)
+  ) %>%
+  mutate_at(vars(mean:max), ~ round(.,2))
+
+# display data_summary
+datatable(data_summary)
+```
+
+We can finally see how the observed revenue is distributed across the two groups:
+
+```{r, echo = FALSE}
+data %>%
+  ggplot(., aes(x = y_obs, colour = as.factor(treatment), fill = as.factor(treatment))) +
+  geom_density() +
+  xlab("Revenue (in euros)") + ylab("") +
+  theme_mediocre()
+```
+
+And we can check wether the ATT and ATC were correctly simulated. The ATT is computed such as:
+
+```{r, echo = TRUE}
+# checking att
+mean(data$y_1[data$treatment==1]) - mean(data$y_0[data$treatment==1])
+```
+
+and the ATC:
+
+```{r, echo = TRUE}
+# checking atc
+mean(data$y_1[data$treatment==0]) - mean(data$y_0[data$treatment==0])
+```
+
+If we run the correct DGP in a multivariate regression model, we find on average the correct answer (ATT=+80 euros). We create a regression function to run the true DGP model:
+
+```{r, echo = TRUE}
+reg_true_dgp <- function(data) {
+  data %>%
+    lm(
+      y_obs ~ treatment + previous_employment + age + education + minority + unobserved_motivation,
+      data = .
+    ) %>%
+    broom::tidy(., conf.int = TRUE) %>%
+    filter(term == "treatment") %>%
+    select(estimate, p.value, conf.low, conf.high)
+}
+```
+
+We simulate 1000 datasets and run the true DGP regression model:
+
+```{r, echo = TRUE}
+# first simulate simulation id
+data_simulations <- tibble(sim_id = 1:1000) %>%
+# then simulate data
+  mutate(data = map(sim_id, ~ generate_data())) %>%
+# finally run the reg analysis
+  mutate(results = map(data, ~ reg_true_dgp(.)))
+```
+
+We plot the distribution of estimates:
+
+```{r, echo = TRUE}
+data_simulations %>% 
+  select(-data) %>%
+  unnest(results) %>%
+  ggplot(., aes(x = estimate)) +
+  geom_density() +
+  geom_vline(xintercept = 80) +
+  theme_mediocre()
+```
+
+We compute the statistical power:
+
+```{r, echo = TRUE}
+data_simulations %>% 
+  select(-data) %>%
+  unnest(results) %>%
+  summarise(power = sum(p.value<=0.05)/n()*100)
+```
+
+Researchers unfortunately do not observe the motivation of individuals and therefore would get biased estimates. We first create the biased regression model without the unobserved motativation:
+
+```{r, echo = TRUE}
+reg_biased <- function(data) {
+  data %>%
+    lm(
+      y_obs ~ treatment + previous_employment + age + education + minority,
+      data = .
+    ) %>%
+    broom::tidy(., conf.int = TRUE) %>%
+    filter(term == "treatment") %>%
+    select(estimate, p.value, conf.low, conf.high)
+}
+```
+
+```{r, echo = TRUE}
+data_simulations <- data_simulations %>%
+  mutate(results_bias = map(data, ~ reg_biased(.)))
+```
+
+```{r, echo = TRUE}
+data_simulations %>% 
+  select(-data) %>%
+  unnest(results_bias) %>%
+  ggplot(., aes(x = estimate)) +
+  geom_density() +
+  geom_vline(xintercept = 80) +
+  theme_mediocre()
+```
+
+We compute the statistical power:
+
+```{r, echo = TRUE}
+data_simulations %>% 
+  select(-data) %>%
+  unnest(results_bias) %>%
+  summarise(power = sum(p.value<=0.05)/n()*100)
+```
+
+# Matching Procedure
+
+### Testing Propensity Score 
+
+Testing the nearest neighbor propensity score matching:
+
+```{r, echo = TRUE}
+# test nearest-neighbor matching
+test_matching <-
+  matchit(
+    treatment ~ previous_employment + as.factor(age) + as.factor(education) + minority,
+    data = data
+  )
+
+# display results
+test_matching
+```
+
+We retrieve the matched data:
+
+```{r, echo = TRUE}
+data_matched <- match.data(test_matching)
+```
+
+
+We fit the linear model:
+
+```{r, echo = TRUE}
+fit <- 
+  lm(
+    y_obs ~ treatment + previous_employment + age + education + minority,
+    data = data_matched,
+    weights = weights
+  )
+
+broom::tidy(coeftest(fit, vcov. = vcovCL, cluster = ~subclass), conf.int = TRUE) %>%
+  filter(term == "treatment") %>%
+  select(term, estimate, p.value, conf.low, conf.high)
+```
+
+
+Another test with a caliper of 0.1:
+
+```{r, echo = TRUE}
+# test nearest-neighbor matching
+test_matching <-
+  matchit(
+    treatment ~ previous_employment + as.factor(age) + as.factor(education) + minority,
+    caliper = 0.1,
+    data = data
+  )
+
+# display results
+test_matching
+```
+
+
+We retrieve the matched data:
+
+```{r, echo = TRUE}
+data_matched <- match.data(test_matching)
+```
+
+
+We fit the linear model:
+
+```{r, echo = TRUE}
+fit <- 
+  lm(
+    y_obs ~ treatment + previous_employment + age + education + minority,
+    data = data_matched,
+    weights = weights
+  )
+
+broom::tidy(coeftest(fit, vcov. = vcovCL, cluster = ~subclass), conf.int = TRUE) %>%
+  filter(term == "treatment") %>%
+  select(term, estimate, p.value, conf.low, conf.high)
+```
+
+### Proposensity Score Function
+
+```{r, echo = TRUE}
+# propensity score analysis function
+ps_function <- function(data, caliper_value) {
+  matching_results <- matchit(
+    treatment ~ previous_employment + as.factor(age) + as.factor(education) + minority,
+    caliper = caliper_value,
+    data = data
+  )
+  
+  data_matched <- match.data(matching_results)
+  
+  n_matched <- nrow(data_matched)
+  
+  model_fit <- lm(
+    y_obs ~ treatment + previous_employment + age + education + minority,
+    data = data_matched,
+    weights = weights
+  )
+  
+  ps_att <- broom::tidy(coeftest(model_fit, vcov. = vcovCL, cluster = ~ subclass),
+                conf.int = TRUE) %>%
+    filter(term == "treatment") %>%
+    select(term, estimate, p.value, conf.low, conf.high)
+  
+  return(bind_cols(ps_att, n_matched = n_matched))
+}
+
+# testing the function
+ps_function(data, caliper = 0)
+```
+
+# Simulations
+
+Trying a simulation pipeline:
+
+```{r, echo = TRUE}
+# first simulate simulation id
+data_simulations <- tibble(sim_id = 1:250) %>%
+  # then simulate data
+  mutate(data = map(sim_id, ~ generate_data())) %>%
+  # generate caliper
+  crossing(caliper = c(0.1, 1, 0.5, 1.5, 2)) %>%
+  # finally run the matching analysis
+  mutate(results = map2(data, caliper, ~ ps_function(.x, .y)))
+
+# show results
+head(data_simulations)
+```
+
+
+```{r, echo = TRUE}
+data_results <- data_simulations %>% 
+  select(-data) %>%
+  unnest(results)
+```
+
+```{r, echo = TRUE}
+data_results <- data_results %>%
+  rowwise() %>%
+  mutate(true_captured = ifelse(between(80, conf.low, conf.high) & p.value <= 0.05, 1, 0)) %>%
+  ungroup()
+```
+
+```{r, echo = TRUE}
+data_results %>%
+  group_by(caliper) %>%
+  summarise(power = sum(true_captured)/n()*100)
+```
+
+```{r, echo = TRUE}
+data_results %>%
+  group_by(caliper) %>%
+  summarise(mean_n = mean(n_matched))
+```
+
+Displaying estimates:
+
+```{r, echo = TRUE}
+date_means <- data_results %>%
+  group_by(caliper) %>%
+  summarise(mean_estimate = mean(estimate))
+
+data_results %>%
+  ggplot(., aes(x = estimate)) +
+  geom_density() +
+  geom_vline(xintercept = 80) +
+  geom_vline(data = date_means, aes(xintercept = mean_estimate), colour = "black") +
+  facet_wrap(~ caliper) +
+  theme_mediocre()
+```
+
+
