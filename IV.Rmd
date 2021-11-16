@@ -1,8 +1,9 @@
 ---
 title: "Simulations IV"
+description: "In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."
 author:
   - name: Vincent Bagilet 
-    url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet
+    url: https://vincentbagilet.github.io/
     affiliation: Columbia University
     affiliation_url: https://www.columbia.edu/
   - name: Léo Zabrocki 
@@ -44,12 +45,12 @@ library(tictoc)
 library(here)
 library(beepr)
 
-set_mediocre_all(pal = "coty")
+set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 ```
 
-## Purpose of the document
+## Summary and intuition
 
-In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy. This trade-off is mediated by 
+In the case of the IV, the OVB/type M trade-off is  mediated by the 'strength' of the instrument considered.
 
 ## An illustrative example
 
@@ -65,13 +66,15 @@ The DGP can be represented using the following Directed Acyclic Graph (DAG):
 include_graphics(here("images/DAG_IV.png"))
 ```
 
-
 To simplify, we consider the following assumptions:
 
 More precisely, we set: 
 
 - $N$ the number of observations
-- $U \sim \mathcal{N}(0, \sigma_u^{2})$ the unobserved
+- $Z \sim \mathcal{N}(0, \sigma_{z}^{2})$ or $Z \sim \text{Bernoulli}(p_z)$ the instrument
+- $U \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
+- $X = \alpha_x + \gamma_x Z + \delta_x U + e_x$ the dependent variable and where $e_x \sim \mathcal{N}(0, \sigma_{x}^{2})$
+- $Y = \alpha_y + \beta X + \delta_y U + e_y$  the independent variable and where $e_y \sim \mathcal{N}(0, \sigma_{y}^{2})$
 
 ### Data generation
 
@@ -115,6 +118,42 @@ generate_data_IV <- function(N,
 }
 ```
 
+We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_RDD`.
+
+```{r simple_param_IV}
+simple_parameters_IV <- tibble(
+  N = 500,
+  type_z = "normal",
+  param_z = 1,
+  sigma_u = 1,
+  sigma_ex = 1,
+  sigma_ey = 1,
+  alpha_y = 0,
+  alpha_x = 0,
+  treatment_effect = 1
+)
+```
+
+Here is an example of data created with our data generating process:
+
+```{r example_data_IV, echo=FALSE}
+simple_parameters_IV %>% 
+  mutate(N = 10, iv_strength = 0.2, ovb_intensity = 0.4) %>% 
+  pmap_dfr(generate_data_IV) %>% #use pmap to pass the set of parameters
+  kable()
+```
+
+<!-- ```{r} -->
+<!-- ex_data_IV <- simple_parameters_IV %>%  -->
+<!--   mutate(N = 1000, iv_strength = 0.2, ovb_intensity = 0.4) %>%  -->
+<!--   pmap_dfr(generate_data_IV)  -->
+
+<!-- ex_data_IV %>%  -->
+<!--   ggplot(aes(x = z, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "lm") -->
+<!-- ``` -->
+
 ### Estimation
 
 After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.
@@ -135,16 +174,16 @@ estimate_IV <- function(data) {
     broom::tidy() %>%
     mutate(model = "OLS")
   
-  reg_OLS_unbiassed <- lm(
+  reg_OLS_unbiased <- lm(
     data = data, 
     formula = y ~ x + u
     ) %>% 
     broom::tidy() %>%
-    mutate(model = "OLS unbiassed")
+    mutate(model = "OLS unbiased")
   
   reg <- reg_IV %>% 
     rbind(reg_OLS) %>% 
-    rbind(reg_OLS_unbiassed) %>% 
+    rbind(reg_OLS_unbiased) %>% 
     filter(term == "x") %>%
     rename(p_value = p.value, se = std.error) %>%
     select(estimate, p_value, se, model) %>% 
@@ -155,10 +194,10 @@ estimate_IV <- function(data) {
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_simulation_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_sim_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
-```{r compute_simulation_IV}
-compute_simulation_IV <- function(N,
+```{r compute_sim_IV}
+compute_sim_IV <- function(N,
                                   type_z,
                                   param_z,
                                   sigma_u,
@@ -192,7 +231,7 @@ compute_simulation_IV <- function(N,
 
 ### All simulations
 
-We will run the simulations for different sets of parameters by mapping our `compute_simulation_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_IV}
 baseline_parameters <- tibble(
@@ -220,11 +259,11 @@ param_IV <- fixed_parameters %>%
   select(-rep_id)
 ```
 
-We then run the simulations by mapping our `compute_simulation_IV` function on `param_IV`.
+We then run the simulations by mapping our `compute_sim_IV` function on `param_IV`.
 
 ```{r run_sim_IV, eval=FALSE}
 tic()
-simulations_IV <- pmap_dfr(param_IV, compute_simulation_IV)
+simulations_IV <- pmap_dfr(param_IV, compute_sim_IV)
 beep()
 toc()
 
@@ -237,7 +276,7 @@ toc()
 
 First, we quickly explore the results.
 
-```{r exploration_results_IV, echo=FALSE, fig.asp=1}
+```{r exploration_results_IV, echo=FALSE, fig.asp=0.7}
 simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
 simulations_IV %>% 
@@ -282,11 +321,13 @@ simulations_IV %>%
     caption = "For readibility, extreme estimates are filtered out"
   )
 
-simulations_IV %>% 
+data_one_sim_IV <- simulations_IV %>% 
   filter(between(estimate, -1, 2)) %>% 
   filter(iv_strength == 0.1) %>% 
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
-  mutate(significant = (p_value < 0.05)) %>% 
+  mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) 
+
+data_one_sim_IV %>% 
   ggplot(aes(x = estimate, fill = significant)) +
   geom_vline(xintercept = 1) +
   geom_histogram() +
@@ -295,19 +336,43 @@ simulations_IV %>%
     title = "Distribution of the estimates of the treatement effect conditional on significativity",
     subtitle = paste(
       "For different models (IV strength =", 
-      .data$iv_strength, 
+      unique(data_one_sim_IV$iv_strength), 
       "and OVB intensity = ", 
-      unique(.data$ovb_intensity), ")"
+      unique(data_one_sim_IV$ovb_intensity), ")"
     ),
     x = "Estimate of the treatement effect",
     y = "Count",
-    fill = "Estimate significant",
+    fill = "",
     caption = "The sample is restricted to estimates relatively close to the true value"
   )
 ```
 
 We notice that the OLS is always biased and that the IV is never biased. However, for limited IV strengths, the distribution of the estimates flattens. The smaller the IV strength, the most like it is to get an estimate away from the true value, even though the expected value remains equal to the true effect size. 
 <!-- We can notice that statistically significant estimates are on average located further away from zero that  -->
+
+```{r distrib_for_presentation, eval=TRUE, include=FALSE}
+#Graph only for presentations, not compiled in the main .Rmd
+simulations_IV %>% 
+  filter(between(estimate, 0.5, 1.7)) %>%
+  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  filter(iv_strength == 0.4) %>% 
+  mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
+  ggplot(aes(x = estimate, fill = model, color = model)) +
+  geom_vline(xintercept = 1) +
+  geom_density() +
+  # facet_wrap(~ iv_strength) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "Comparison across models different models",
+    color = "",
+    fill = "",
+    x = "Estimate of the treatement effect",
+    y = "Density",
+    caption = "The vertical line represents the true effect"
+  ) +
+  theme_mediocre(pal = "coty", background = TRUE)
+```
+
 
 ### Computing bias and type M
 
@@ -324,6 +389,7 @@ summarise_simulations <- function(data, true_effect = 1) {
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
+      # mean_f_stat = mean(f_stat, na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
     ungroup()
@@ -337,8 +403,9 @@ summary_simulations_IV <- summarise_simulations(simulations_IV)
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results_IV, echo=FALSE, fig.asp=0.8}
+```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
 summary_simulations_IV %>% 
+  filter(model %in% c("OLS", "IV")) %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
@@ -357,7 +424,7 @@ summary_simulations_IV %>%
 
 Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. For now, we consider the median because for very low IV strength, we get very extreme values. We need to investigate this further.
 
-```{r graph_results_all_IV, echo=FALSE, fig.asp=0.8}
+```{r graph_results_all_IV, echo=FALSE, fig.asp=0.7}
 summary_simulations_IV %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
@@ -365,10 +432,10 @@ summary_simulations_IV %>%
   ggplot(aes(x = iv_strength, y = bias_all_median, color = model)) + 
   # geom_point() +
   geom_line(size = 0.8) +
-  facet_wrap(~ ovb_intensity_name) +
+  facet_wrap(~ ovb_intensity_name) +
   labs(
     x = "IV strength", 
-    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    y = expression(paste("Median  ", frac("Estimate", "True Effect"))),
     color = "Model",
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"

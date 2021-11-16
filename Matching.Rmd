@@ -1,8 +1,9 @@
 ---
 title: "Matching Simulations"
+description: "In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error for observational studies relying on matching methods."
 author:
   - name: Vincent Bagilet 
-    url: https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet
+    url: https://vincentbagilet.github.io/
     affiliation: Columbia University
     affiliation_url: https://www.columbia.edu/
   - name: Léo Zabrocki 
@@ -14,9 +15,17 @@ output:
     distill::distill_article:
       toc: true
       toc_depth: 3
+editor_options: 
+  chunk_output_type: console
 ---
 
+<style>
+body {
+text-align: justify}
+</style>
+
 ```{r setup, include=FALSE}
+library(knitr)
 opts_chunk$set(fig.path = "images/",
                cache.path = "cache/",
                cache = FALSE,
@@ -28,18 +37,7 @@ opts_chunk$set(fig.path = "images/",
                fig.align = "center") 
 ```
 
-<style>
-body {
-text-align: justify}
-</style>
-
-In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. To make our simulations more concrete and realistic, we create fake-data similar to those used for analyzing labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at vincent.bagilet@columbia.edu and leo.zabrocki@psemail.eu.
-
-# Packages Loading
-
-We first load the required packages to set-up the simulations:
-
-```{r, echo = TRUE}
+```{r, echo=TRUE, include=FALSE}
 # load required packages
 library(knitr) # for creating the R Markdown document
 library(tidyverse) # for data manipulation and visualization
@@ -48,10 +46,15 @@ library(lmtest) # for modifying regression standard errors
 library(sandwich) # for robust and cluster robust standard errors
 library(DT) # for displaying the data as tables
 library(mediocrethemes) # vincent's custom ggplot2 theme
+library(here)
 
 # set ggplot theme
 set_mediocre_all(pal = "coty")
 ```
+
+# Summary and intuition
+
+In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. To make our simulations more concrete and realistic, we create fake-data similar to those used for analyzing labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at vincent.bagilet@columbia.edu and leo.zabrocki@psemail.eu.
 
 # Data Generating Procedure
 
@@ -232,18 +235,22 @@ reg_true_dgp <- function(data) {
 
 We simulate 1000 datasets and run the true DGP regression model:
 
-```{r, echo = TRUE}
+```{r, echo=TRUE, eval=FALSE}
 # first simulate simulation id
 data_simulations <- tibble(sim_id = 1:1000) %>%
 # then simulate data
   mutate(data = map(sim_id, ~ generate_data())) %>%
 # finally run the reg analysis
   mutate(results = map(data, ~ reg_true_dgp(.)))
+
+# saveRDS(data_simulations, here("Outputs/data_simulations.RDS"))
 ```
 
 We plot the distribution of estimates:
 
 ```{r, echo = TRUE}
+data_simulations <- readRDS(here("Outputs/data_simulations.RDS"))
+
 data_simulations %>% 
   select(-data) %>%
   unnest(results) %>%
@@ -417,9 +424,9 @@ ps_function(data, caliper = 0)
 
 Trying a simulation pipeline:
 
-```{r, echo = TRUE}
+```{r, echo=TRUE, eval=FALSE}
 # first simulate simulation id
-data_simulations <- tibble(sim_id = 1:250) %>%
+data_simulations_matching <- tibble(sim_id = 1:250) %>%
   # then simulate data
   mutate(data = map(sim_id, ~ generate_data())) %>%
   # generate caliper
@@ -428,12 +435,16 @@ data_simulations <- tibble(sim_id = 1:250) %>%
   mutate(results = map2(data, caliper, ~ ps_function(.x, .y)))
 
 # show results
-head(data_simulations)
+head(data_simulations_matching)
+
+# saveRDS(data_simulations_matching, here("Outputs/data_simulations_matching.RDS"))
 ```
 
 
 ```{r, echo = TRUE}
-data_results <- data_simulations %>% 
+data_simulations_matching <- readRDS(here("Outputs/data_simulations_matching.RDS"))
+
+data_results <- data_simulations_matching %>% 
   select(-data) %>%
   unnest(results)
 ```
@@ -473,4 +484,41 @@ data_results %>%
   theme_mediocre()
 ```
 
+## Vincent's analysis
+
+```{r summarise_matching}
+sim_results_matching <- data_results %>% 
+  rename(p_value = p.value) %>% 
+  select(caliper, estimate, p_value)
+
+summarise_simulations <- function(data, true_effect = 80) {
+  data %>%
+    mutate(significant = (p_value <= 0.05)) %>% 
+    group_by(caliper) %>%
+    summarise(
+      power = mean(significant, na.rm = TRUE)*100, 
+      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      .groups	= "drop"
+    ) %>% 
+    ungroup()
+} 
+
+summary_simulations_matching <- summarise_simulations(sim_results_matching)
+# saveRDS(summary_simulations_matching, here("Outputs/summary_simulations_matching.RDS"))
+```
+
+
+```{r graph_results_matching}
+summary_simulations_matching %>% 
+  pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
+  mutate(
+    measure = ifelse(measure == "bias_sign", "Significant", "All")
+  ) %>% 
+  ggplot(aes(x = caliper, y = value, color = measure)) + 
+  # geom_point() +
+  geom_line(size = 0.8) +
+  ylim(c(1, NA))
+```
 

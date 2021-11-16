@@ -56,7 +56,7 @@ code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ad0000; } /* Alert */
 code span.an { color: #5e5e5e; } /* Annotation */
-code span.at { color: #20794d; } /* Attribute */
+code span.at { } /* Attribute */
 code span.bn { color: #ad0000; } /* BaseN */
 code span.bu { } /* BuiltIn */
 code span.cf { color: #007ba5; } /* ControlFlow */
@@ -77,7 +77,7 @@ code span.kw { color: #007ba5; } /* Keyword */
 code span.op { color: #5e5e5e; } /* Operator */
 code span.ot { color: #007ba5; } /* Other */
 code span.pp { color: #ad0000; } /* Preprocessor */
-code span.sc { color: #20794d; } /* SpecialChar */
+code span.sc { color: #5e5e5e; } /* SpecialChar */
 code span.ss { color: #20794d; } /* SpecialString */
 code span.st { color: #20794d; } /* String */
 code span.va { color: #111111; } /* Variable */
@@ -85,32 +85,36 @@ code span.vs { color: #20794d; } /* VerbatimString */
 code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 </style>
 
+
   <!--radix_placeholder_meta_tags-->
-  <title>An OVB-type M trade off: Simulations OVB/type M trade-off: IV</title>
+  <title>An OVB-type M trade off: Simulations IV</title>
   
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2021-11-11"/>
-  <meta property="article:created" itemprop="dateCreated" content="2021-11-11"/>
+  <meta property="article:published" itemprop="datePublished" content="2021-11-16"/>
+  <meta property="article:created" itemprop="dateCreated" content="2021-11-16"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="An OVB-type M trade off: Simulations OVB/type M trade-off: IV"/>
+  <meta property="og:title" content="An OVB-type M trade off: Simulations IV"/>
   <meta property="og:type" content="article"/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="An OVB-type M trade off"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="An OVB-type M trade off: Simulations OVB/type M trade-off: IV"/>
+  <meta property="twitter:title" content="An OVB-type M trade off: Simulations IV"/>
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations OVB/type M trade-off: IV"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2021-11-11"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations IV"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2021-11-16"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -457,7 +461,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   
   </style>
   
-  <script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+  <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
   <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
   <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
   <script src="site_libs/headroom-0.9.4/headroom.min.js"></script>
@@ -1605,7 +1609,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   
       // hoverable references
       $('span.citation[data-cites]').each(function() {
-        var refHtml = $('#ref-' + $(this).attr('data-cites')).html();
+        var refs = $(this).attr('data-cites').split(" ");
+        var refHtml = refs.map(function(ref) {
+          return "<p>" + $('#ref-' + ref).html() + "</p>";
+        }).join("\n");
         window.tippy(this, {
           allowHTML: true,
           content: refHtml,
@@ -2137,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Simulations OVB/type M trade-off: IV","authors":[{"author":"Vincent Bagilet","authorURL":"https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2021-11-11T00:00:00.000+00:00","citationText":"Bagilet & Zabrocki, 2021"}
+{"title":"Simulations IV","description":"In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2021-11-16T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2021"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2158,6 +2165,8 @@ Simulations
 <div class="nav-dropdown-content">
 <a href="RDD.html">RDD</a>
 <a href="IV.html">IV</a>
+<a href="Matching.html">Matching</a>
+<a href="RCT.html">RCT</a>
 </div>
 </div>
 <a href="https://github.com/vincentbagilet/OVB-typeM" aria-label="Link to source">
@@ -2172,18 +2181,18 @@ Simulations
 <!--/radix_placeholder_site_before_body-->
 
 <div class="d-title">
-<h1>Simulations OVB/type M trade-off: IV</h1>
+<h1>Simulations IV</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-
+<p>In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy.</p>
 </div>
 
 <div class="d-byline">
-  Vincent Bagilet <a href="https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet" class="uri">https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet</a> (Columbia University)<a href="https://www.columbia.edu/" class="uri">https://www.columbia.edu/</a>
+  Vincent Bagilet <a href="https://vincentbagilet.github.io/" class="uri">https://vincentbagilet.github.io/</a> (Columbia University)<a href="https://www.columbia.edu/" class="uri">https://www.columbia.edu/</a>
   
 ,   Léo Zabrocki <a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a>
   
-<br/>2021-11-11
+<br/>2021-11-16
 </div>
 
 <div class="d-article">
@@ -2191,7 +2200,7 @@ Simulations
 <nav class="l-text toc figcaption" id="TOC">
 <h3>Contents</h3>
 <ul>
-<li><a href="#purpose-of-the-document">Purpose of the document</a></li>
+<li><a href="#summary-and-intuition">Summary and intuition</a></li>
 <li><a href="#an-illustrative-example">An illustrative example</a><ul>
 <li><a href="#modelisation-choices">Modelisation choices</a></li>
 <li><a href="#data-generation">Data generation</a></li>
@@ -2211,8 +2220,8 @@ Simulations
 body {
 text-align: justify}
 </style>
-<h2 id="purpose-of-the-document">Purpose of the document</h2>
-<p>In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy. This trade-off is mediated by</p>
+<h2 id="summary-and-intuition">Summary and intuition</h2>
+<p>In the case of the IV, the OVB/type M trade-off is mediated by the ‘strength’ of the instrument considered.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
 <p>To illustrate this trade-off between OVB and type M error, we consider a standard application of the IV design in environmental economics.</p>
 <h3 id="modelisation-choices">Modelisation choices</h3>
@@ -2225,7 +2234,10 @@ text-align: justify}
 <p>More precisely, we set:</p>
 <ul>
 <li><span class="math inline">\(N\)</span> the number of observations</li>
-<li><span class="math inline">\(U \sim \mathcal{N}(0, \sigma_u^{2})\)</span> the unobserved</li>
+<li><span class="math inline">\(Z \sim \mathcal{N}(0, \sigma_{z}^{2})\)</span> or <span class="math inline">\(Z \sim \text{Bernoulli}(p_z)\)</span> the instrument</li>
+<li><span class="math inline">\(U \sim \mathcal{N}(0, \sigma_{u}^{2})\)</span> the unobserved variable</li>
+<li><span class="math inline">\(X = \alpha_x + \gamma_x Z + \delta_x U + e_x\)</span> the dependent variable and where <span class="math inline">\(e_x \sim \mathcal{N}(0, \sigma_{x}^{2})\)</span></li>
+<li><span class="math inline">\(Y = \alpha_y + \beta X + \delta_y U + e_y\)</span> the independent variable and where <span class="math inline">\(e_y \sim \mathcal{N}(0, \sigma_{y}^{2})\)</span></li>
 </ul>
 <h3 id="data-generation">Data generation</h3>
 <p>We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis.</p>
@@ -2268,6 +2280,140 @@ text-align: justify}
 </code></pre>
 </div>
 </div>
+<p>We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_parameters_RDD</code>.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>simple_parameters_IV</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
+  N <span class='op'>=</span> <span class='fl'>500</span>,
+  type_z <span class='op'>=</span> <span class='st'>"normal"</span>,
+  param_z <span class='op'>=</span> <span class='fl'>1</span>,
+  sigma_u <span class='op'>=</span> <span class='fl'>1</span>,
+  sigma_ex <span class='op'>=</span> <span class='fl'>1</span>,
+  sigma_ey <span class='op'>=</span> <span class='fl'>1</span>,
+  alpha_y <span class='op'>=</span> <span class='fl'>0</span>,
+  alpha_x <span class='op'>=</span> <span class='fl'>0</span>,
+  treatment_effect <span class='op'>=</span> <span class='fl'>1</span>
+<span class='op'>)</span>
+</code></pre>
+</div>
+</div>
+<p>Here is an example of data created with our data generating process:</p>
+<div class="layout-chunk" data-layout="l-body">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">id</th>
+<th style="text-align: right;">z</th>
+<th style="text-align: right;">u</th>
+<th style="text-align: right;">e_x</th>
+<th style="text-align: right;">e_y</th>
+<th style="text-align: right;">x</th>
+<th style="text-align: right;">y</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.2775586</td>
+<td style="text-align: right;">-0.6221728</td>
+<td style="text-align: right;">0.8829871</td>
+<td style="text-align: right;">-0.9290238</td>
+<td style="text-align: right;">0.6896297</td>
+<td style="text-align: right;">-0.4882632</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0.8995503</td>
+<td style="text-align: right;">-0.3021700</td>
+<td style="text-align: right;">0.4345562</td>
+<td style="text-align: right;">-0.0825179</td>
+<td style="text-align: right;">0.4935983</td>
+<td style="text-align: right;">0.2902124</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.6340309</td>
+<td style="text-align: right;">-0.0008905</td>
+<td style="text-align: right;">0.6234313</td>
+<td style="text-align: right;">2.0804372</td>
+<td style="text-align: right;">0.7498813</td>
+<td style="text-align: right;">2.8299623</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">0.9010602</td>
+<td style="text-align: right;">0.2192239</td>
+<td style="text-align: right;">0.8891471</td>
+<td style="text-align: right;">1.4142692</td>
+<td style="text-align: right;">1.1570487</td>
+<td style="text-align: right;">2.6590074</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0.5100178</td>
+<td style="text-align: right;">1.4489707</td>
+<td style="text-align: right;">-1.3949263</td>
+<td style="text-align: right;">1.2978400</td>
+<td style="text-align: right;">-0.7133345</td>
+<td style="text-align: right;">1.1640937</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">-0.0817340</td>
+<td style="text-align: right;">-0.0042455</td>
+<td style="text-align: right;">1.8929381</td>
+<td style="text-align: right;">0.1125944</td>
+<td style="text-align: right;">1.8748931</td>
+<td style="text-align: right;">1.9857893</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">1.0789195</td>
+<td style="text-align: right;">-0.9960969</td>
+<td style="text-align: right;">1.2462396</td>
+<td style="text-align: right;">-0.3566309</td>
+<td style="text-align: right;">1.0635848</td>
+<td style="text-align: right;">0.3085151</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">-0.6641403</td>
+<td style="text-align: right;">-0.5974989</td>
+<td style="text-align: right;">-1.7225246</td>
+<td style="text-align: right;">1.2537948</td>
+<td style="text-align: right;">-2.0943522</td>
+<td style="text-align: right;">-1.0795569</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">-0.5170472</td>
+<td style="text-align: right;">0.4649146</td>
+<td style="text-align: right;">-1.4689689</td>
+<td style="text-align: right;">0.6062510</td>
+<td style="text-align: right;">-1.3864125</td>
+<td style="text-align: right;">-0.5941957</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.8603847</td>
+<td style="text-align: right;">-0.8976445</td>
+<td style="text-align: right;">-0.5499971</td>
+<td style="text-align: right;">-0.5613110</td>
+<td style="text-align: right;">-0.7369779</td>
+<td style="text-align: right;">-1.6573467</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- ```{r} -->
+<!-- ex_data_IV <- simple_parameters_IV %>%  -->
+<!--   mutate(N = 1000, iv_strength = 0.2, ovb_intensity = 0.4) %>%  -->
+<!--   pmap_dfr(generate_data_IV)  -->
+<!-- ex_data_IV %>%  -->
+<!--   ggplot(aes(x = z, y = y)) + -->
+<!--   geom_point() + -->
+<!--   geom_smooth(method = "lm") -->
+<!-- ``` -->
 <h3 id="estimation">Estimation</h3>
 <p>After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.</p>
 <div class="layout-chunk" data-layout="l-body">
@@ -2287,16 +2433,16 @@ text-align: justify}
     <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>mutate</span><span class='op'>(</span>model <span class='op'>=</span> <span class='st'>"OLS"</span><span class='op'>)</span>
   
-  <span class='va'>reg_OLS_unbiassed</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span>
+  <span class='va'>reg_OLS_unbiased</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span>
     data <span class='op'>=</span> <span class='va'>data</span>, 
     formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>x</span> <span class='op'>+</span> <span class='va'>u</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-    <span class='fu'>mutate</span><span class='op'>(</span>model <span class='op'>=</span> <span class='st'>"OLS unbiassed"</span><span class='op'>)</span>
+    <span class='fu'>mutate</span><span class='op'>(</span>model <span class='op'>=</span> <span class='st'>"OLS unbiased"</span><span class='op'>)</span>
   
   <span class='va'>reg</span> <span class='op'>&lt;-</span> <span class='va'>reg_IV</span> <span class='op'>%&gt;%</span> 
     <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>reg_OLS</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
-    <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>reg_OLS_unbiassed</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
+    <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>reg_OLS_unbiased</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>==</span> <span class='st'>"x"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>rename</span><span class='op'>(</span>p_value <span class='op'>=</span> <span class='va'>p.value</span>, se <span class='op'>=</span> <span class='va'>std.error</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>select</span><span class='op'>(</span><span class='va'>estimate</span>, <span class='va'>p_value</span>, <span class='va'>se</span>, <span class='va'>model</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -2307,10 +2453,10 @@ text-align: justify}
 </div>
 </div>
 <h3 id="one-simulation">One simulation</h3>
-<p>We can now run a simulation, combining <code>generate_data_IV</code> and <code>estimate_IV</code>. To do so we create the function <code>compute_simulation_IV</code>. This simple function takes as input the various parameters along with the bandwidth size, <code>bw</code>. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.</p>
+<p>We can now run a simulation, combining <code>generate_data_IV</code> and <code>estimate_IV</code>. To do so we create the function <code>compute_sim_IV</code>. This simple function takes as input the various parameters along with the bandwidth size, <code>bw</code>. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>compute_simulation_IV</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>N</span>,
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>compute_sim_IV</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>N</span>,
                                   <span class='va'>type_z</span>,
                                   <span class='va'>param_z</span>,
                                   <span class='va'>sigma_u</span>,
@@ -2344,7 +2490,7 @@ text-align: justify}
 </div>
 </div>
 <h3 id="all-simulations">All simulations</h3>
-<p>We will run the simulations for different sets of parameters by mapping our <code>compute_simulation_IV</code> function on each set of parameters. We thus create a table with all the values of the parameters we want to test <code>param_IV</code>. Note that in this table each set of parameters appears <code>n_iter</code> times as we want to run the analysis <span class="math inline">\(n_{iter}\)</span> times for each set of parameters.</p>
+<p>We will run the simulations for different sets of parameters by mapping our <code>compute_sim_IV</code> function on each set of parameters. We thus create a table with all the values of the parameters we want to test <code>param_IV</code>. Note that in this table each set of parameters appears <code>n_iter</code> times as we want to run the analysis <span class="math inline">\(n_{iter}\)</span> times for each set of parameters.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>baseline_parameters</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
@@ -2373,11 +2519,11 @@ text-align: justify}
 </code></pre>
 </div>
 </div>
-<p>We then run the simulations by mapping our <code>compute_simulation_IV</code> function on <code>param_IV</code>.</p>
+<p>We then run the simulations by mapping our <code>compute_sim_IV</code> function on <code>param_IV</code>.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>tic</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>simulations_IV</span> <span class='op'>&lt;-</span> <span class='fu'>pmap_dfr</span><span class='op'>(</span><span class='va'>param_IV</span>, <span class='va'>compute_simulation_IV</span><span class='op'>)</span>
+<span class='va'>simulations_IV</span> <span class='op'>&lt;-</span> <span class='fu'>pmap_dfr</span><span class='op'>(</span><span class='va'>param_IV</span>, <span class='va'>compute_sim_IV</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/pkg/beepr/man/beep.html'>beep</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>toc</a></span><span class='op'>(</span><span class='op'>)</span>
 
@@ -2406,6 +2552,7 @@ text-align: justify}
       bias_signif <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>significant</span>, <span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>, <span class='cn'>NA</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
       bias_all <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
       bias_all_median <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/median.html'>median</a></span><span class='op'>(</span><span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+      <span class='co'># mean_f_stat = mean(f_stat, na.rm = TRUE),</span>
       .groups  <span class='op'>=</span> <span class='st'>"drop"</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
