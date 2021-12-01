@@ -238,10 +238,7 @@ estimate_rdd <- function(data, bw) {
   filter(term == "treatedTRUE") %>%
   rename(p_value = p.value, se = std.error) %>%
   select(estimate, p_value, se) %>%
-  mutate(
-    true_effect = compute_true_effect_rdd(data),
-    bw = bw
-  )
+  mutate(true_effect = compute_true_effect_rdd(data))
   
   return(reg)
 }
@@ -249,22 +246,21 @@ estimate_rdd <- function(data, bw) {
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r compute_sim_RDD}
 compute_sim_RDD <- function(N,
-                            sigma_u,
-                            mu_h,
-                            sigma_h,
-                            sigma_e,
-                            alpha,
-                            beta,
-                            gamma,
-                            delta,
-                            q_c,
-                            vect_bw) {
-  
-  data <- generate_data_rdd(
+                                   sigma_u,
+                                   mu_h,
+                                   sigma_h,
+                                   sigma_e,
+                                   alpha,
+                                   beta,
+                                   gamma,
+                                   delta,
+                                   q_c,
+                                   bw) {
+  generate_data_rdd(
     N = N,
     sigma_u = sigma_u,
     mu_h = mu_h,
@@ -275,10 +271,12 @@ compute_sim_RDD <- function(N,
     gamma = gamma,
     delta = delta,
     q_c = q_c
-  ) 
-  
-  map_dfr(vect_bw, estimate_rdd, data = data) %>%
-    mutate(delta = delta)
+  ) %>%
+  estimate_rdd(bw = bw) %>%
+  mutate(
+    bw = bw,
+    delta = delta
+  )
 } 
 ```
 
@@ -286,8 +284,8 @@ Here is an example of an output of this function.
 
 ```{r example_output_sim_RDD, echo=FALSE}
 baseline_parameters_RDD %>% 
-  mutate(delta = 1) %>% 
-  pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2))
+  mutate(delta = 1, bw = 0.1) %>% 
+  pmap_dfr(compute_sim_RDD)
 ```
 
 ### All simulations
@@ -311,11 +309,11 @@ fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...)
 # vect_bw <- seq(0.05, 0.4, 0.05)
 vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
 vect_delta <- c(3)
-n_iter <- 10
+n_iter <- 1000
 
 param_rdd <- fixed_parameters_RDD %>% 
-  crossing(delta = vect_delta) %>% 
-  mutate(vect_bw = list(vect_bw)) %>% 
+  crossing(vect_bw, vect_delta) %>% 
+  rename(bw = vect_bw, delta = vect_delta) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
 ```
