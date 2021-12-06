@@ -420,6 +420,11 @@ summary_simulations_IV %>%
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"
   ) 
+
+# summary_simulations_IV %>% 
+#   pivot_longer(c(bias_signif, bias_all), names_to = "bias_type", values_to = "bias") %>% 
+#   ggplot(aes(x = iv_strength, y = bias, color = bias_type)) + 
+#   geom_line(size = 0.8) 
 ```
 
 Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. For now, we consider the median because for very low IV strength, we get very extreme values. We need to investigate this further.

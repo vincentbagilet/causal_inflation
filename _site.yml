@@ -17,6 +17,8 @@ navbar:
           href: IV.html
         - text: "Matching"
           href: Matching.html
+        - text: "DiD / Event study"
+          href: DID.html
         - text: "RCT"
           href: RCT.html
   source_url: https://github.com/vincentbagilet/OVB-typeM
