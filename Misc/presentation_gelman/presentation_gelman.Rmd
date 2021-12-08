@@ -10,7 +10,7 @@ output:
       highlightLines: yes
       highlightStyle: github
       ratio: '16:9'
-# subtitle: ""
+# subtitle: "SLab"
 editor_options: 
   chunk_output_type: console
 ---

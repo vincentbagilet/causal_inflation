@@ -261,7 +261,7 @@ ps_function <- function(data, caliper_value) {
 
 We run the function on the data we previously created:
 
-```{r, echo = TRUE}
+```{r, echo=TRUE, eval=FALSE}
 # testing the function
 ps_function(data, caliper = 0.5)
 ```
@@ -291,10 +291,10 @@ simulations_matching <- data_simulations %>%
 
 Once the simulations have been run, we compute the summary statistics using the `summarise_simulations()` function:
 
-```{r}
+```{r summarise_simulations_matching}
 simulations_matching <- readRDS(here("Outputs/simulations_matching.RDS"))
 
-summarise_simulations <- function(data) {
+summarise_simulations_matching <- function(data) {
   data %>%
     mutate(significant = (p.value <= 0.05)) %>% 
     group_by(caliper) %>%
@@ -311,13 +311,13 @@ summarise_simulations <- function(data) {
 
 We apply the function to `data_simulations`:
 
-```{r}
-summary_simulations_matching <- summarise_simulations(simulations_matching)
+```{r summary_simulations_matching}
+summary_simulations_matching <- summarise_simulations_matching(simulations_matching)
 ```
 
 And plot the results:
 
-```{r, echo = FALSE}
+```{r graph_results_matching, echo = FALSE}
 summary_simulations_matching %>% 
   pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
   mutate(

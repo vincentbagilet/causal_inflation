@@ -87,7 +87,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>Causal inflation: Simulations Event study/DID</title>
+  <title>Unbiased but Inflated Causal Effects: Simulations Event study/DID</title>
   
   <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
   
@@ -99,15 +99,15 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Causal inflation: Simulations Event study/DID"/>
+  <meta property="og:title" content="Unbiased but Inflated Causal Effects: Simulations Event study/DID"/>
   <meta property="og:type" content="article"/>
   <meta property="og:description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
   <meta property="og:locale" content="en_US"/>
-  <meta property="og:site_name" content="Causal inflation"/>
+  <meta property="og:site_name" content="Unbiased but Inflated Causal Effects"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Causal inflation: Simulations Event study/DID"/>
+  <meta property="twitter:title" content="Unbiased but Inflated Causal Effects: Simulations Event study/DID"/>
   <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
   
   <!--/radix_placeholder_meta_tags-->
@@ -2152,10 +2152,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <header class="header header--fixed" role="banner">
 <nav class="distill-site-nav distill-site-header">
 <div class="nav-left">
-<a href="index.html" class="title">Causal inflation</a>
+<a href="index.html" class="title">Unbiased but Inflated Causal Effects</a>
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
+<a href="experiments.html">Intuition</a>
 <div class="nav-dropdown">
 <button class="nav-dropbtn">
 Simulations
@@ -2167,7 +2168,6 @@ Simulations
 <a href="IV.html">IV</a>
 <a href="Matching.html">Matching</a>
 <a href="DID.html">DiD / Event study</a>
-<a href="RCT.html">RCT</a>
 </div>
 </div>
 <a href="https://github.com/vincentbagilet/OVB-typeM" aria-label="Link to source">
@@ -2374,162 +2374,162 @@ text-align: justify}
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">-0.3027185</td>
+<td style="text-align: right;">1.5613875</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">-1.3027185</td>
+<td style="text-align: right;">0.5613875</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.6797515</td>
+<td style="text-align: right;">0.7118144</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">-0.3202485</td>
+<td style="text-align: right;">-0.2881856</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">1.2764429</td>
+<td style="text-align: right;">0.2109356</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.2764429</td>
+<td style="text-align: right;">-0.7890644</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">-1.3357458</td>
+<td style="text-align: right;">2.6307146</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">-2.3357458</td>
+<td style="text-align: right;">1.6307146</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">2.3282236</td>
+<td style="text-align: right;">0.0355127</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">1.3282236</td>
+<td style="text-align: right;">-0.9644873</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">1.2089710</td>
+<td style="text-align: right;">0.5141954</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.2089710</td>
+<td style="text-align: right;">-0.4858046</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">1.4944672</td>
+<td style="text-align: right;">1.0537825</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">0.4944672</td>
+<td style="text-align: right;">0.0537825</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">-1.2349025</td>
+<td style="text-align: right;">1.9492480</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
-<td style="text-align: right;">-2.2349025</td>
+<td style="text-align: right;">0.9492480</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1.5283390</td>
+<td style="text-align: right;">0.8475760</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-4</td>
-<td style="text-align: right;">0.5283390</td>
+<td style="text-align: right;">-0.1524240</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.6460458</td>
+<td style="text-align: right;">2.3812847</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-3</td>
-<td style="text-align: right;">-0.3539542</td>
+<td style="text-align: right;">1.3812847</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.0204227</td>
+<td style="text-align: right;">1.5475785</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-2</td>
-<td style="text-align: right;">-0.9795773</td>
+<td style="text-align: right;">0.5475785</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">1.4449037</td>
+<td style="text-align: right;">-0.5806906</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-1</td>
-<td style="text-align: right;">0.4449037</td>
+<td style="text-align: right;">-1.5806906</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.5956687</td>
+<td style="text-align: right;">0.9296461</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.4043313</td>
+<td style="text-align: right;">-0.0703539</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">0.9593451</td>
+<td style="text-align: right;">0.6106340</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">-1.0406549</td>
+<td style="text-align: right;">-1.3893660</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">2.1544370</td>
+<td style="text-align: right;">1.7325491</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.1544370</td>
+<td style="text-align: right;">-0.2674509</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">2.2039123</td>
+<td style="text-align: right;">3.3318740</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.2039123</td>
+<td style="text-align: right;">1.3318740</td>
 </tr>
 </tbody>
 </table>
