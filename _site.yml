@@ -1,5 +1,5 @@
 name: "."
-title: "Causal inflation"
+title: "Unbiased but Inflated Causal Effects"
 theme: OVB_website.css
 description: |
   OVB-typeM
@@ -9,6 +9,8 @@ navbar:
   right:
     - text: "Home"
       href: index.html
+    - text: "Intuition"
+      href: experiments.html
     - text: "Simulations"
       menu:
         - text: "RDD"
@@ -19,8 +21,6 @@ navbar:
           href: Matching.html
         - text: "DiD / Event study"
           href: DID.html
-        - text: "RCT"
-          href: RCT.html
   source_url: https://github.com/vincentbagilet/OVB-typeM
   search: false
 output: distill::distill_article

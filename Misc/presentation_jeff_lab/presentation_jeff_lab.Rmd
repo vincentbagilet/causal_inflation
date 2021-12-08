@@ -117,7 +117,7 @@ random_study <- rep_camerer %>%
     se_rep = effect_rep/qnorm(1 - pvalue_rep) #incorrect
   ) 
 
-data_graph_distrib <- rnorm(random_study$effect_rep, random_study$se_original, n = 5000) %>% 
+data_graph_distrib <- rnorm(random_study$effect_rep, random_study$se_original, n = 500) %>% 
   as_tibble() %>% 
   mutate(
     n = row_number(),
@@ -127,29 +127,40 @@ data_graph_distrib <- rnorm(random_study$effect_rep, random_study$se_original, n
       1.96*sd(value)
     ),
     significant = ifelse(non_significant, "Non significant", "Significant") 
-  ) %>% 
-  select(-non_significant)
+  ) 
 
 data_graph_distrib %>% 
-  ggplot(aes(x = n, y = value, color = fct_rev(as.factor(significant)))) + 
+  ggplot(aes(x = n, y = value, color = significant)) + 
   geom_point(alpha = 0.8) +
+  #original study
+  geom_point(aes(x = -30, y = random_study$effect_original), color = "darkred", size = 2) +
   geom_linerange(aes(
-    x = 0,
+    x = -30,
     ymin = random_study$effect_original - 1.96*random_study$se_original,
     ymax = random_study$effect_original + 1.96*random_study$se_original), color = "darkred") +
-  # geom_hline(aes(yintercept = 1.96*sd(value)), color = "#FB9637") +
-  # geom_hline(aes(yintercept = - 1.96*sd(value)), color = "#FB9637") +
-  geom_point(aes(x = 0, y = random_study$effect_original), color = "darkred", size = 2) +
-  geom_hline(aes(yintercept = random_study$effect_rep), size = 0.8) +
+  #replication 
+  geom_point(aes(x = -20, y = random_study$effect_rep), color = "darkblue", size = 2) +
+  geom_linerange(aes(
+    x = -20,
+    ymin = random_study$effect_rep - 1.96*random_study$se_rep,
+    ymax = random_study$effect_rep + 1.96*random_study$se_rep), color = "darkblue") +
+  #repliccation with design of the original study
+  geom_point(aes(x = -10, y = random_study$effect_rep), color = "gray50", size = 2) +
+  geom_linerange(aes(
+    x = -10,
+    ymin = random_study$effect_rep - 1.96*random_study$se_original,
+    ymax = random_study$effect_rep + 1.96*random_study$se_original), color = "gray50") +
+  # geom_hline(aes(yintercept = mean(value)), size = 0.8) +
   geom_hline(aes(yintercept = 0), size = 0.3, linetype = "solid") +
   labs(
     title = "Illustration of type M errors",
-    subtitle = "5000 draws of an estimate ~ N(Effect size in replication, std err in original study)",
+    subtitle = "500 draws of an estimate ~ N(Effect size in replication, std err in original study)",
     x = "Draw",
     y = "Point estimate",
     caption = "The red dot represents the estimate found in the original study"
   ) +
-  scale_color_discrete(name = "") 
+  scale_color_discrete(name = "")
+  # transition_layers(layer_length = 2, from_blank = FALSE) #to animate
 
 summary_stat_distrib <- data_graph_distrib %>% 
   group_by(significant) %>% 

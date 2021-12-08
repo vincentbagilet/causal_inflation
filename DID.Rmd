@@ -216,236 +216,236 @@ baseline_parameters_TWFE %>%
   kable()
 ```
 
-### Estimation
+<!-- ### Estimation -->
 
-After generating the data, we can run an estimation. 
+<!-- After generating the data, we can run an estimation.  -->
 
-Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results. 
+<!-- Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results.  -->
 
-```{r compute_true_effect_RDD}
-compute_true_effect_rdd <- function(data) {
-  treated_data <- data %>% 
-    filter(treated) 
-  return(mean(treated_data$final1 - treated_data$final0))
-}  
-```
+<!-- ```{r compute_true_effect_RDD} -->
+<!-- compute_true_effect_rdd <- function(data) { -->
+<!--   treated_data <- data %>%  -->
+<!--     filter(treated)  -->
+<!--   return(mean(treated_data$final1 - treated_data$final0)) -->
+<!-- }   -->
+<!-- ``` -->
 
-We then run the estimation. To do so, we only consider observations within the bandwidth and regress the final test scores on the treatment, the qualification score and their interaction. Note that we include this interaction term to allow more flexibility and to mimic an realistic estimation. Yet, we know that this interaction term does not appear in the DGP. Including it or not do not change the results. Also note that, of course, we do not include the unobserved ability in this model to create an OVB. 
+<!-- We then run the estimation. To do so, we only consider observations within the bandwidth and regress the final test scores on the treatment, the qualification score and their interaction. Note that we include this interaction term to allow more flexibility and to mimic an realistic estimation. Yet, we know that this interaction term does not appear in the DGP. Including it or not do not change the results. Also note that, of course, we do not include the unobserved ability in this model to create an OVB.  -->
 
-```{r estimate_RDD}
-estimate_rdd <- function(data, bw) {
-  data_in_bw <- data %>% 
-    define_bw(bw = bw) %>% 
-    filter(!is.na(treated_bw))
-  
-  reg <- lm(
-    data = data_in_bw, 
-    formula = final ~ treated + qual
-  ) %>% 
-    broom::tidy() %>%
-    filter(term == "treatedTRUE") %>%
-    rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se) %>%
-    mutate(
-      true_effect = compute_true_effect_rdd(data),
-      bw = bw
-    )
-  
-  return(reg)
-}
-```
+<!-- ```{r estimate_RDD} -->
+<!-- estimate_rdd <- function(data, bw) { -->
+<!--   data_in_bw <- data %>%  -->
+<!--     define_bw(bw = bw) %>%  -->
+<!--     filter(!is.na(treated_bw)) -->
 
-### One simulation
+<!--   reg <- lm( -->
+<!--     data = data_in_bw,  -->
+<!--     formula = final ~ treated + qual -->
+<!--   ) %>%  -->
+<!--     broom::tidy() %>% -->
+<!--     filter(term == "treatedTRUE") %>% -->
+<!--     rename(p_value = p.value, se = std.error) %>% -->
+<!--     select(estimate, p_value, se) %>% -->
+<!--     mutate( -->
+<!--       true_effect = compute_true_effect_rdd(data), -->
+<!--       bw = bw -->
+<!--     ) -->
 
-We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+<!--   return(reg) -->
+<!-- } -->
+<!-- ``` -->
 
-```{r compute_sim_RDD}
-compute_sim_RDD <- function(N,
-                            sigma_u,
-                            mu_h,
-                            sigma_h,
-                            sigma_e,
-                            alpha,
-                            beta,
-                            gamma,
-                            delta,
-                            q_c,
-                            vect_bw) {
-  
-  data <- generate_data_rdd(
-    N = N,
-    sigma_u = sigma_u,
-    mu_h = mu_h,
-    sigma_h = sigma_h,
-    sigma_e = sigma_e,
-    alpha = alpha,
-    beta = beta,
-    gamma = gamma,
-    delta = delta,
-    q_c = q_c
-  ) 
-  
-  map_dfr(vect_bw, estimate_rdd, data = data) %>%
-    mutate(delta = delta)
-} 
-```
+<!-- ### One simulation -->
 
-Here is an example of an output of this function.
+<!-- We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study. -->
 
-```{r example_output_sim_RDD, echo=FALSE}
-baseline_parameters_RDD %>% 
-  mutate(delta = 1) %>% 
-  pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2))
-```
+<!-- ```{r compute_sim_RDD} -->
+<!-- compute_sim_RDD <- function(N, -->
+<!--                             sigma_u, -->
+<!--                             mu_h, -->
+<!--                             sigma_h, -->
+<!--                             sigma_e, -->
+<!--                             alpha, -->
+<!--                             beta, -->
+<!--                             gamma, -->
+<!--                             delta, -->
+<!--                             q_c, -->
+<!--                             vect_bw) { -->
 
-### All simulations
+<!--   data <- generate_data_rdd( -->
+<!--     N = N, -->
+<!--     sigma_u = sigma_u, -->
+<!--     mu_h = mu_h, -->
+<!--     sigma_h = sigma_h, -->
+<!--     sigma_e = sigma_e, -->
+<!--     alpha = alpha, -->
+<!--     beta = beta, -->
+<!--     gamma = gamma, -->
+<!--     delta = delta, -->
+<!--     q_c = q_c -->
+<!--   )  -->
 
-We will run the simulations for different sets of parameters by mapping our `compute_sim_RDD` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `N_Cter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+<!--   map_dfr(vect_bw, estimate_rdd, data = data) %>% -->
+<!--     mutate(delta = delta) -->
+<!-- }  -->
+<!-- ``` -->
 
-```{r set_param_RDD}
-simple_parameters_RDD <- tibble(
-  N = 500,
-  sigma_u = 1,
-  mu_h = 0,
-  sigma_h = 1,
-  sigma_e = 0.5,
-  alpha = 1,
-  beta = 1,
-  gamma = 0.7,
-  q_c = 0.5
-)
+<!-- Here is an example of an output of this function. -->
 
-fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...)
-# vect_bw <- seq(0.05, 0.4, 0.05)
-vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
-vect_delta <- c(3)
-N_Cter <- 1000
+<!-- ```{r example_output_sim_RDD, echo=FALSE} -->
+<!-- baseline_parameters_RDD %>%  -->
+<!--   mutate(delta = 1) %>%  -->
+<!--   pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2)) -->
+<!-- ``` -->
 
-param_rdd <- fixed_parameters_RDD %>% 
-  crossing(delta = vect_delta) %>% 
-  mutate(vect_bw = list(vect_bw)) %>% 
-  crossing(rep_id = 1:N_Cter) %>% 
-  select(-rep_id)
-```
+<!-- ### All simulations -->
 
-We then run the simulations by mapping our `compute_sim_RDD` function on `param_rdd`.
+<!-- We will run the simulations for different sets of parameters by mapping our `compute_sim_RDD` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `N_Cter` times as we want to run the analysis $n_{iter}$ times for each set of parameters. -->
 
-```{r run_sim_RDD, eval=FALSE}
-tic()
-simulations_rdd <- pmap_dfr(param_rdd, compute_sim_RDD)
-beep()
-toc()
+<!-- ```{r set_param_RDD} -->
+<!-- simple_parameters_RDD <- tibble( -->
+<!--   N = 500, -->
+<!--   sigma_u = 1, -->
+<!--   mu_h = 0, -->
+<!--   sigma_h = 1, -->
+<!--   sigma_e = 0.5, -->
+<!--   alpha = 1, -->
+<!--   beta = 1, -->
+<!--   gamma = 0.7, -->
+<!--   q_c = 0.5 -->
+<!-- ) -->
 
-# saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
-```
+<!-- fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...) -->
+<!-- # vect_bw <- seq(0.05, 0.4, 0.05) -->
+<!-- vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1)) -->
+<!-- vect_delta <- c(3) -->
+<!-- N_Cter <- 1000 -->
 
-## Analysis of the results
+<!-- param_rdd <- fixed_parameters_RDD %>%  -->
+<!--   crossing(delta = vect_delta) %>%  -->
+<!--   mutate(vect_bw = list(vect_bw)) %>%  -->
+<!--   crossing(rep_id = 1:N_Cter) %>%  -->
+<!--   select(-rep_id) -->
+<!-- ``` -->
 
-### Quick exploration
+<!-- We then run the simulations by mapping our `compute_sim_RDD` function on `param_rdd`. -->
 
-First, we quickly explore the results.
+<!-- ```{r run_sim_RDD, eval=FALSE} -->
+<!-- tic() -->
+<!-- simulations_rdd <- pmap_dfr(param_rdd, compute_sim_RDD) -->
+<!-- beep() -->
+<!-- toc() -->
 
-```{r exploration_results_RDD, echo=FALSE}
-simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS"))
+<!-- # saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS")) -->
+<!-- ``` -->
 
-simulations_rdd %>%
-  # filter(bw == vect_bw[5]) %>%
-  mutate(bw_name = str_c("Bandwidth: ", bw)) %>% 
-  ggplot(aes(x = estimate)) +
-  geom_density() +
-  # geom_vline(aes(xintercept = mean(estimate))) +
-  geom_vline(aes(xintercept = true_effect), linetype = "dashed") +
-  facet_wrap(~ bw_name) +
-  labs(
-    title = "Distribution of the estimates of the treatement effect",
-    subtitle = "For different bandwidth sizes",
-    x = "Estimate of the treatement effect",
-    y = "Density",
-  )
+<!-- ## Analysis of the results -->
 
-simulations_rdd %>% 
-  filter(bw == vect_bw[2]) %>%
-  mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
-  ggplot(aes(x = estimate, fill = significant)) + 
-  geom_histogram(bins = 25) +
-  geom_vline(
-    aes(xintercept = mean(abs(estimate[significant == "Significant"]))),
-    linetype = "solid"
-  ) +
-  geom_vline(aes(xintercept = 1)) +
-  # facet_wrap(~ bw) +
-  labs(
-    title = "Distribution of the estimates of the treatement effect",
-    subtitle = str_c("For a bandwidth containing ", vect_bw[2]*100, "% of the observations"),
-    x = "Estimate of the treatement effect",
-    y = "Count",
-    fill = "",
-    caption = "The solid line represents the average mean effect for significant 
-    estimates (in absolute value), the dashed line represents the true effect"
-  ) 
+<!-- ### Quick exploration -->
 
-# simulations_rdd %>% 
-#   filter(bw == 0.2) %>% 
-#   mutate(significant = (p_value < 0.05)) %>% 
-#   group_by(delta) %>% 
-#   mutate(sim_id = row_number()) %>% 
-#   ungroup() %>% 
-#   ggplot(aes(x = estimate, color = significant)) + 
-#   geom_point(aes(x = sim_id, y = estimate)) +
-#   geom_hline(aes(yintercept = mean(estimate))) +
-#   facet_wrap(~ delta)
-# 
-# simulations_rdd %>% 
-#   group_by(delta, bw) %>% 
-#   summarise(average_effect = mean(estimate))
-```
+<!-- First, we quickly explore the results. -->
 
-### Computing bias and type M
+<!-- ```{r exploration_results_RDD, echo=FALSE} -->
+<!-- simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS")) -->
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+<!-- simulations_rdd %>% -->
+<!--   # filter(bw == vect_bw[5]) %>% -->
+<!--   mutate(bw_name = str_c("Bandwidth: ", bw)) %>%  -->
+<!--   ggplot(aes(x = estimate)) + -->
+<!--   geom_density() + -->
+<!--   # geom_vline(aes(xintercept = mean(estimate))) + -->
+<!--   geom_vline(aes(xintercept = true_effect), linetype = "dashed") + -->
+<!--   facet_wrap(~ bw_name) + -->
+<!--   labs( -->
+<!--     title = "Distribution of the estimates of the treatement effect", -->
+<!--     subtitle = "For different bandwidth sizes", -->
+<!--     x = "Estimate of the treatement effect", -->
+<!--     y = "Density", -->
+<!--   ) -->
 
-```{r summarise_RDD}
-summarise_simulations <- function(data) {
-  data %>%
-    mutate(significant = (p_value <= 0.05)) %>% 
-    group_by(delta, bw) %>%
-    summarise(
-      power = mean(significant, na.rm = TRUE)*100, 
-      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
-      bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
-      bias_all = mean(estimate/true_effect, na.rm = TRUE),
-      .groups	= "drop"
-    ) %>% 
-    ungroup()
-} 
+<!-- simulations_rdd %>%  -->
+<!--   filter(bw == vect_bw[2]) %>% -->
+<!--   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>%  -->
+<!--   ggplot(aes(x = estimate, fill = significant)) +  -->
+<!--   geom_histogram(bins = 25) + -->
+<!--   geom_vline( -->
+<!--     aes(xintercept = mean(abs(estimate[significant == "Significant"]))), -->
+<!--     linetype = "solid" -->
+<!--   ) + -->
+<!--   geom_vline(aes(xintercept = 1)) + -->
+<!--   # facet_wrap(~ bw) + -->
+<!--   labs( -->
+<!--     title = "Distribution of the estimates of the treatement effect", -->
+<!--     subtitle = str_c("For a bandwidth containing ", vect_bw[2]*100, "% of the observations"), -->
+<!--     x = "Estimate of the treatement effect", -->
+<!--     y = "Count", -->
+<!--     fill = "", -->
+<!--     caption = "The solid line represents the average mean effect for significant  -->
+<!--     estimates (in absolute value), the dashed line represents the true effect" -->
+<!--   )  -->
 
-summary_simulations_rdd <- summarise_simulations(simulations_rdd)
-# saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS"))
-```
+<!-- # simulations_rdd %>%  -->
+<!-- #   filter(bw == 0.2) %>%  -->
+<!-- #   mutate(significant = (p_value < 0.05)) %>%  -->
+<!-- #   group_by(delta) %>%  -->
+<!-- #   mutate(sim_id = row_number()) %>%  -->
+<!-- #   ungroup() %>%  -->
+<!-- #   ggplot(aes(x = estimate, color = significant)) +  -->
+<!-- #   geom_point(aes(x = sim_id, y = estimate)) + -->
+<!-- #   geom_hline(aes(yintercept = mean(estimate))) + -->
+<!-- #   facet_wrap(~ delta) -->
+<!-- #  -->
+<!-- # simulations_rdd %>%  -->
+<!-- #   group_by(delta, bw) %>%  -->
+<!-- #   summarise(average_effect = mean(estimate)) -->
+<!-- ``` -->
 
-### Graph
+<!-- ### Computing bias and type M -->
 
-To analyze our results, we build a unique and simple graph:
+<!-- We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.  -->
 
-```{r graph_results_RDD, echo=FALSE}
-summary_simulations_rdd %>% 
-  pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
-  mutate(
-    measure = ifelse(measure == "bias_sign", "Significant", "All"),
-    delta_name = paste("OVB intensity:", delta)
-  ) %>% 
-  ggplot(aes(x = bw, y = value, color = measure)) + 
-  # geom_point() +
-  geom_line(size = 0.8) +
-  # facet_wrap(~ delta_name) +
-  labs(
-    x = "Bandwidth size", 
-    y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
-    color = "Estimates",
-    title = "Evolution of bias with bandwith size, conditional on significativity",
-    # subtitle = "For several values of OVB intensity",
-    caption = "Bandwidth size as a proportion of the total number of observations"
-  ) 
-```
+<!-- ```{r summarise_RDD} -->
+<!-- summarise_simulations <- function(data) { -->
+<!--   data %>% -->
+<!--     mutate(significant = (p_value <= 0.05)) %>%  -->
+<!--     group_by(delta, bw) %>% -->
+<!--     summarise( -->
+<!--       power = mean(significant, na.rm = TRUE)*100,  -->
+<!--       type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE), -->
+<!--       bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE), -->
+<!--       bias_all = mean(estimate/true_effect, na.rm = TRUE), -->
+<!--       .groups	= "drop" -->
+<!--     ) %>%  -->
+<!--     ungroup() -->
+<!-- }  -->
+
+<!-- summary_simulations_rdd <- summarise_simulations(simulations_rdd) -->
+<!-- # saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS")) -->
+<!-- ``` -->
+
+<!-- ### Graph -->
+
+<!-- To analyze our results, we build a unique and simple graph: -->
+
+<!-- ```{r graph_results_RDD, echo=FALSE} -->
+<!-- summary_simulations_rdd %>%  -->
+<!--   pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>%  -->
+<!--   mutate( -->
+<!--     measure = ifelse(measure == "bias_sign", "Significant", "All"), -->
+<!--     delta_name = paste("OVB intensity:", delta) -->
+<!--   ) %>%  -->
+<!--   ggplot(aes(x = bw, y = value, color = measure)) +  -->
+<!--   # geom_point() + -->
+<!--   geom_line(size = 0.8) + -->
+<!--   # facet_wrap(~ delta_name) + -->
+<!--   labs( -->
+<!--     x = "Bandwidth size",  -->
+<!--     y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))), -->
+<!--     color = "Estimates", -->
+<!--     title = "Evolution of bias with bandwith size, conditional on significativity", -->
+<!--     # subtitle = "For several values of OVB intensity", -->
+<!--     caption = "Bandwidth size as a proportion of the total number of observations" -->
+<!--   )  -->
+<!-- ``` -->
 
 
