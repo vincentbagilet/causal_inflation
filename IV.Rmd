@@ -187,6 +187,8 @@ estimate_IV <- function(data) {
     filter(term == "x") %>%
     rename(p_value = p.value, se = std.error) %>%
     select(estimate, p_value, se, model) %>% 
+    
+     # s$diagnostics["Weak instruments", "statistic"]
   
   return(reg)
 }
@@ -198,16 +200,16 @@ We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To 
 
 ```{r compute_sim_IV}
 compute_sim_IV <- function(N,
-                                  type_z,
-                                  param_z,
-                                  sigma_u,
-                                  sigma_ex,
-                                  sigma_ey,
-                                  alpha_y,
-                                  alpha_x,
-                                  treatment_effect,
-                                  iv_strength,
-                                  ovb_intensity) {
+                           type_z,
+                           param_z,
+                           sigma_u,
+                           sigma_ex,
+                           sigma_ey,
+                           alpha_y,
+                           alpha_x,
+                           treatment_effect,
+                           iv_strength,
+                           ovb_intensity) {
   generate_data_IV(
     N = N,
     type_z = type_z,

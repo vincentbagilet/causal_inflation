@@ -1,8 +1,8 @@
 name: "."
 title: "Unbiased but Inflated Causal Effects"
-theme: OVB_website.css
+theme: causal_inflation_website.css
 description: |
-  OVB-typeM
+  Causal Inflation
 output_dir: "docs"
 exclude: ["Script", "Misc", "Outputs"]
 navbar:
@@ -21,6 +21,6 @@ navbar:
           href: Matching.html
         - text: "DiD / Event study"
           href: DID.html
-  source_url: https://github.com/vincentbagilet/OVB-typeM
+  source_url: https://github.com/vincentbagilet/causal_inflation
   search: false
 output: distill::distill_article
