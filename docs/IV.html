@@ -2222,67 +2222,70 @@ Simulations
 body {
 text-align: justify}
 </style>
+<div class="layout-chunk" data-layout="l-body">
+
+</div>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
 <p>In the case of the IV, the OVB/type M trade-off is mediated by the ‘strength’ of the instrument considered.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
-<p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings.</p>
-<p>A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks.</p>
+<p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration.</p>
+<p>A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610">have been highlighted</a> in this instance but we abstract from them and simulate no exclusion restriction violations here.</p>
 <h3 id="modelisation-choices">Modelisation choices</h3>
-<p>In the present analysis, we build our simulations to replicate an analysis of the causal health effects of air pollution. In such analyses, in order to avoid potential confounders, researchers often instrument air pollution with exogeneous shocks such as plant closure or thermal inversions for instance. For simplicity we abstract from the panel dimension in this analysis. One can consider that this is an analysis of the impact of life-long exposure to air pollution on health. Again, this illustration is very simplistic and is mostly consider to simplify the understanding of the interactions between the different variables.</p>
+<p>For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are: - We abstract from the panel dimension in this analysis and consider only one time period. This is could be considered as looking at the outcomes of a unique election. - We only consider the impact of rain on the day of the election. - We assume no correlation in rainfall between locations. This could be equivalent to considering only a set of remote locations. - We assume simplify the data generating process and thus do not add any exclusion restriction violations.</p>
 <p>The DGP can be represented using the following Directed Acyclic Graph (DAG):</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/DAG_IV.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
-<p>The DGP for the health status of person <span class="math inline">\(i\)</span> is defined as follows:</p>
-<p><span class="math display">\[Health_{i} = \alpha + \beta Poll_{i} + \delta u_{i} + e^{(h)}_{i}\]</span></p>
-<p>Where <span class="math inline">\(\alpha\)</span> is a constant, <span class="math inline">\(u\)</span> represents an unobserved variable and <span class="math inline">\(e \sim \mathcal{N}(0, \sigma_{e})\)</span> noise. <span class="math inline">\(\beta\)</span> is the parameter of interest.</p>
-<p>The DGP for the pollution data is as follows:</p>
-<p><span class="math display">\[Poll_{i} = \gamma + \lambda z_{i} + \eta u_{i} + e^{(p)}_{i}\]</span> Where <span class="math inline">\(\mu\)</span> is a constant, <span class="math inline">\(z\)</span> is the instrument for air pollution and <span class="math inline">\(\tilde{e} \sim \mathcal{N}(0, \sigma_{\tilde{e}})\)</span> noise. We refer to <span class="math inline">\(\lambda\)</span> as “IV strength”.</p>
-<p>The effect of air pollution on health is estimated using 2 Stages Least Squares.</p>
-<!-- To simplify, we consider the following assumptions: -->
-<!-- -  -->
+<p>The DGP for the vote share of let’s say the left party in location <span class="math inline">\(i\)</span>, <span class="math inline">\(Share_i\)</span>, is defined as follows:</p>
+<p><span class="math display">\[Share_{i} = \alpha + \beta Turnout_{i} + \delta u_{i} + e^{(S)}_{i}\]</span></p>
+<p>Where <span class="math inline">\(\alpha\)</span> is a constant, <span class="math inline">\(u\)</span> represents an unobserved variable and <span class="math inline">\(e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S})\)</span> noise. <span class="math inline">\(\beta\)</span> is the parameter of interest. We call it ‘treatment effect’.</p>
+<p>The DGP for the turnout data is as follows:</p>
+<p><span class="math display">\[Turnout_{i} = \gamma + \lambda Rain_{i} + \eta u_{i} + e^{(T)}_{i}\]</span></p>
+<p>Where <span class="math inline">\(\mu\)</span> is a constant, <span class="math inline">\(Rain\)</span> is either a continuous variable (amount of rain in location <span class="math inline">\(i\)</span> on the day of the election) or a dummy variable (whether it rained or not) and <span class="math inline">\(e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T})\)</span> noise. We refer to <span class="math inline">\(\lambda\)</span> as “IV strength”.</p>
+<p>The impact on voter turnout on election outcome (share of the left party) is estimated using 2 Stages Least Squares.</p>
 <p>More precisely, we set:</p>
 <ul>
 <li><span class="math inline">\(N\)</span> the number of observations</li>
-<li><span class="math inline">\(z \sim \mathcal{N}(0, \sigma_{z}^{2})\)</span> or <span class="math inline">\(z \sim \text{Bernoulli}(p_z)\)</span> the instrument</li>
+<li><span class="math inline">\(Rain \sim \mathcal{N}(0, \sigma_{R}^{2})\)</span> or <span class="math inline">\(Rain \sim \text{Bernoulli}(p_R)\)</span> the instrument</li>
 <li><span class="math inline">\(u \sim \mathcal{N}(0, \sigma_{u}^{2})\)</span> the unobserved variable</li>
-<li><span class="math inline">\(e^{(h)} \sim \mathcal{N}(0, \sigma_{e_h}^{2})\)</span></li>
-<li><span class="math inline">\(e^{(p)} \sim \mathcal{N}(0, \sigma_{e_p}^{2})\)</span></li>
+<li><span class="math inline">\(e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S}^{2})\)</span></li>
+<li><span class="math inline">\(e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T}^{2})\)</span></li>
 </ul>
+<p>If one abstract from the name of the variable, they can notice that this setting is actually very general.</p>
 <h3 id="data-generation">Data generation</h3>
 <p>We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis.</p>
-<p>Note that the parameter <code>type_z</code> describes whether z is a random sample from a normal or bernoulli distribution. It can take the values <code>normal</code> or <code>bernoulli</code>. <code>param_z</code> represent either <span class="math inline">\(\sigma_z\)</span> if <span class="math inline">\(z\)</span> is normal or <span class="math inline">\(p_z\)</span> if it is Bernoulli.</p>
+<p>Note that the parameter <code>type_rain</code> describes whether <span class="math inline">\(Rain\)</span> is a random sample from a normal or bernoulli distribution. It can take the values <code>normal</code> or <code>bernoulli</code>. <code>param_rain</code> represents either <span class="math inline">\(\sigma_R\)</span> if <span class="math inline">\(Rain\)</span> is normal or <span class="math inline">\(p_R\)</span> if it is Bernoulli.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>generate_data_IV</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>N</span>,
-                             <span class='va'>type_z</span>, <span class='co'>#"normal" or "bernoulli"</span>
-                             <span class='va'>param_z</span>,
+                             <span class='va'>type_rain</span>, <span class='co'>#"normal" or "bernoulli"</span>
+                             <span class='va'>param_rain</span>,
                              <span class='va'>sigma_u</span>,
-                             <span class='va'>sigma_eh</span>,
-                             <span class='va'>sigma_ep</span>,
-                             <span class='va'>alpha_y</span>,
-                             <span class='va'>alpha_x</span>,
+                             <span class='va'>sigma_es</span>,
+                             <span class='va'>sigma_et</span>,
+                             <span class='va'>alpha</span>,
+                             <span class='va'>gamma</span>,
                              <span class='va'>treatment_effect</span>,
                              <span class='va'>iv_strength</span>,
                              <span class='va'>ovb_intensity</span>
                              <span class='op'>)</span> <span class='op'>{</span>
   
-  <span class='kw'>if</span> <span class='op'>(</span><span class='va'>type_z</span> <span class='op'>==</span> <span class='st'>"bernoulli"</span><span class='op'>)</span> <span class='op'>{</span>
-    <span class='va'>z_gen</span> <span class='op'>&lt;-</span> <span class='fu'>rbernoulli</span><span class='op'>(</span><span class='va'>N</span>, <span class='va'>param_z</span><span class='op'>)</span>
-  <span class='op'>}</span> <span class='kw'>else</span> <span class='kw'>if</span> <span class='op'>(</span><span class='va'>type_z</span> <span class='op'>==</span> <span class='st'>"normal"</span><span class='op'>)</span> <span class='op'>{</span>
-    <span class='va'>z_gen</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='va'>N</span>, <span class='fl'>0</span>, <span class='va'>param_z</span><span class='op'>)</span>
+  <span class='kw'>if</span> <span class='op'>(</span><span class='va'>type_rain</span> <span class='op'>==</span> <span class='st'>"bernoulli"</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>rain_gen</span> <span class='op'>&lt;-</span> <span class='fu'>rbernoulli</span><span class='op'>(</span><span class='va'>N</span>, <span class='va'>param_rain</span><span class='op'>)</span>
+  <span class='op'>}</span> <span class='kw'>else</span> <span class='kw'>if</span> <span class='op'>(</span><span class='va'>type_rain</span> <span class='op'>==</span> <span class='st'>"normal"</span><span class='op'>)</span> <span class='op'>{</span>
+    <span class='va'>rain_gen</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='va'>N</span>, <span class='fl'>0</span>, <span class='va'>param_rain</span><span class='op'>)</span>
   <span class='op'>}</span> <span class='kw'>else</span> <span class='op'>{</span>
-    <span class='kw'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='op'>(</span><span class='st'>"type_z must be either 'bernoulli' or 'normal'"</span><span class='op'>)</span>
+    <span class='kw'><a href='https://rdrr.io/r/base/stop.html'>stop</a></span><span class='op'>(</span><span class='st'>"type_rain must be either 'bernoulli' or 'normal'"</span><span class='op'>)</span>
   <span class='op'>}</span> 
   
   <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>id <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='va'>N</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>mutate</span><span class='op'>(</span>
-      z <span class='op'>=</span> <span class='va'>z_gen</span>,
+      rain <span class='op'>=</span> <span class='va'>rain_gen</span>,
       u <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='va'>sigma_u</span><span class='op'>)</span>,
-      e_h <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='va'>sigma_eh</span><span class='op'>)</span>,
-      e_p <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='va'>sigma_ep</span><span class='op'>)</span>,
-      x <span class='op'>=</span> <span class='va'>alpha_x</span> <span class='op'>+</span> <span class='va'>iv_strength</span><span class='op'>*</span><span class='va'>z</span> <span class='op'>+</span> <span class='va'>ovb_intensity</span><span class='op'>*</span><span class='va'>u</span> <span class='op'>+</span> <span class='va'>e_p</span>,
-      y <span class='op'>=</span> <span class='va'>alpha_y</span> <span class='op'>+</span> <span class='va'>treatment_effect</span><span class='op'>*</span><span class='va'>x</span> <span class='op'>+</span> <span class='va'>ovb_intensity</span><span class='op'>*</span><span class='va'>u</span> <span class='op'>+</span> <span class='va'>e_h</span>
+      e_s <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='va'>sigma_es</span><span class='op'>)</span>,
+      e_t <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/stats/Normal.html'>rnorm</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>.</span><span class='op'>)</span>, <span class='fl'>0</span>, <span class='va'>sigma_et</span><span class='op'>)</span>,
+      turnout <span class='op'>=</span> <span class='va'>gamma</span> <span class='op'>+</span> <span class='va'>iv_strength</span><span class='op'>*</span><span class='va'>rain</span> <span class='op'>+</span> <span class='va'>ovb_intensity</span><span class='op'>*</span><span class='va'>u</span> <span class='op'>+</span> <span class='va'>e_t</span>,
+      share <span class='op'>=</span> <span class='va'>alpha</span> <span class='op'>+</span> <span class='va'>treatment_effect</span><span class='op'>*</span><span class='va'>turnout</span> <span class='op'>+</span> <span class='va'>ovb_intensity</span><span class='op'>*</span><span class='va'>u</span> <span class='op'>+</span> <span class='va'>e_s</span>
     <span class='op'>)</span>
   
   <span class='kw'><a href='https://rdrr.io/r/base/function.html'>return</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
@@ -2290,19 +2293,22 @@ text-align: justify}
 </code></pre>
 </div>
 </div>
-<p>We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_parameters_IV</code>.</p>
+<p>We set baseline values for the parameters to emulate a somehow realistic observational study. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_parameters_IV</code>.</p>
+<p>We get “inspiration” for the values of parameters from <a href="https://www.aeaweb.org/articles?id=10.1257/app.20140533">Fujiwara et al.</a> and <a href="https://www.cambridge.org/core/journals/political-analysis/article/randomization-inference-with-rainfall-data-using-historical-weather-patterns-for-variance-estimation/2F86BE9EB79FDFF9FF97C8C5CC4A2ED3">Cooperman</a> who replicates a work by <a href="https://www.jstor.org/stable/10.1111/j.1468-2508.2007.00565.x?pq-origsite=360link&amp;seq=1#metadata_info_tab_contents">Gomez et al.</a>.</p>
+<p>We consider that: - turnout and vote share are expressed in percent - Fujiwara et al. find that “The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points” and Gomez et al. (and thus Cooperman) find “a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout” which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout. - For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1 - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect - We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters): - The parameters of the distribution of rainfall are comparable in both papers - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers</p>
+<p>We thus consider the following parameters:</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>simple_parameters_IV</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
   N <span class='op'>=</span> <span class='fl'>500</span>,
-  type_z <span class='op'>=</span> <span class='st'>"normal"</span>,
-  param_z <span class='op'>=</span> <span class='fl'>1</span>,
-  sigma_u <span class='op'>=</span> <span class='fl'>1</span>,
-  sigma_eh <span class='op'>=</span> <span class='fl'>1</span>,
-  sigma_ep <span class='op'>=</span> <span class='fl'>1</span>,
-  alpha_y <span class='op'>=</span> <span class='fl'>0</span>,
-  alpha_x <span class='op'>=</span> <span class='fl'>0</span>,
-  treatment_effect <span class='op'>=</span> <span class='fl'>1</span>
+  type_rain <span class='op'>=</span> <span class='st'>"bernoulli"</span>,
+  param_rain <span class='op'>=</span> <span class='fl'>0.3</span>,
+  sigma_u <span class='op'>=</span> <span class='fl'>0.5</span>,
+  sigma_es <span class='op'>=</span> <span class='fl'>1</span>,
+  sigma_et <span class='op'>=</span> <span class='fl'>1</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0</span>,
+  gamma <span class='op'>=</span> <span class='fl'>58</span>,
+  treatment_effect <span class='op'>=</span> <span class='op'>-</span><span class='fl'>1</span>
 <span class='op'>)</span>
 </code></pre>
 </div>
@@ -2313,114 +2319,119 @@ text-align: justify}
 <thead>
 <tr class="header">
 <th style="text-align: right;">id</th>
-<th style="text-align: right;">z</th>
+<th style="text-align: left;">rain</th>
 <th style="text-align: right;">u</th>
-<th style="text-align: right;">e_h</th>
-<th style="text-align: right;">e_p</th>
-<th style="text-align: right;">x</th>
-<th style="text-align: right;">y</th>
+<th style="text-align: right;">e_s</th>
+<th style="text-align: right;">e_t</th>
+<th style="text-align: right;">turnout</th>
+<th style="text-align: right;">share</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.3359355</td>
-<td style="text-align: right;">-0.2595300</td>
-<td style="text-align: right;">0.1898782</td>
-<td style="text-align: right;">-0.2709608</td>
-<td style="text-align: right;">-0.3075857</td>
-<td style="text-align: right;">-0.2215195</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.4249975</td>
+<td style="text-align: right;">0.6086449</td>
+<td style="text-align: right;">1.2259967</td>
+<td style="text-align: right;">59.39600</td>
+<td style="text-align: right;">-58.61735</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.6847179</td>
-<td style="text-align: right;">0.1951857</td>
-<td style="text-align: right;">0.2802251</td>
-<td style="text-align: right;">0.6201045</td>
-<td style="text-align: right;">0.8351223</td>
-<td style="text-align: right;">1.1934217</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-1.2548450</td>
+<td style="text-align: right;">0.0828901</td>
+<td style="text-align: right;">-0.7076029</td>
+<td style="text-align: right;">56.79046</td>
+<td style="text-align: right;">-57.20951</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">-0.6778562</td>
-<td style="text-align: right;">-0.9440614</td>
-<td style="text-align: right;">1.0060309</td>
-<td style="text-align: right;">-0.8740092</td>
-<td style="text-align: right;">-1.3872050</td>
-<td style="text-align: right;">-0.7587987</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.1798613</td>
+<td style="text-align: right;">-0.7690986</td>
+<td style="text-align: right;">1.2612999</td>
+<td style="text-align: right;">59.33324</td>
+<td style="text-align: right;">-60.03040</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">0.2458704</td>
-<td style="text-align: right;">-0.3813853</td>
-<td style="text-align: right;">0.2982767</td>
-<td style="text-align: right;">-0.1176694</td>
-<td style="text-align: right;">-0.2210494</td>
-<td style="text-align: right;">-0.0753268</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.3077865</td>
+<td style="text-align: right;">0.1983435</td>
+<td style="text-align: right;">1.9785855</td>
+<td style="text-align: right;">60.10170</td>
+<td style="text-align: right;">-59.78024</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">-2.2438366</td>
-<td style="text-align: right;">0.0883030</td>
-<td style="text-align: right;">-0.2943246</td>
-<td style="text-align: right;">-0.8299922</td>
-<td style="text-align: right;">-1.2434383</td>
-<td style="text-align: right;">-1.5024417</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">0.4491355</td>
+<td style="text-align: right;">-0.5443693</td>
+<td style="text-align: right;">0.7099674</td>
+<td style="text-align: right;">59.08962</td>
+<td style="text-align: right;">-59.45434</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">-1.5132234</td>
-<td style="text-align: right;">1.8949145</td>
-<td style="text-align: right;">-0.2279403</td>
-<td style="text-align: right;">-0.4962166</td>
-<td style="text-align: right;">-0.0408955</td>
-<td style="text-align: right;">0.4891300</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.3973806</td>
+<td style="text-align: right;">-0.0020210</td>
+<td style="text-align: right;">-1.6587649</td>
+<td style="text-align: right;">56.50019</td>
+<td style="text-align: right;">-56.34326</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">0.2300917</td>
-<td style="text-align: right;">0.9501981</td>
-<td style="text-align: right;">0.6045598</td>
-<td style="text-align: right;">1.4791693</td>
-<td style="text-align: right;">1.9052668</td>
-<td style="text-align: right;">2.8899059</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-0.0332611</td>
+<td style="text-align: right;">-1.8336245</td>
+<td style="text-align: right;">0.1706555</td>
+<td style="text-align: right;">58.35735</td>
+<td style="text-align: right;">-60.20428</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">-0.3780119</td>
-<td style="text-align: right;">1.3683312</td>
-<td style="text-align: right;">0.5835288</td>
-<td style="text-align: right;">0.3572319</td>
-<td style="text-align: right;">0.8289620</td>
-<td style="text-align: right;">1.9598233</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-0.0839857</td>
+<td style="text-align: right;">-0.9257180</td>
+<td style="text-align: right;">0.2858383</td>
+<td style="text-align: right;">58.25224</td>
+<td style="text-align: right;">-59.21156</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.2912772</td>
-<td style="text-align: right;">-0.4295165</td>
-<td style="text-align: right;">0.4466483</td>
-<td style="text-align: right;">-0.5105156</td>
-<td style="text-align: right;">-0.6240668</td>
-<td style="text-align: right;">-0.3492251</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">0.2006285</td>
+<td style="text-align: right;">-0.9382267</td>
+<td style="text-align: right;">-0.0275321</td>
+<td style="text-align: right;">58.25272</td>
+<td style="text-align: right;">-59.11069</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">0.7480258</td>
-<td style="text-align: right;">-0.1659617</td>
-<td style="text-align: right;">-1.4783329</td>
-<td style="text-align: right;">1.9211000</td>
-<td style="text-align: right;">2.0043205</td>
-<td style="text-align: right;">0.4596029</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.2091200</td>
+<td style="text-align: right;">-0.2154140</td>
+<td style="text-align: right;">-2.4111406</td>
+<td style="text-align: right;">55.67251</td>
+<td style="text-align: right;">-55.80427</td>
 </tr>
 </tbody>
 </table>
+</div>
+<h4 id="exploring-the-distribution-of-the-data">Exploring the distribution of the data</h4>
+<p>We just quickly explore the distribution of the data for a baseline set of parameters</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="images/explore_data_IV-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_data_IV-2.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_data_IV-3.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <!-- ```{r} -->
 <!-- ex_data_IV <- simple_parameters_IV %>%  -->
 <!--   mutate(N = 1000, iv_strength = 0.2, ovb_intensity = 0.4) %>%  -->
 <!--   pmap_dfr(generate_data_IV)  -->
 <!-- ex_data_IV %>%  -->
-<!--   ggplot(aes(x = z, y = y)) + -->
+<!--   ggplot(aes(x = rain, y = y)) + -->
 <!--   geom_point() + -->
 <!--   geom_smooth(method = "lm") -->
 <!-- ``` -->
@@ -2431,7 +2442,7 @@ text-align: justify}
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>estimate_IV</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='va'>reg_IV</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/pkg/AER/man/ivreg.html'>ivreg</a></span><span class='op'>(</span>
     data <span class='op'>=</span> <span class='va'>data</span>, 
-    formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>x</span> <span class='op'>|</span> <span class='va'>z</span>
+    formula <span class='op'>=</span> <span class='va'>share</span> <span class='op'>~</span> <span class='va'>turnout</span> <span class='op'>|</span> <span class='va'>rain</span>
     <span class='op'>)</span> 
   
   <span class='va'>fstat_IV</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/summary.html'>summary</a></span><span class='op'>(</span>
@@ -2448,7 +2459,7 @@ text-align: justify}
   
   <span class='va'>reg_OLS</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span>
     data <span class='op'>=</span> <span class='va'>data</span>, 
-    formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>x</span>
+    formula <span class='op'>=</span> <span class='va'>share</span> <span class='op'>~</span> <span class='va'>turnout</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>mutate</span><span class='op'>(</span>
@@ -2458,7 +2469,7 @@ text-align: justify}
   
   <span class='va'>reg_OLS_unbiased</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span>
     data <span class='op'>=</span> <span class='va'>data</span>, 
-    formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>x</span> <span class='op'>+</span> <span class='va'>u</span>
+    formula <span class='op'>=</span> <span class='va'>share</span> <span class='op'>~</span> <span class='va'>turnout</span> <span class='op'>+</span> <span class='va'>u</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>mutate</span><span class='op'>(</span>
@@ -2469,7 +2480,7 @@ text-align: justify}
   <span class='va'>reg</span> <span class='op'>&lt;-</span> <span class='va'>reg_IV</span> <span class='op'>%&gt;%</span> 
     <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>reg_OLS</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'><a href='https://rdrr.io/r/base/cbind.html'>rbind</a></span><span class='op'>(</span><span class='va'>reg_OLS_unbiased</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
-    <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>==</span> <span class='st'>"x"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>==</span> <span class='st'>"turnout"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>rename</span><span class='op'>(</span>p_value <span class='op'>=</span> <span class='va'>p.value</span>, se <span class='op'>=</span> <span class='va'>std.error</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>select</span><span class='op'>(</span><span class='va'>estimate</span>, <span class='va'>p_value</span>, <span class='va'>se</span>, <span class='va'>fstat</span>, <span class='va'>model</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   
@@ -2483,25 +2494,25 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>compute_sim_IV</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>N</span>,
-                           <span class='va'>type_z</span>,
-                           <span class='va'>param_z</span>,
+                           <span class='va'>type_rain</span>,
+                           <span class='va'>param_rain</span>,
                            <span class='va'>sigma_u</span>,
-                           <span class='va'>sigma_eh</span>,
-                           <span class='va'>sigma_ep</span>,
-                           <span class='va'>alpha_y</span>,
-                           <span class='va'>alpha_x</span>,
+                           <span class='va'>sigma_es</span>,
+                           <span class='va'>sigma_et</span>,
+                           <span class='va'>alpha</span>,
+                           <span class='va'>gamma</span>,
                            <span class='va'>treatment_effect</span>,
                            <span class='va'>iv_strength</span>,
                            <span class='va'>ovb_intensity</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='fu'>generate_data_IV</span><span class='op'>(</span>
     N <span class='op'>=</span> <span class='va'>N</span>,
-    type_z <span class='op'>=</span> <span class='va'>type_z</span>,
+    type_rain <span class='op'>=</span> <span class='va'>type_rain</span>,
     sigma_u <span class='op'>=</span> <span class='va'>sigma_u</span>,
-    param_z <span class='op'>=</span> <span class='va'>param_z</span>,
-    sigma_eh <span class='op'>=</span> <span class='va'>sigma_eh</span>,
-    sigma_ep <span class='op'>=</span> <span class='va'>sigma_ep</span>,
-    alpha_y <span class='op'>=</span> <span class='va'>alpha_y</span>,
-    alpha_x <span class='op'>=</span> <span class='va'>alpha_x</span>,
+    param_rain <span class='op'>=</span> <span class='va'>param_rain</span>,
+    sigma_es <span class='op'>=</span> <span class='va'>sigma_es</span>,
+    sigma_et <span class='op'>=</span> <span class='va'>sigma_et</span>,
+    alpha <span class='op'>=</span> <span class='va'>alpha</span>,
+    gamma <span class='op'>=</span> <span class='va'>gamma</span>,
     treatment_effect <span class='op'>=</span> <span class='va'>treatment_effect</span>,
     iv_strength <span class='op'>=</span> <span class='va'>iv_strength</span>,
     ovb_intensity <span class='op'>=</span> <span class='va'>ovb_intensity</span>
@@ -2522,13 +2533,13 @@ text-align: justify}
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>baseline_parameters</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
   N <span class='op'>=</span> <span class='fl'>500</span>,
-  type_z <span class='op'>=</span> <span class='st'>"normal"</span>,
-  param_z <span class='op'>=</span> <span class='fl'>1</span>,
+  type_rain <span class='op'>=</span> <span class='st'>"normal"</span>,
+  param_rain <span class='op'>=</span> <span class='fl'>1</span>,
   sigma_u <span class='op'>=</span> <span class='fl'>1</span>,
-  sigma_eh <span class='op'>=</span> <span class='fl'>1</span>,
-  sigma_ep <span class='op'>=</span> <span class='fl'>1</span>,
-  alpha_y <span class='op'>=</span> <span class='fl'>0</span>,
-  alpha_x <span class='op'>=</span> <span class='fl'>0</span>,
+  sigma_es <span class='op'>=</span> <span class='fl'>1</span>,
+  sigma_et <span class='op'>=</span> <span class='fl'>1</span>,
+  alpha <span class='op'>=</span> <span class='fl'>0</span>,
+  gamma <span class='op'>=</span> <span class='fl'>0</span>,
   treatment_effect <span class='op'>=</span> <span class='fl'>1</span>
 <span class='op'>)</span>
 

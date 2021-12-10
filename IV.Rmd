@@ -23,7 +23,7 @@ body {
 text-align: justify}
 </style>
 
-```{r setup_IV, include=FALSE, results='hide', warning=FALSE}
+```{r setup_IV, echo=FALSE, results='hide', warning=FALSE}
 library(knitr)
 opts_chunk$set(fig.path = "images/",
                cache.path = "cache/",
@@ -54,13 +54,17 @@ In the case of the IV, the OVB/type M trade-off is  mediated by the 'strength' o
 
 ## An illustrative example
 
-For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings. 
+For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider  a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration. 
 
-A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks.
+A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems [have been highlighted](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610) in this instance but we abstract from them and simulate no exclusion restriction violations here.
 
 ### Modelisation choices
 
-In the present analysis, we build our simulations to replicate an analysis of the causal health effects of air pollution. In such analyses, in order to avoid potential confounders, researchers often instrument air pollution with exogeneous shocks such as plant closure or thermal inversions for instance. For simplicity we abstract from the panel dimension in this analysis. One can consider that this is an analysis of the impact of life-long exposure to air pollution on health. Again, this illustration is very simplistic and is mostly consider to simplify the understanding of the interactions between the different variables. 
+For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
+- We abstract from the panel dimension in this analysis and consider only one time period. This is could be considered as looking at the outcomes of a unique election.
+- We only consider the impact of rain on the day of the election.
+- We assume no correlation in rainfall between locations. This could be equivalent to considering only a set of remote locations.
+- We assume simplify the data generating process and thus do not add any exclusion restriction violations.
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
@@ -68,86 +72,104 @@ The DGP can be represented using the following Directed Acyclic Graph (DAG):
 include_graphics(here("images/DAG_IV.png"))
 ```
 
-The DGP for the health status of person $i$ is defined as follows:
+The DGP for the vote share of let's say the republican party in location $i$, $Share_i$, is defined as follows:
 
-$$Health_{i} = \alpha + \beta Poll_{i} + \delta u_{i} + e^{(h)}_{i}$$
+$$Share_{i} = \alpha + \beta Turnout_{i} + \delta u_{i} + e^{(S)}_{i}$$
 
-Where $\alpha$ is a constant, $u$ represents an unobserved variable and $e \sim \mathcal{N}(0, \sigma_{e})$ noise. $\beta$ is the parameter of interest.
+Where $\alpha$ is a constant, $u$ represents an unobserved variable and $e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S})$ noise. $\beta$ is the parameter of interest. We call it 'treatment effect'.
 
-The DGP for the pollution data is as follows: 
+The DGP for the turnout data is as follows: 
 
-$$Poll_{i} = \gamma + \lambda z_{i} + \eta u_{i} + e^{(p)}_{i}$$
-Where $\mu$ is a constant, $z$ is the instrument for air pollution and $\tilde{e} \sim \mathcal{N}(0, \sigma_{\tilde{e}})$ noise. We refer to $\lambda$ as "IV strength".
+$$Turnout_{i} = \gamma + \lambda Rain_{i} + \eta u_{i} + e^{(T)}_{i}$$
 
-The effect of air pollution on health is estimated using 2 Stages Least Squares.
+Where $\mu$ is a constant, $Rain$ is either a continuous variable (amount of rain in location $i$ on the day of the election) or a dummy variable (whether it rained or not) and $e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T})$ noise. We refer to $\lambda$ as "IV strength".
 
-<!-- To simplify, we consider the following assumptions: -->
-
-<!-- -  -->
+The impact on voter turnout on election outcome (share of the republican party) is estimated using 2 Stages Least Squares.
 
 More precisely, we set: 
 
 - $N$ the number of observations
-- $z \sim \mathcal{N}(0, \sigma_{z}^{2})$ or $z \sim \text{Bernoulli}(p_z)$ the instrument
+- $Rain \sim \mathcal{N}(0, \sigma_{R}^{2})$ or $Rain \sim \text{Bernoulli}(p_R)$ the instrument
 - $u \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
-- $e^{(h)} \sim \mathcal{N}(0, \sigma_{e_h}^{2})$
-- $e^{(p)} \sim \mathcal{N}(0, \sigma_{e_p}^{2})$
+- $e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S}^{2})$
+- $e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T}^{2})$
+- We assume that $\delta = \eta$ for simplicity. There is no actual basis for that and we may change that in the future.
+
+If one abstract from the name of the variable, they can notice that this setting is actually very general.
 
 ### Data generation
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
-Note that the parameter `type_z` describes whether z is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`. `param_z` represent either $\sigma_z$ if $z$ is normal or $p_z$ if it is Bernoulli.
+Note that the parameter `type_rain` describes whether $Rain$ is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`. `param_rain` represents either $\sigma_R$ if $Rain$ is normal or $p_R$ if it is Bernoulli.
  
 ```{r DGP_IV}
 generate_data_IV <- function(N,
-                             type_z, #"normal" or "bernoulli"
-                             param_z,
+                             type_rain, #"normal" or "bernoulli"
+                             param_rain,
                              sigma_u,
-                             sigma_eh,
-                             sigma_ep,
-                             alpha_y,
-                             alpha_x,
+                             sigma_es,
+                             sigma_et,
+                             alpha,
+                             gamma,
                              treatment_effect,
                              iv_strength,
                              ovb_intensity
                              ) {
   
-  if (type_z == "bernoulli") {
-    z_gen <- rbernoulli(N, param_z)
-  } else if (type_z == "normal") {
-    z_gen <- rnorm(N, 0, param_z)
+  if (type_rain == "bernoulli") {
+    rain_gen <- rbernoulli(N, param_rain)
+  } else if (type_rain == "normal") {
+    rain_gen <- rnorm(N, 0, param_rain)
   } else {
-    stop("type_z must be either 'bernoulli' or 'normal'")
+    stop("type_rain must be either 'bernoulli' or 'normal'")
   } 
   
   data <- tibble(id = 1:N) %>% 
     mutate(
-      z = z_gen,
+      rain = rain_gen,
       u = rnorm(nrow(.), 0, sigma_u),
-      e_h = rnorm(nrow(.), 0, sigma_eh),
-      e_p = rnorm(nrow(.), 0, sigma_ep),
-      x = alpha_x + iv_strength*z + ovb_intensity*u + e_p,
-      y = alpha_y + treatment_effect*x + ovb_intensity*u + e_h
+      e_s = rnorm(nrow(.), 0, sigma_es),
+      e_t = rnorm(nrow(.), 0, sigma_et),
+      turnout = gamma + iv_strength*rain + ovb_intensity*u + e_t,
+      share = alpha + treatment_effect*turnout + ovb_intensity*u + e_s
     )
   
   return(data)
 }
 ```
 
-We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_IV`.
+We set baseline values for the parameters to emulate a somehow realistic observational study. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_IV`.
+
+We get "inspiration" for the values of parameters from 
+[Fujiwara et al.](https://www.aeaweb.org/articles?id=10.1257/app.20140533)
+and 
+[Cooperman](https://www.cambridge.org/core/journals/political-analysis/article/randomization-inference-with-rainfall-data-using-historical-weather-patterns-for-variance-estimation/2F86BE9EB79FDFF9FF97C8C5CC4A2ED3) 
+who replicates a work by 
+[Gomez et al.](https://www.jstor.org/stable/10.1111/j.1468-2508.2007.00565.x?pq-origsite=360link&seq=1#metadata_info_tab_contents). 
+
+We consider that:
+- turnout and vote share are expressed in percent 
+- Fujiwara et al. find that "The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points" and Gomez et al. (and thus Cooperman) find "a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout" which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout.
+- For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1
+- We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect
+- We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
+  - The parameters of the distribution of rainfall are comparable in both papers
+  - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
+
+We thus consider the following parameters:
 
 ```{r simple_param_IV}
 simple_parameters_IV <- tibble(
   N = 500,
-  type_z = "normal",
-  param_z = 1,
+  type_rain = "bernoulli",
+  param_rain = 0.4,
   sigma_u = 1,
-  sigma_eh = 1,
-  sigma_ep = 1,
-  alpha_y = 0,
-  alpha_x = 0,
-  treatment_effect = 1
+  sigma_es = 14,
+  sigma_et = 13,
+  alpha = 46,
+  gamma = 58,
+  treatment_effect = 0.1
 )
 ```
 
@@ -155,10 +177,33 @@ Here is an example of data created with our data generating process:
 
 ```{r example_data_IV, echo=FALSE}
 simple_parameters_IV %>% 
-  mutate(N = 10, iv_strength = 0.2, ovb_intensity = 0.4) %>% 
+  mutate(N = 10, iv_strength = -0.5, ovb_intensity = 0.5) %>% 
   pmap_dfr(generate_data_IV) %>% #use pmap to pass the set of parameters
   kable()
 ```
+
+#### Exploring the distribution of the data
+
+We just quickly explore the distribution of the data for a baseline set of parameters
+
+```{r explore_data_IV, echo=FALSE}
+ex_data <- simple_parameters_IV %>% 
+  mutate(N = 10000, iv_strength = -0.5, ovb_intensity = 0.5) %>% 
+  pmap_dfr(generate_data_IV) 
+
+ex_data %>% 
+  ggplot(aes(x = turnout)) +
+  geom_density()
+
+# ex_data %>% 
+#   ggplot(aes(x = rain)) +
+#   geom_density()
+
+ex_data %>% 
+  ggplot(aes(x = share)) +
+  geom_density()
+```
+
 
 <!-- ```{r} -->
 <!-- ex_data_IV <- simple_parameters_IV %>%  -->
@@ -166,7 +211,7 @@ simple_parameters_IV %>%
 <!--   pmap_dfr(generate_data_IV)  -->
 
 <!-- ex_data_IV %>%  -->
-<!--   ggplot(aes(x = z, y = y)) + -->
+<!--   ggplot(aes(x = rain, y = y)) + -->
 <!--   geom_point() + -->
 <!--   geom_smooth(method = "lm") -->
 <!-- ``` -->
@@ -179,7 +224,7 @@ After generating the data, we can run an estimation. We want to compare the IV a
 estimate_IV <- function(data) {
   reg_IV <- ivreg(
     data = data, 
-    formula = y ~ x | z
+    formula = share ~ turnout | rain
     ) 
   
   fstat_IV <- summary(
@@ -196,7 +241,7 @@ estimate_IV <- function(data) {
   
   reg_OLS <- lm(
     data = data, 
-    formula = y ~ x
+    formula = share ~ turnout
     ) %>% 
     broom::tidy() %>%
     mutate(
@@ -206,7 +251,7 @@ estimate_IV <- function(data) {
   
   reg_OLS_unbiased <- lm(
     data = data, 
-    formula = y ~ x + u
+    formula = share ~ turnout + u
     ) %>% 
     broom::tidy() %>%
     mutate(
@@ -217,7 +262,7 @@ estimate_IV <- function(data) {
   reg <- reg_IV %>% 
     rbind(reg_OLS) %>% 
     rbind(reg_OLS_unbiased) %>% 
-    filter(term == "x") %>%
+    filter(term == "turnout") %>%
     rename(p_value = p.value, se = std.error) %>%
     select(estimate, p_value, se, fstat, model) %>% 
   
@@ -231,25 +276,25 @@ We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To 
 
 ```{r compute_sim_IV}
 compute_sim_IV <- function(N,
-                           type_z,
-                           param_z,
+                           type_rain,
+                           param_rain,
                            sigma_u,
-                           sigma_eh,
-                           sigma_ep,
-                           alpha_y,
-                           alpha_x,
+                           sigma_es,
+                           sigma_et,
+                           alpha,
+                           gamma,
                            treatment_effect,
                            iv_strength,
                            ovb_intensity) {
   generate_data_IV(
     N = N,
-    type_z = type_z,
+    type_rain = type_rain,
     sigma_u = sigma_u,
-    param_z = param_z,
-    sigma_eh = sigma_eh,
-    sigma_ep = sigma_ep,
-    alpha_y = alpha_y,
-    alpha_x = alpha_x,
+    param_rain = param_rain,
+    sigma_es = sigma_es,
+    sigma_et = sigma_et,
+    alpha = alpha,
+    gamma = gamma,
     treatment_effect = treatment_effect,
     iv_strength = iv_strength,
     ovb_intensity = ovb_intensity
@@ -270,13 +315,13 @@ We will run the simulations for different sets of parameters by mapping our `com
 ```{r set_param_IV}
 baseline_parameters <- tibble(
   N = 500,
-  type_z = "normal",
-  param_z = 1,
+  type_rain = "normal",
+  param_rain = 1,
   sigma_u = 1,
-  sigma_eh = 1,
-  sigma_ep = 1,
-  alpha_y = 0,
-  alpha_x = 0,
+  sigma_es = 1,
+  sigma_et = 1,
+  alpha = 0,
+  gamma = 0,
   treatment_effect = 1
 )
 
