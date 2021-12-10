@@ -54,41 +54,58 @@ In the case of the IV, the OVB/type M trade-off is  mediated by the 'strength' o
 
 ## An illustrative example
 
-To illustrate this trade-off between OVB and type M error, we consider a standard application of the IV design in environmental economics.
+For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings. 
+
+A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks.
 
 ### Modelisation choices
 
-In the present analysis, we build our simulations to replicate a similar type of quasi-experiment. 
+In the present analysis, we build our simulations to replicate an analysis of the causal health effects of air pollution. In such analyses, in order to avoid potential confounders, researchers often instrument air pollution with exogeneous shocks such as plant closure or thermal inversions for instance. For simplicity we abstract from the panel dimension in this analysis. One can consider that this is an analysis of the impact of life-long exposure to air pollution on health. Again, this illustration is very simplistic and is mostly consider to simplify the understanding of the interactions between the different variables. 
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
-```{r echo=FALSE, out.width='40%'}
+```{r DAG_RDD, echo=FALSE, out.width='70%'}
 include_graphics(here("images/DAG_IV.png"))
 ```
 
-To simplify, we consider the following assumptions:
+The DGP for the health status of person $i$ is defined as follows:
+
+$$Health_{i} = \alpha + \beta Poll_{i} + \delta u_{i} + e^{(h)}_{i}$$
+
+Where $\alpha$ is a constant, $u$ represents an unobserved variable and $e \sim \mathcal{N}(0, \sigma_{e})$ noise. $\beta$ is the parameter of interest.
+
+The DGP for the pollution data is as follows: 
+
+$$Poll_{i} = \gamma + \lambda z_{i} + \eta u_{i} + e^{(p)}_{i}$$
+Where $\mu$ is a constant, $z$ is the instrument for air pollution and $\tilde{e} \sim \mathcal{N}(0, \sigma_{\tilde{e}})$ noise. We refer to $\lambda$ as "IV strength".
+
+The effect of air pollution on health is estimated using 2 Stages Least Squares.
+
+<!-- To simplify, we consider the following assumptions: -->
+
+<!-- -  -->
 
 More precisely, we set: 
 
 - $N$ the number of observations
-- $Z \sim \mathcal{N}(0, \sigma_{z}^{2})$ or $Z \sim \text{Bernoulli}(p_z)$ the instrument
-- $U \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
-- $X = \alpha_x + \gamma_x Z + \delta_x U + e_x$ the dependent variable and where $e_x \sim \mathcal{N}(0, \sigma_{x}^{2})$
-- $Y = \alpha_y + \beta X + \delta_y U + e_y$  the independent variable and where $e_y \sim \mathcal{N}(0, \sigma_{y}^{2})$
+- $z \sim \mathcal{N}(0, \sigma_{z}^{2})$ or $z \sim \text{Bernoulli}(p_z)$ the instrument
+- $u \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
+- $e^{(h)} \sim \mathcal{N}(0, \sigma_{e_h}^{2})$
+- $e^{(p)} \sim \mathcal{N}(0, \sigma_{e_p}^{2})$
 
 ### Data generation
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
-Note that the parameter `type_z` describes whether z is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`.
-
+Note that the parameter `type_z` describes whether z is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`. `param_z` represent either $\sigma_z$ if $z$ is normal or $p_z$ if it is Bernoulli.
+ 
 ```{r DGP_IV}
 generate_data_IV <- function(N,
                              type_z, #"normal" or "bernoulli"
                              param_z,
                              sigma_u,
-                             sigma_ex,
-                             sigma_ey,
+                             sigma_eh,
+                             sigma_ep,
                              alpha_y,
                              alpha_x,
                              treatment_effect,
@@ -108,17 +125,17 @@ generate_data_IV <- function(N,
     mutate(
       z = z_gen,
       u = rnorm(nrow(.), 0, sigma_u),
-      e_x = rnorm(nrow(.), 0, sigma_ex),
-      e_y = rnorm(nrow(.), 0, sigma_ey),
-      x = alpha_x + iv_strength*z + ovb_intensity*u + e_x,
-      y = alpha_y + treatment_effect*x + ovb_intensity*u + e_y
+      e_h = rnorm(nrow(.), 0, sigma_eh),
+      e_p = rnorm(nrow(.), 0, sigma_ep),
+      x = alpha_x + iv_strength*z + ovb_intensity*u + e_p,
+      y = alpha_y + treatment_effect*x + ovb_intensity*u + e_h
     )
   
   return(data)
 }
 ```
 
-We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_RDD`.
+We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_IV`.
 
 ```{r simple_param_IV}
 simple_parameters_IV <- tibble(
@@ -126,8 +143,8 @@ simple_parameters_IV <- tibble(
   type_z = "normal",
   param_z = 1,
   sigma_u = 1,
-  sigma_ex = 1,
-  sigma_ey = 1,
+  sigma_eh = 1,
+  sigma_ep = 1,
   alpha_y = 0,
   alpha_x = 0,
   treatment_effect = 1
@@ -163,32 +180,46 @@ estimate_IV <- function(data) {
   reg_IV <- ivreg(
     data = data, 
     formula = y ~ x | z
-    ) %>% 
+    ) 
+  
+  fstat_IV <- summary(
+    reg_IV, 
+    diagnostics = TRUE
+  )$diagnostics["Weak instruments", "statistic"]
+  
+  reg_IV <- reg_IV %>% 
     broom::tidy() %>%
-    mutate(model = "IV")
+    mutate(
+      model = "IV",
+      fstat = fstat_IV
+    )
   
   reg_OLS <- lm(
     data = data, 
     formula = y ~ x
     ) %>% 
     broom::tidy() %>%
-    mutate(model = "OLS")
+    mutate(
+      model = "OLS",
+      fstat = NA
+    )
   
   reg_OLS_unbiased <- lm(
     data = data, 
     formula = y ~ x + u
     ) %>% 
     broom::tidy() %>%
-    mutate(model = "OLS unbiased")
+    mutate(
+      model = "OLS unbiased",
+      fstat = NA
+    )
   
   reg <- reg_IV %>% 
     rbind(reg_OLS) %>% 
     rbind(reg_OLS_unbiased) %>% 
     filter(term == "x") %>%
     rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se, model) %>% 
-    
-     # s$diagnostics["Weak instruments", "statistic"]
+    select(estimate, p_value, se, fstat, model) %>% 
   
   return(reg)
 }
@@ -196,15 +227,15 @@ estimate_IV <- function(data) {
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_sim_IV`. This simple function takes as input the various parameters along with the bandwidth size, `bw`. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+We can now run a simulation, combining `generate_data_IV` and `estimate_IV`. To do so we create the function `compute_sim_IV`. This simple function takes as input the various parameters. It returns a table with the estimate of the treatment, its p-value and standard error, the F-statistic for the IV, the true effect, the IV strength and the intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r compute_sim_IV}
 compute_sim_IV <- function(N,
                            type_z,
                            param_z,
                            sigma_u,
-                           sigma_ex,
-                           sigma_ey,
+                           sigma_eh,
+                           sigma_ep,
                            alpha_y,
                            alpha_x,
                            treatment_effect,
@@ -215,8 +246,8 @@ compute_sim_IV <- function(N,
     type_z = type_z,
     sigma_u = sigma_u,
     param_z = param_z,
-    sigma_ex = sigma_ex,
-    sigma_ey = sigma_ey,
+    sigma_eh = sigma_eh,
+    sigma_ep = sigma_ep,
     alpha_y = alpha_y,
     alpha_x = alpha_x,
     treatment_effect = treatment_effect,
@@ -226,7 +257,8 @@ compute_sim_IV <- function(N,
     estimate_IV() %>%
     mutate(
       iv_strength = iv_strength,
-      ovb_intensity = ovb_intensity
+      ovb_intensity = ovb_intensity,
+      true_effect = treatment_effect
     )
 } 
 ```
@@ -241,8 +273,8 @@ baseline_parameters <- tibble(
   type_z = "normal",
   param_z = 1,
   sigma_u = 1,
-  sigma_ex = 1,
-  sigma_ey = 1,
+  sigma_eh = 1,
+  sigma_ep = 1,
   alpha_y = 0,
   alpha_x = 0,
   treatment_effect = 1
@@ -252,7 +284,7 @@ fixed_parameters <- baseline_parameters #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
 vect_ovb_intensity <- c(0.4)
-n_iter <- 1000
+n_iter <- 1
 
 param_IV <- fixed_parameters %>% 
   crossing(vect_iv_strength, vect_ovb_intensity) %>% 
@@ -378,10 +410,10 @@ simulations_IV %>%
 
 ### Computing bias and type M
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{i}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{i}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{IV}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
 ```{r summarise_IV}
-summarise_simulations <- function(data, true_effect = 1) {
+summarise_simulations <- function(data) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>% 
     group_by(ovb_intensity, iv_strength, model) %>%
@@ -391,7 +423,7 @@ summarise_simulations <- function(data, true_effect = 1) {
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
-      # mean_f_stat = mean(f_stat, na.rm = TRUE),
+      median_fstat = mean(fstat, na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
     ungroup()
@@ -448,4 +480,83 @@ summary_simulations_IV %>%
     subtitle = "For statistically significant estimates"
   ) 
 ```
+
+
+### F-statistic analysis
+
+
+```{r fstat_graph, echo=FALSE, fig.asp=0.7}
+simulations_IV %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  filter(iv_strength > 0.06) %>% 
+  mutate(bias = estimate - true_effect) %>% 
+  # filter(abs(bias) < 10) %>% 
+  ggplot(aes(x = fstat, y = bias, color = significant)) +
+  geom_point()
+```
+
+```{r}
+simulations_IV %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  ggplot(aes(x = iv_strength, y = fstat, color = significant)) +
+  geom_point() +
+  geom_jitter() +
+  ylim(c(0, 40))
+
+lm(data = simulations_IV, fstat ~ iv_strength) %>% 
+  summary() %>% 
+  .$adj.r.squared
+
+library(ggridges)
+
+simulations_IV %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  filter(model == "IV") %>% 
+  ggplot() +
+  geom_density_ridges(aes(x = fstat, y = factor(iv_strength), fill = significant, color = significant), alpha = 0.6)+
+  coord_flip()+
+  xlim(c(0, 50))
+```
+
+
+
+
+```{r}
+simulations_IV %>% 
+  filter(model == "IV") %>%
+  mutate(
+    significant = (p_value <= 0.05),
+    bin_fstat = cut_number(fstat, n = 10) %>% 
+      paste() %>% 
+      str_extract("(?<=,)(\\d|\\.)+") %>% 
+      as.numeric()
+  ) %>% 
+  group_by(ovb_intensity, bin_fstat) %>%
+  summarise(
+    power = mean(significant, na.rm = TRUE)*100, 
+    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+    bias_all = mean(estimate/true_effect, na.rm = TRUE),
+    bias_all_median = median(estimate/true_effect, na.rm = TRUE),
+    median_fstat = mean(fstat, na.rm = TRUE),
+    .groups	= "drop"
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = bin_fstat, y = bias_signif)) +
+  geom_line() +
+  geom_vline(xintercept = 10) +
+  xlim(c(0, 100))
+  
+  
+  
+```
+
+
+
+
+
+
+
+
+
 
