@@ -101,11 +101,13 @@ If one abstract from the name of the variable, they can notice that this setting
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
-Note that the parameter `type_rain` describes whether $Rain$ is a random sample from a normal or bernoulli distribution. It can take the values `normal` or `bernoulli`. `param_rain` represents either $\sigma_R$ if $Rain$ is normal or $p_R$ if it is Bernoulli.
+Note that the parameter `type_rain` describes whether $Rain$ is a random sample from a normal or Bernoulli distribution. The distributions of rainfall heights can be approximated with a gamma distribution. The Bernoulli distribution is used if one only consider the impact of rain or no rain on voter turnout. A normal distribution does not represent actual rainfall distributions but is added to run these simulations in other contexts than linking rainfall, voter turnout and election outcomes.
+
+`type_rain` can take the values `gamma`, `bernoulli` or `normal`. `param_rain` represents either $\sigma_R$ if $Rain$ is normal, $p_R$ if it is Bernoulli or a vector of shape and scale parameters for the gamma distribution.
  
 ```{r DGP_IV}
 generate_data_IV <- function(N,
-                             type_rain, #"normal" or "bernoulli"
+                             type_rain, #"gamma", "normal" or "bernoulli"
                              param_rain,
                              sigma_u,
                              sigma_es,
@@ -118,14 +120,16 @@ generate_data_IV <- function(N,
                              ) {
   
   if (type_rain == "bernoulli") {
-    rain_gen <- rbernoulli(N, param_rain)
+    rain_gen <- rbernoulli(N, param_rain[1])
   } else if (type_rain == "normal") {
-    rain_gen <- rnorm(N, 0, param_rain)
+    rain_gen <- rnorm(N, 0, param_rain[1])
+  } else if (type_rain == "gamma") {
+    rain_gen <- rgamma(N, shape = param_rain[1], scale = param_rain[2])
   } else {
-    stop("type_rain must be either 'bernoulli' or 'normal'")
-  } 
+    stop("type_rain must be either 'bernoulli', 'gamma' or 'normal'")
+  }
   
-  data <- tibble(id = 1:N) %>% 
+  data <- tibble(id = 1:N) %>%
     mutate(
       rain = rain_gen,
       u = rnorm(nrow(.), 0, sigma_u),
@@ -134,7 +138,7 @@ generate_data_IV <- function(N,
       turnout = gamma + iv_strength*rain + ovb_intensity*u + e_t,
       share = alpha + treatment_effect*turnout + ovb_intensity*u + e_s
     )
-  
+
   return(data)
 }
 ```
@@ -149,21 +153,24 @@ who replicates a work by
 [Gomez et al.](https://www.jstor.org/stable/10.1111/j.1468-2508.2007.00565.x?pq-origsite=360link&seq=1#metadata_info_tab_contents). 
 
 We consider that:
+
 - turnout and vote share are expressed in percent 
 - Fujiwara et al. find that "The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points" and Gomez et al. (and thus Cooperman) find "a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout" which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout.
 - For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1
 - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect
 - We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
-  - The parameters of the distribution of rainfall are comparable in both papers
+  - A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is $shape \times scale$ and the variance $shape \times scale^{2}$. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.
   - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
 
 We thus consider the following parameters:
 
 ```{r simple_param_IV}
-simple_parameters_IV <- tibble(
+baseline_parameters_IV <- tibble(
   N = 500,
-  type_rain = "bernoulli",
-  param_rain = 0.4,
+  # type_rain = "bernoulli",
+  # param_rain = 0.4,
+  type_rain = "gamma",
+  param_rain = list(c(0.13, 18)),
   sigma_u = 1,
   sigma_es = 14,
   sigma_et = 13,
@@ -193,7 +200,12 @@ ex_data <- simple_parameters_IV %>%
 
 ex_data %>% 
   ggplot(aes(x = turnout)) +
-  geom_density()
+  geom_density() + 
+  labs(
+    title = "Distribution of turnout",
+    x = "Turnout (in %)",
+    y = "Density"
+  )
 
 # ex_data %>% 
 #   ggplot(aes(x = rain)) +
@@ -201,20 +213,13 @@ ex_data %>%
 
 ex_data %>% 
   ggplot(aes(x = share)) +
-  geom_density()
+  geom_density() +
+  labs(
+    title = "Distribution of Republican shares",
+    x = "Share (in %)",
+    y = "Density"
+  )
 ```
-
-
-<!-- ```{r} -->
-<!-- ex_data_IV <- simple_parameters_IV %>%  -->
-<!--   mutate(N = 1000, iv_strength = 0.2, ovb_intensity = 0.4) %>%  -->
-<!--   pmap_dfr(generate_data_IV)  -->
-
-<!-- ex_data_IV %>%  -->
-<!--   ggplot(aes(x = rain, y = y)) + -->
-<!--   geom_point() + -->
-<!--   geom_smooth(method = "lm") -->
-<!-- ``` -->
 
 ### Estimation
 
@@ -313,23 +318,11 @@ compute_sim_IV <- function(N,
 We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_IV}
-baseline_parameters <- tibble(
-  N = 500,
-  type_rain = "normal",
-  param_rain = 1,
-  sigma_u = 1,
-  sigma_es = 1,
-  sigma_et = 1,
-  alpha = 0,
-  gamma = 0,
-  treatment_effect = 1
-)
-
-fixed_parameters <- baseline_parameters #%>% rbind(...)
+fixed_parameters <- baseline_parameters_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
-vect_ovb_intensity <- c(0.4)
-n_iter <- 1
+vect_ovb_intensity <- c(0.5)
+n_iter <- 200
 
 param_IV <- fixed_parameters %>% 
   crossing(vect_iv_strength, vect_ovb_intensity) %>% 
@@ -356,7 +349,7 @@ toc()
 First, we quickly explore the results.
 
 ```{r exploration_results_IV, echo=FALSE, fig.asp=0.7}
-simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
+# simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
 simulations_IV %>% 
   filter(between(estimate, 0, 2)) %>%
@@ -598,6 +591,19 @@ simulations_IV %>%
 
 
 
+```{r}
+simple_parameters_IV <- tibble(
+  N = 500,
+  type_rain = "normal",
+  param_rain = 1,
+  sigma_u = 1,
+  sigma_es = 1,
+  sigma_et = 1,
+  alpha = 0,
+  gamma = 0,
+  treatment_effect = 1
+)
+```
 
 
 
