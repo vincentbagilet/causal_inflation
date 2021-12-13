@@ -44,6 +44,7 @@ library(AER)
 library(tictoc)
 library(here)
 library(beepr)
+library(ggridges)
 
 set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 ```
@@ -93,7 +94,7 @@ More precisely, we set:
 - $u \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
 - $e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S}^{2})$
 - $e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T}^{2})$
-- We assume that $\delta = \eta$ for simplicity. There is no actual basis for that and we may change that in the future.
+- We assume that $\delta = -\eta$ for simplicity. There is no actual basis for that and we may change that in the future. The opposite sign is just to get an upward bias, which makes the comparison between OLS and IV easier since the bias and type M go in the same direction.
 
 If one abstract from the name of the variable, they can notice that this setting is actually very general.
 
@@ -135,7 +136,7 @@ generate_data_IV <- function(N,
       u = rnorm(nrow(.), 0, sigma_u),
       e_s = rnorm(nrow(.), 0, sigma_es),
       e_t = rnorm(nrow(.), 0, sigma_et),
-      turnout = gamma + iv_strength*rain + ovb_intensity*u + e_t,
+      turnout = gamma + iv_strength*rain - ovb_intensity*u + e_t,
       share = alpha + treatment_effect*turnout + ovb_intensity*u + e_s
     )
 
@@ -160,7 +161,7 @@ We consider that:
 - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect
 - We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
   - A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is $shape \times scale$ and the variance $shape \times scale^{2}$. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.
-  - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
+  - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14) and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
 
 We thus consider the following parameters:
 
@@ -171,31 +172,31 @@ baseline_parameters_IV <- tibble(
   # param_rain = 0.4,
   type_rain = "gamma",
   param_rain = list(c(0.13, 18)),
-  sigma_u = 1,
-  sigma_es = 14,
-  sigma_et = 13,
-  alpha = 46,
+  sigma_u = 2,
+  sigma_es = 9,
+  sigma_et = 10,
+  alpha = 112,
   gamma = 58,
-  treatment_effect = 0.1
+  treatment_effect = -1
 )
 ```
 
 Here is an example of data created with our data generating process:
 
 ```{r example_data_IV, echo=FALSE}
-simple_parameters_IV %>% 
-  mutate(N = 10, iv_strength = -0.5, ovb_intensity = 0.5) %>% 
+baseline_parameters_IV %>% 
+  mutate(N = 10, iv_strength = -0.5, ovb_intensity = -1) %>% 
   pmap_dfr(generate_data_IV) %>% #use pmap to pass the set of parameters
   kable()
 ```
 
 #### Exploring the distribution of the data
 
-We just quickly explore the distribution of the data for a baseline set of parameters
+We just quickly explore the distribution of the data for a baseline set of parameters. For this, we consider a mid range value for IV strength (-0.5).
 
 ```{r explore_data_IV, echo=FALSE}
-ex_data <- simple_parameters_IV %>% 
-  mutate(N = 10000, iv_strength = -0.5, ovb_intensity = 0.5) %>% 
+ex_data <- baseline_parameters_IV %>% 
+  mutate(N = 10000, iv_strength = -0.5, ovb_intensity = -1) %>% 
   pmap_dfr(generate_data_IV) 
 
 ex_data %>% 
@@ -205,9 +206,10 @@ ex_data %>%
     title = "Distribution of turnout",
     x = "Turnout (in %)",
     y = "Density"
-  )
+  ) +
+  xlim(c(0,100))
 
-# ex_data %>% 
+# ex_data %>%
 #   ggplot(aes(x = rain)) +
 #   geom_density()
 
@@ -218,7 +220,26 @@ ex_data %>%
     title = "Distribution of Republican shares",
     x = "Share (in %)",
     y = "Density"
-  )
+  ) +
+  xlim(c(0,100))
+```
+
+We also check the standard deviation and means of the parameters:
+
+```{r check_sd_mean, echo=FALSE}
+ex_data_mean <- ex_data %>% 
+  summarise(across(.cols = c(share, turnout, rain), mean)) %>% 
+  mutate(Statistic = "Mean") %>% 
+  select(Statistic, everything())
+
+ex_data_sd <- ex_data %>% 
+  summarise(across(.cols = c(share, turnout, rain), sd)) %>% 
+  mutate(Statistic = "Standard Deviation") %>% 
+  select(Statistic, everything())
+
+ex_data_mean %>% 
+  rbind(ex_data_sd) %>% 
+  kable()
 ```
 
 ### Estimation
@@ -321,8 +342,8 @@ We will run the simulations for different sets of parameters by mapping our `com
 fixed_parameters <- baseline_parameters_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
-vect_ovb_intensity <- c(0.5)
-n_iter <- 200
+vect_ovb_intensity <- c(-1)
+n_iter <- 1000
 
 param_IV <- fixed_parameters %>% 
   crossing(vect_iv_strength, vect_ovb_intensity) %>% 
@@ -349,15 +370,15 @@ toc()
 First, we quickly explore the results.
 
 ```{r exploration_results_IV, echo=FALSE, fig.asp=0.7}
-# simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
+simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
 simulations_IV %>% 
-  filter(between(estimate, 0, 2)) %>%
+  filter(between(estimate, -3, 1)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
-  geom_vline(xintercept = 1) +
+  geom_vline(xintercept = -1) +
   geom_density() +
   facet_wrap(~ iv_strength) +
   labs(
@@ -371,7 +392,7 @@ simulations_IV %>%
   )
 
 simulations_IV %>%
-  filter(between(estimate, -0.5, 2.5)) %>%
+  filter(between(estimate, -3, 1)) %>%
   filter(model == "IV") %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
   ggplot() +
@@ -394,14 +415,14 @@ simulations_IV %>%
   )
 
 data_one_sim_IV <- simulations_IV %>% 
-  filter(between(estimate, -1, 2)) %>% 
+  filter(between(estimate, -3, 1)) %>%
   filter(iv_strength == 0.1) %>% 
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) 
 
 data_one_sim_IV %>% 
   ggplot(aes(x = estimate, fill = significant)) +
-  geom_vline(xintercept = 1) +
+  geom_vline(xintercept = -1) +
   geom_histogram() +
   facet_wrap(~ model) +
   labs(
@@ -425,12 +446,12 @@ We notice that the OLS is always biased and that the IV is never biased. However
 ```{r distrib_for_presentation, eval=TRUE, include=FALSE}
 #Graph only for presentations, not compiled in the main .Rmd
 simulations_IV %>% 
-  filter(between(estimate, 0.5, 1.7)) %>%
+  # filter(between(estimate, 0.5, 1.7)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength == 0.4) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
-  geom_vline(xintercept = 1) +
+  geom_vline(xintercept = -1) +
   geom_density() +
   # facet_wrap(~ iv_strength) +
   labs(
@@ -477,7 +498,7 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
 summary_simulations_IV %>% 
-  filter(model %in% c("OLS", "IV")) %>% 
+  # filter(model %in% c("OLS", "IV")) %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
@@ -516,50 +537,76 @@ summary_simulations_IV %>%
     color = "Model",
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"
-  ) 
+  ) +
+  ylim(c(0.9, 1.4))
 ```
 
 
 ### F-statistic analysis
 
+We then run some exploratory analysis to see the link between type M and F-stat (under construction).
 
-```{r fstat_graph, echo=FALSE, fig.asp=0.7}
+```{r fstat_bias_graph, echo=FALSE, fig.asp=0.7}
 simulations_IV %>% 
+  filter(model == "IV") %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
-  filter(iv_strength > 0.06) %>% 
-  mutate(bias = estimate - true_effect) %>% 
+  mutate(bias = estimate/true_effect) %>% 
+  filter(fstat > 10) %>%  
+  # .$bias %>% mean(., na.rm = TRUE)
   # filter(abs(bias) < 10) %>% 
   ggplot(aes(x = fstat, y = bias, color = significant)) +
-  geom_point()
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Bias as a function of the F-statistic in the simulations",
+    subtitle = "By significance and only for F-stat above 10",
+    x = "F-statistic",
+    y = expression(paste(frac("Estimate", "True Effect"))),
+    color = "Significant"
+  )
 ```
 
-```{r}
+We can notice that there is a correlation between what we call IV strength and the F statistic. When looking in more details at the distribution of F-stats, we can notice that, even for some IV strength, there are a a good chunk of significant estimates with F-stats greater thant the standard but arbitrary threshold of 10.
+
+```{r IV_strength_fstat_graph, echo=FALSE, fig.asp=0.8}
 simulations_IV %>% 
+  filter(model == "IV") %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   ggplot(aes(x = iv_strength, y = fstat, color = significant)) +
-  geom_point() +
-  geom_jitter() +
-  ylim(c(0, 40))
+  geom_point(alpha = 0.5) +
+  geom_jitter(alpha = 0.5) +
+  labs(
+    title = "A correlation betwween IV strength and F-statistic",
+    subtitle = "By significance",
+    x = "IV strength",
+    y = "F-statistic",
+    color = "Significant"
+  )
+  # ylim(c(0, 40))
 
-lm(data = simulations_IV, fstat ~ iv_strength) %>% 
-  summary() %>% 
-  .$adj.r.squared
-
-library(ggridges)
+# lm(data = simulations_IV, fstat ~ iv_strength) %>% 
+#   summary() %>% 
+#   .$adj.r.squared
 
 simulations_IV %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   filter(model == "IV") %>% 
   ggplot() +
   geom_density_ridges(aes(x = fstat, y = factor(iv_strength), fill = significant, color = significant), alpha = 0.6)+
-  coord_flip()+
-  xlim(c(0, 50))
+  coord_flip() +
+  xlim(c(0, 50)) +
+  labs(
+    title = "F-statistics larger than 10, even for small IV strength",
+    subtitle = "Distribution of F-statistics by IV strength and significance",
+    x = "F-statistic",
+    y = "IV strength",
+    fill = "Significant",
+    color = "Significant"
+  )
 ```
 
+We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph:
 
-
-
-```{r}
+```{r bined_fstat, echo=FALSE, fig.asp=0.8}
 simulations_IV %>% 
   filter(model == "IV") %>%
   mutate(
@@ -583,27 +630,33 @@ simulations_IV %>%
   ggplot(aes(x = bin_fstat, y = bias_signif)) +
   geom_line() +
   geom_vline(xintercept = 10) +
-  xlim(c(0, 100))
-  
-  
-  
+  xlim(c(0, 50)) +
+  labs(
+    x = "Binned F-statistic", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    color = "Model",
+    title = "Evolution of bias with binned F-statistic",
+    subtitle = "For statistically significant estimates",
+    caption = "This graph does not acurately represent 
+    what wwe are interested in"
+  ) 
 ```
 
 
 
-```{r}
-simple_parameters_IV <- tibble(
-  N = 500,
-  type_rain = "normal",
-  param_rain = 1,
-  sigma_u = 1,
-  sigma_es = 1,
-  sigma_et = 1,
-  alpha = 0,
-  gamma = 0,
-  treatment_effect = 1
-)
-```
+<!-- ```{r} -->
+<!-- simple_parameters_IV <- tibble( -->
+<!--   N = 500, -->
+<!--   type_rain = "normal", -->
+<!--   param_rain = 1, -->
+<!--   sigma_u = 1, -->
+<!--   sigma_es = 1, -->
+<!--   sigma_et = 1, -->
+<!--   alpha = 0, -->
+<!--   gamma = 0, -->
+<!--   treatment_effect = 1 -->
+<!-- ) -->
+<!-- ``` -->
 
 
 
