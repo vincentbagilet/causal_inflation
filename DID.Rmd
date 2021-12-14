@@ -1,5 +1,5 @@
 ---
-title: "Simulations Event study/DID"
+title: "Simulations DID / Event study"
 description: "In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."
 author:
   - name: Vincent Bagilet 
@@ -39,12 +39,13 @@ opts_chunk$set(fig.path = "images/",
 ```{r packages_RDD, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse) 
 library(knitr) 
+library(fixest)
 library(mediocrethemes)
 library(tictoc)
 library(here)
 library(beepr)
 
-set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
+set_mediocre_all(pal = "coty", gradient = "left") #, background = TRUE) #for presentations
 ```
 
 ## Summary and intuition
@@ -53,59 +54,38 @@ In the case of Event studies and DiD, the OVB/type M trade-off is  mediated by t
 
 ## An illustrative example
 
-For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings. 
+<!-- For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings.  -->
 
-A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks.
+<!-- A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks. -->
 
 ### Modelisation choices
 
-In the present analysis, we build our simulations to replicate an analysis of the causal health effects of air pollution, using plant closures as an exogeneous shifter in air pollution levels. In such analyses, the data is often at the city-daily level. Hospital admissions are usual health outcomes considered in such analyses. 
+To simplify, I consider the assumptions described below. Of course these assumptions are purely arbitrary and I invite you to play with them. Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0.
 
-The DGP can be represented using the following Directed Acyclic Graph (DAG): 
-
-```{r DAG_RDD, echo=FALSE, out.width='40%'}
-include_graphics(here("images/DAG_DID.png"))
-```
-
-This DAG makes it clear that in substance, we are instrumenting air pollution level by plant closure.
-
-The DGP for the number of admissions at the hospital in city $c$ at time $t$ is as follows:
-
-$$Admissions_{ct} = \xi + \gamma Poll_{ct} + \delta U_{ct} + e_{ct}$$
-Where $\xi$ is a constant, $U$ represents an unobserved variable and $e \sim \mathcal{N}(0, \sigma_{e)$ noise. The DGP for the pollution data is as follows: 
-
-$$Poll_{ct} = \mu + \lambda T_{ct} + \eta U_{ct} + \tilde{e}_{ct}$$
-Where $\mu$ is a constant,$T_{ct}$ is the treatment, equal to 1 if there is a plant closure in city $c$ at time $t$ and zero otherwise and $\tilde{e} \sim \mathcal{N}(0, \sigma_{\tilde{e})$ noise.
-
-The effect of plant closures, the treatment, on health is often estimated using a reduced form approach, regressing health in city $c$ at time $t$ on the treatment. In our case, that yields to estimating the following equation:
-m
-$$Admissions_{ct} = \alpha + \beta T_{ct} + \epsilon_{ct}$$
-To simplify, we consider the following assumptions:
-
-- Pollution and hospital admissions are not correlated across cities nor time. This is very simplistic but if anything should make it easier to identify the effect of interest,
-- The unobserved variable $U$ is drawn from a normal distribution, 
-- In a first step, we consider homogeneous treatment effects
-
+- Each individual has fixed characteristics drawn from a normal distribution,
+- Each time period presents fixed characteristics also drawn from a normal distribution,
+- A unique covariate $x$ drawn from a normal distribution,
 - A proportion $p_{treat}$ of individuals are ever treated over the period. Hence, a proportion of $1-p_{treat}$ individuals are never treated over the period. I draw these individual at random. Note that the value of the individual identifiers do not matter here. So I could assume that the non-treated individuals are those with the larger individual ids for instance,
 - The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period
 - The treatment can vary along two dimensions, time and individual. Details are given below.
 
 More precisely, I set: 
 
-- $N_C$ the number of cities
-- $N_T$ the number of periods
-- $U_{ct} \sim \mathcal{N}(\mu_{u}, \sigma_{u}^{2})$
-- $e_{it} \sim \mathcal{N}(0, \sigma_{e}^{2})$, $\tilde{e}_{it} \sim \mathcal{N}(0, \sigma_{\tilde{e}}^{2})$ noises
-- $T_{ct}$ represent the treatment allocation, it is equal to one if a plant closes in city $c$ at time $t$ and 0 otherwise,
-- $Poll$ and $Amissions$ are created as described above
-
+- $N_i$ the number of individual
+- $N_t$ the number of periods
+- $\lambda_i \sim \mathcal{N}(\mu_{IFE}, \sigma_{IFE}^{2})$ the fixed effect for individual $i$
+- $\eta_t \sim \mathcal{N}(\mu_{TFE}, \sigma_{TFE}^{2})$ the fixed effect for time period $t$
+- $x_{it} \sim \mathcal{N}(\mu_{x}, \sigma_{x}^{2})$
+- $e_{it} \sim \mathcal{N}(0, \sigma_{e}^{2})$ some noise
+- $T_{it}$ represent the treatment allocation, it is equal to one if individual $i$ is treated at time $t$ and 0 otherwise,
+- $y_{it} = \alpha + \beta_{it} T_{it} + \gamma x_{it} + \lambda_i + \eta_t + e_{it}$ where $\alpha$ and $\gamma$ are some constants.
 - $\beta_{it}$ is represents the magnitude of the treatment effect and is linked to the input parameter `beta`. 
 
   - Across individuals, the treatment can either be:
   
     - homogeneous: `het_indiv == homogeneous`, for each individual, the treatment is equal to `beta`, 
     - random: `het_indiv == random`, for each individual, the treatment is drawn from  $\mathcal{U}(0.5\beta, 1.5\beta)$,
-    - larger for those that are treated first: `het_indiv == large_first`, for each individual, the treatment is equal to $N_T - \beta$.
+    - larger for those that are treated first: `het_indiv == large_first`, for each individual, the treatment is equal to $N_t - \beta$.
   
   - Across time, the effect of the treatment can either be 
     
@@ -124,22 +104,22 @@ I also create a bunch of variables that can be useful:
 I write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
 ```{r DGP}
-generate_data_TWFE <- function(N_C,
-                               N_T,
-                               sigma_e,
-                               p_treat,
-                               staggered,
-                               het_indiv,
-                               het_time,
-                               alpha,
-                               beta,
-                               mu_indiv_fe = 0, 
-                               sigma_indiv_fe = 0,
-                               mu_time_fe = 0, 
-                               sigma_time_fe = 0,
-                               mu_x = 0, 
-                               sigma_x = 0,
-                               gamma = 0
+generate_data_DID <- function(N_i,
+                              N_t,
+                              sigma_e,
+                              p_treat,
+                              staggered,
+                              het_indiv,
+                              het_time,
+                              alpha,
+                              beta,
+                              mu_indiv_fe = 0, 
+                              sigma_indiv_fe = 0,
+                              mu_time_fe = 0, 
+                              sigma_time_fe = 0,
+                              mu_x = 0, 
+                              sigma_x = 0,
+                              gamma = 0
                              ) {
 
   if (!is.logical(staggered)) {stop("staggered must be logical")} 
@@ -150,17 +130,17 @@ generate_data_TWFE <- function(N_C,
     stop('het_time must be either "constant" or "linear"')
   } 
   
-  data <- tibble(indiv = 1:N_C) %>%
-    mutate(InTreatment = (indiv %in% sample(1:N_C, floor(N_C*p_treat)))) %>% 
-    crossing(t = 1:N_T) %>%
+  data <- tibble(indiv = 1:N_i) %>%
+    mutate(in_treatment = (indiv %in% sample(1:N_i, floor(N_i*p_treat)))) %>% 
+    crossing(t = 1:N_t) %>%
     group_by(indiv) %>%
     mutate(
       indiv_fe = rnorm(1, mu_indiv_fe, sigma_indiv_fe),
-      t_event = ifelse(staggered, sample(2:(N_T - 1), 1), floor(N_T/2)), 
-        #I use 2:(N_T-1) to have a pre and post period
-      t_event = ifelse(InTreatment, t_event, NA),
+      t_event = ifelse(staggered, sample(2:(N_t - 1), 1), floor(N_t/2)), 
+        #I use 2:(N_t-1) to have a pre and post period
+      t_event = ifelse(in_treatment, t_event, NA),
       beta_i = case_when(
-        het_indiv == "large_first" ~ N_T-t_event,
+        het_indiv == "large_first" ~ N_t-t_event,
         het_indiv == "random" ~ runif(1, beta*0.5, beta*1.5), 
         het_indiv == "homogeneous" ~ beta
       ),
@@ -172,7 +152,7 @@ generate_data_TWFE <- function(N_C,
     ungroup() %>%
     mutate(
       post = (t > t_event),
-      treated = InTreatment & post, 
+      treated = in_treatment & post, 
       beta_i = ifelse(
         het_time == "linear" & post & !is.na(t_event),
         beta_i*(t - t_event), 
@@ -193,12 +173,12 @@ generate_data_TWFE <- function(N_C,
 I set baseline values for the parameters as very standard. These values are arbitrary.
 
 ```{r baseline_param}
-baseline_parameters_TWFE <- tibble(
-  N_C = 20,
-  N_T = 50,
+baseline_param_DID <- tibble(
+  N_i = 20,
+  N_t = 50,
   sigma_e = 1,
-  p_treat = 0.8,
-  staggered = TRUE,
+  p_treat = 0.5,
+  staggered = FALSE,
   het_indiv = "homogeneous",
   het_time = "constant",
   alpha = 1,
@@ -209,243 +189,348 @@ baseline_parameters_TWFE <- tibble(
 Here is an example of data created with the data generating process and baseline parameter values, for 2 individuals and 8 time periods:
 
 ```{r example_data, echo=FALSE}
-baseline_parameters_TWFE %>% 
-  mutate(N_C = 2, N_T = 8) %>%
-  pmap_dfr(generate_data_TWFE) %>% #use pmap to pass the set of parameters
-  select(indiv, t, y, InTreatment, post, treated, t_centered, e) %>% 
+baseline_param_DID %>% 
+  mutate(N_i = 2, N_t = 8) %>%
+  pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
+  # select(indiv, t, y, in_treatment, post, treated, t_centered, e) %>% 
   kable()
 ```
 
-<!-- ### Estimation -->
+Let's now have a look at different types of treatment and treatment allocations. First, let's look at treatment allocation mechanisms. The allocation can either be staggered or not, the treatment homogeneous across individual or not and cconstant or not in time.
 
-<!-- After generating the data, we can run an estimation.  -->
+```{r treatment_allocation_DID, echo=FALSE}
+labs_graph_staggered <- labs(
+    title = "Treatement assignment across time and individuals",
+    x = "Time index", 
+    y = "Individual id", 
+    fill = "Treated"
+  )
 
-<!-- Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results.  -->
+baseline_param_DID %>% 
+  mutate(staggered = FALSE) %>%
+  pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
+  ggplot(aes(x = t, y = factor(indiv), fill = factor(treated))) + 
+  geom_tile(color = "white", lwd = 0.3, linetype = 1) +
+  coord_fixed() +
+  labs_graph_staggered + 
+  labs(subtitle = "Non staggered")
 
-<!-- ```{r compute_true_effect_RDD} -->
-<!-- compute_true_effect_rdd <- function(data) { -->
-<!--   treated_data <- data %>%  -->
-<!--     filter(treated)  -->
-<!--   return(mean(treated_data$final1 - treated_data$final0)) -->
-<!-- }   -->
-<!-- ``` -->
+# baseline_param_DID %>% 
+#   mutate(staggered = TRUE) %>%
+#   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
+#   ggplot(aes(x = t, y = factor(indiv), fill = factor(treated))) + 
+#   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
+#   coord_fixed() +
+#   labs_graph_staggered + 
+#   labs(subtitle = "Staggered")
+```
 
-<!-- We then run the estimation. To do so, we only consider observations within the bandwidth and regress the final test scores on the treatment, the qualification score and their interaction. Note that we include this interaction term to allow more flexibility and to mimic an realistic estimation. Yet, we know that this interaction term does not appear in the DGP. Including it or not do not change the results. Also note that, of course, we do not include the unobserved ability in this model to create an OVB.  -->
+<!-- Now, let's vary treatment effect size across individuals, considering a staggered adoption. -->
 
-<!-- ```{r estimate_RDD} -->
-<!-- estimate_rdd <- function(data, bw) { -->
-<!--   data_in_bw <- data %>%  -->
-<!--     define_bw(bw = bw) %>%  -->
-<!--     filter(!is.na(treated_bw)) -->
-
-<!--   reg <- lm( -->
-<!--     data = data_in_bw,  -->
-<!--     formula = final ~ treated + qual -->
-<!--   ) %>%  -->
-<!--     broom::tidy() %>% -->
-<!--     filter(term == "treatedTRUE") %>% -->
-<!--     rename(p_value = p.value, se = std.error) %>% -->
-<!--     select(estimate, p_value, se) %>% -->
-<!--     mutate( -->
-<!--       true_effect = compute_true_effect_rdd(data), -->
-<!--       bw = bw -->
-<!--     ) -->
-
-<!--   return(reg) -->
-<!-- } -->
-<!-- ``` -->
-
-<!-- ### One simulation -->
-
-<!-- We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study. -->
-
-<!-- ```{r compute_sim_RDD} -->
-<!-- compute_sim_RDD <- function(N, -->
-<!--                             sigma_u, -->
-<!--                             mu_h, -->
-<!--                             sigma_h, -->
-<!--                             sigma_e, -->
-<!--                             alpha, -->
-<!--                             beta, -->
-<!--                             gamma, -->
-<!--                             delta, -->
-<!--                             q_c, -->
-<!--                             vect_bw) { -->
-
-<!--   data <- generate_data_rdd( -->
-<!--     N = N, -->
-<!--     sigma_u = sigma_u, -->
-<!--     mu_h = mu_h, -->
-<!--     sigma_h = sigma_h, -->
-<!--     sigma_e = sigma_e, -->
-<!--     alpha = alpha, -->
-<!--     beta = beta, -->
-<!--     gamma = gamma, -->
-<!--     delta = delta, -->
-<!--     q_c = q_c -->
-<!--   )  -->
-
-<!--   map_dfr(vect_bw, estimate_rdd, data = data) %>% -->
-<!--     mutate(delta = delta) -->
-<!-- }  -->
-<!-- ``` -->
-
-<!-- Here is an example of an output of this function. -->
-
-<!-- ```{r example_output_sim_RDD, echo=FALSE} -->
-<!-- baseline_parameters_RDD %>%  -->
-<!--   mutate(delta = 1) %>%  -->
-<!--   pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2)) -->
-<!-- ``` -->
-
-<!-- ### All simulations -->
-
-<!-- We will run the simulations for different sets of parameters by mapping our `compute_sim_RDD` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `N_Cter` times as we want to run the analysis $n_{iter}$ times for each set of parameters. -->
-
-<!-- ```{r set_param_RDD} -->
-<!-- simple_parameters_RDD <- tibble( -->
-<!--   N = 500, -->
-<!--   sigma_u = 1, -->
-<!--   mu_h = 0, -->
-<!--   sigma_h = 1, -->
-<!--   sigma_e = 0.5, -->
-<!--   alpha = 1, -->
-<!--   beta = 1, -->
-<!--   gamma = 0.7, -->
-<!--   q_c = 0.5 -->
-<!-- ) -->
-
-<!-- fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...) -->
-<!-- # vect_bw <- seq(0.05, 0.4, 0.05) -->
-<!-- vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1)) -->
-<!-- vect_delta <- c(3) -->
-<!-- N_Cter <- 1000 -->
-
-<!-- param_rdd <- fixed_parameters_RDD %>%  -->
-<!--   crossing(delta = vect_delta) %>%  -->
-<!--   mutate(vect_bw = list(vect_bw)) %>%  -->
-<!--   crossing(rep_id = 1:N_Cter) %>%  -->
-<!--   select(-rep_id) -->
-<!-- ``` -->
-
-<!-- We then run the simulations by mapping our `compute_sim_RDD` function on `param_rdd`. -->
-
-<!-- ```{r run_sim_RDD, eval=FALSE} -->
-<!-- tic() -->
-<!-- simulations_rdd <- pmap_dfr(param_rdd, compute_sim_RDD) -->
-<!-- beep() -->
-<!-- toc() -->
-
-<!-- # saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS")) -->
-<!-- ``` -->
-
-<!-- ## Analysis of the results -->
-
-<!-- ### Quick exploration -->
-
-<!-- First, we quickly explore the results. -->
-
-<!-- ```{r exploration_results_RDD, echo=FALSE} -->
-<!-- simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS")) -->
-
-<!-- simulations_rdd %>% -->
-<!--   # filter(bw == vect_bw[5]) %>% -->
-<!--   mutate(bw_name = str_c("Bandwidth: ", bw)) %>%  -->
-<!--   ggplot(aes(x = estimate)) + -->
-<!--   geom_density() + -->
-<!--   # geom_vline(aes(xintercept = mean(estimate))) + -->
-<!--   geom_vline(aes(xintercept = true_effect), linetype = "dashed") + -->
-<!--   facet_wrap(~ bw_name) + -->
-<!--   labs( -->
-<!--     title = "Distribution of the estimates of the treatement effect", -->
-<!--     subtitle = "For different bandwidth sizes", -->
-<!--     x = "Estimate of the treatement effect", -->
-<!--     y = "Density", -->
+<!-- ```{r treatment_effect_DID, echo=FALSE} -->
+<!-- labs_graph_size <- labs( -->
+<!--     title = "Treatement effect size across time and individuals", -->
+<!--     x = "Time index",  -->
+<!--     y = "Individual id",  -->
+<!--     fill = "Treatment effect size" -->
 <!--   ) -->
 
-<!-- simulations_rdd %>%  -->
-<!--   filter(bw == vect_bw[2]) %>% -->
-<!--   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>%  -->
-<!--   ggplot(aes(x = estimate, fill = significant)) +  -->
-<!--   geom_histogram(bins = 25) + -->
-<!--   geom_vline( -->
-<!--     aes(xintercept = mean(abs(estimate[significant == "Significant"]))), -->
-<!--     linetype = "solid" -->
-<!--   ) + -->
-<!--   geom_vline(aes(xintercept = 1)) + -->
-<!--   # facet_wrap(~ bw) + -->
-<!--   labs( -->
-<!--     title = "Distribution of the estimates of the treatement effect", -->
-<!--     subtitle = str_c("For a bandwidth containing ", vect_bw[2]*100, "% of the observations"), -->
-<!--     x = "Estimate of the treatement effect", -->
-<!--     y = "Count", -->
-<!--     fill = "", -->
-<!--     caption = "The solid line represents the average mean effect for significant  -->
-<!--     estimates (in absolute value), the dashed line represents the true effect" -->
-<!--   )  -->
+<!-- baseline_param_DID %>%  -->
+<!--   mutate(het_indiv = "homogeneous", het_time = "constant") %>% -->
+<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
+<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
+<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
+<!--   coord_fixed() + -->
+<!--   labs_graph_size +  -->
+<!--   labs(subtitle = "Homogeneous treatment effect across individuals, constant in time") -->
 
-<!-- # simulations_rdd %>%  -->
-<!-- #   filter(bw == 0.2) %>%  -->
-<!-- #   mutate(significant = (p_value < 0.05)) %>%  -->
-<!-- #   group_by(delta) %>%  -->
-<!-- #   mutate(sim_id = row_number()) %>%  -->
-<!-- #   ungroup() %>%  -->
-<!-- #   ggplot(aes(x = estimate, color = significant)) +  -->
-<!-- #   geom_point(aes(x = sim_id, y = estimate)) + -->
-<!-- #   geom_hline(aes(yintercept = mean(estimate))) + -->
-<!-- #   facet_wrap(~ delta) -->
-<!-- #  -->
-<!-- # simulations_rdd %>%  -->
-<!-- #   group_by(delta, bw) %>%  -->
-<!-- #   summarise(average_effect = mean(estimate)) -->
+<!-- baseline_param_DID %>%  -->
+<!--   mutate(het_indiv = "random", het_time = "constant") %>% -->
+<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
+<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
+<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
+<!--   coord_fixed() + -->
+<!--   labs_graph_size +  -->
+<!--   labs(subtitle = "Random treatment effect size across individuals, constant in time") -->
+
+<!-- baseline_param_DID %>%  -->
+<!--   mutate(het_indiv = "large_first", het_time = "constant") %>% -->
+<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
+<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
+<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
+<!--   coord_fixed() + -->
+<!--   labs_graph_size +  -->
+<!--   labs(subtitle = "First treated have larger treatment effect, constant in time") -->
 <!-- ``` -->
 
-<!-- ### Computing bias and type M -->
+<!-- A last thing we can vary is that we can make individual effects increase linearly in time. -->
 
-<!-- We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.  -->
-
-<!-- ```{r summarise_RDD} -->
-<!-- summarise_simulations <- function(data) { -->
-<!--   data %>% -->
-<!--     mutate(significant = (p_value <= 0.05)) %>%  -->
-<!--     group_by(delta, bw) %>% -->
-<!--     summarise( -->
-<!--       power = mean(significant, na.rm = TRUE)*100,  -->
-<!--       type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE), -->
-<!--       bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE), -->
-<!--       bias_all = mean(estimate/true_effect, na.rm = TRUE), -->
-<!--       .groups	= "drop" -->
-<!--     ) %>%  -->
-<!--     ungroup() -->
-<!-- }  -->
-
-<!-- summary_simulations_rdd <- summarise_simulations(simulations_rdd) -->
-<!-- # saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS")) -->
+<!-- ```{r treatment_time_DID, echo=FALSE} -->
+<!-- baseline_param_DID %>%  -->
+<!--   mutate(het_indiv = "homogeneous", het_time = "linear") %>% -->
+<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
+<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) + #treated*beta_i -->
+<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
+<!--   coord_fixed() + -->
+<!--   labs_graph_size + -->
+<!--   labs(subtitle = "Treatment effect increasing linearly in time") -->
 <!-- ``` -->
 
-<!-- ### Graph -->
+<!-- One can now play with this function to generate their own data and run their own analyses. In the following sections, I try to run my own analyses. -->
 
-<!-- To analyze our results, we build a unique and simple graph: -->
+### Estimation
 
-<!-- ```{r graph_results_RDD, echo=FALSE} -->
-<!-- summary_simulations_rdd %>%  -->
-<!--   pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>%  -->
-<!--   mutate( -->
-<!--     measure = ifelse(measure == "bias_sign", "Significant", "All"), -->
-<!--     delta_name = paste("OVB intensity:", delta) -->
-<!--   ) %>%  -->
-<!--   ggplot(aes(x = bw, y = value, color = measure)) +  -->
-<!--   # geom_point() + -->
-<!--   geom_line(size = 0.8) + -->
-<!--   # facet_wrap(~ delta_name) + -->
-<!--   labs( -->
-<!--     x = "Bandwidth size",  -->
-<!--     y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))), -->
-<!--     color = "Estimates", -->
-<!--     title = "Evolution of bias with bandwith size, conditional on significativity", -->
-<!--     # subtitle = "For several values of OVB intensity", -->
-<!--     caption = "Bandwidth size as a proportion of the total number of observations" -->
-<!--   )  -->
-<!-- ``` -->
+After generating the data, we can run an estimation.
 
+```{r estimate_DID}
+estimate_DID <- function(data) {
+  reg <- data %>% 
+    mutate(
+      indiv = as.factor(indiv),
+      t = as.factor(t),
+      treated = as.numeric(treated),
+      in_treatment = as.numeric(in_treatment),
+      t_centered = as.factor(t_centered)
+    ) %>% 
+    feols(
+      data = ., 
+      fml = y ~ treated | indiv + t
+    ) %>% 
+    broom::tidy() %>% 
+    rename(p_value = p.value, se = std.error) %>% 
+    select(-statistic) 
+    # suppressMessages() #Warning saying that NA values dropped and 
+    # #that one or two factors are removed due to colinearity
+  
+  return(reg)
+}
+```
+
+```{r one_estimation_DID}
+baseline_param_DID %>% 
+  pmap_dfr(generate_data_DID) %>%
+  estimate_DID() %>% 
+  slice(1:15) %>% 
+  kable()
+```
+
+### One simulation
+
+We can now run a simulation, combining `generate_data_DID` and `estimate_DID`. To do so we create the function `compute_sim_DID`. This simple function takes as input the various parameters. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect, the IV strength and the intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+
+```{r compute_true_effect_DID}
+compute_true_effect_DID <- function(data) {
+  data %>% 
+    filter(treated) %>% 
+    summarise(true_effect = mean(y1 - y0)) %>% 
+    .$true_effect
+}  
+```
+
+```{r compute_sim_DID}
+compute_sim_DID <- function(N_i,
+                                    N_t,
+                                    sigma_e,
+                                    p_treat,
+                                    staggered,
+                                    het_indiv,
+                                    het_time,
+                                    alpha,
+                                    beta,
+                                    mu_indiv_fe = 0,
+                                    sigma_indiv_fe = 0,
+                                    mu_time_fe = 0,
+                                    sigma_time_fe = 0,
+                                    mu_x = 0,
+                                    sigma_x = 0,
+                                    gamma = 0) {
+  data <- generate_data_DID(
+    N_i = N_i,
+    N_t = N_t,
+    sigma_e = sigma_e,
+    p_treat = p_treat,
+    staggered = staggered,
+    het_indiv = het_indiv,
+    het_time = het_time,
+    alpha = alpha,
+    beta = beta,
+    mu_indiv_fe = mu_indiv_fe,
+    sigma_indiv_fe = sigma_indiv_fe,
+    mu_time_fe = mu_time_fe,
+    sigma_time_fe = sigma_time_fe,
+    mu_x = mu_x,
+    sigma_x = sigma_x,
+    gamma = gamma
+  ) 
+  
+  data %>%
+    estimate_DID() %>% 
+    mutate(
+      N_i = N_i,
+      N_t = N_t,
+      p_treat = p_treat,
+      true_effect = compute_true_effect_DID(data)
+    )
+} 
+```
+
+Here is an example of an output of this function.
+
+```{r example_output_sim_RDD, echo=FALSE}
+baseline_param_DID %>%
+  pmap_dfr(compute_sim_DID) %>% 
+  kable()
+```
+
+### All simulations
+
+We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+
+```{r set_param_DID, echo=FALSE}
+fixed_param <- baseline_param_DID #%>% rbind(...)
+vect_N_i <- c(4, 25, 50)
+vect_N_t <- c(4, 25, 50)
+# vect_N_i <- seq(2, 50, 8)
+# vect_N_t <- seq(2, 50, 8)
+vect_p_treat <- c(0.5)
+n_iter <- 1000
+
+param_DID <- fixed_param %>% 
+  select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this
+  crossing(vect_N_i, vect_N_t, vect_p_treat) %>% 
+  rename(N_i = vect_N_i, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
+  crossing(rep_id = 1:n_iter) %>% 
+  select(-rep_id)
+```
+
+We then run the simulations by mapping our `compute_sim_IV` function on `param_IV`.
+
+```{r run_sim_DID, eval=FALSE, echo=FALSE}
+tic()
+sim_DID <- pmap_dfr(param_DID, compute_sim_DID)
+beep()
+toc()
+
+# saveRDS(sim_DID, here("Outputs/sim_DID.RDS"))
+```
+
+## Analysis of the results
+
+### Quick exploration
+
+First, we quickly explore the results.
+
+```{r exploration_results_DID, echo=FALSE, fig.asp=0.7}
+sim_DID <- readRDS(here("Outputs/sim_DID.RDS"))
+
+sim_DID %>% 
+  mutate(
+    N_i = paste("Number individuals: ", str_pad(N_i, 2)),
+    N_t = paste("Number periods: ", str_pad(N_t, 2))
+  ) %>% 
+  ggplot(aes(x = estimate)) +
+  geom_vline(xintercept = 1) +
+  geom_density() +
+  facet_grid(fct_rev(N_t) ~ N_i) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "For different number of individuals and time period",
+    x = "Estimate of the treatement effect",
+    y = "Density",
+    caption = "The vertical line represents the true effect"
+  )
+```
+
+### Computing bias and type M
+
+We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{i}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{IV}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+
+```{r summarise_IV}
+summarise_sim_DID <- function(data) {
+  data %>%
+    mutate(significant = (p_value <= 0.05)) %>% 
+    group_by(p_treat, N_i, N_t) %>%
+    summarise(
+      power = mean(significant, na.rm = TRUE)*100, 
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      bias_all_median = median(estimate/true_effect, na.rm = TRUE),
+      .groups	= "drop"
+    ) %>% 
+    ungroup()
+} 
+
+summary_sim_DID <- summarise_sim_DID(sim_DID)
+# saveRDS(summary_sim_DID, here("Outputs/summary_sim_DID.RDS"))
+```
+
+### Graph
+
+To analyze our results, we build a unique and simple graph:
+
+```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
+summary_sim_DID %>% 
+  mutate(
+    N_i = as.factor(N_i),
+    N_t = as.factor(N_t)
+  ) %>% 
+  ggplot(aes(x = N_i, y = N_t, fill = type_m)) +
+  geom_tile(color = "white", lwd = 1, linetype = 1) +
+  coord_fixed() +
+  labs(
+    # title = "Type M error for different number of periods and observation",
+    title = "The 'balls of yarn' graph",
+    x = "Number of individuals",
+    y = "Number of time periods",
+    fill = "Type M error"
+  ) 
+```
+
+## Varying the proportion of treated
+
+
+
+```{r sim_p_treat, echo=FALSE}
+fixed_param <- baseline_param_DID #%>% rbind(...)
+vect_N_i <- c(100)
+vect_N_t <- c(10)
+vect_p_treat <- seq(0.1, 0.5, 0.1)# seq(0.1, 0.9, 0.1)
+n_iter <- 1000
+
+param_DID_p_treat <- fixed_param %>% 
+  mutate(beta = 0.1) %>% 
+  select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this
+  crossing(vect_N_i, vect_N_t, vect_p_treat) %>% 
+  rename(N_i = vect_N_i, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
+  crossing(rep_id = 1:n_iter) %>% 
+  select(-rep_id)
+
+tic()
+sim_DID_p_treat <- pmap_dfr(param_DID_p_treat, compute_sim_DID)
+beep()
+toc()
+
+# saveRDS(sim_DID_p_treat, here("Outputs/sim_DID_p_treat.RDS"))
+# sim_DID_p_treat <- readRDS(here("Outputs/sim_DID_p_treat.RDS"))
+
+sim_DID_p_treat %>% 
+  filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
+  ggplot(aes(x = estimate)) +
+  geom_density() +
+  facet_wrap(~ p_treat)
+
+sim_DID_p_treat %>% 
+  summarise_sim_DID() %>% 
+  ggplot(aes(x = p_treat, y = bias_signif)) + 
+  # geom_point() +
+  geom_line(size = 0.8) +
+  labs(
+    x = "Proportion of units treated", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    title = "Evolution of bias with the proportion of units treated",
+    subtitle = "For statistically significant estimates, 100 individuals on 10 periods"
+  ) 
+  # ylim(c(0.9, 1.1))
+```
 
