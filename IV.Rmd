@@ -51,7 +51,7 @@ set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 
 ## Summary and intuition
 
-In the case of the IV, the OVB/type M trade-off is  mediated by the 'strength' of the instrument considered.
+In the case of the IV, the OVB/type M trade-off is  mediated by the 'strength' of the instrument considered. When the instrument does not explain a lot of the variation in the explanatory variable, the IV can still be successful in avoiding OVB but the power can low, potentially leading to high rates of type M error. 
 
 ## An illustrative example
 
@@ -105,6 +105,8 @@ We write a simple function that generates the data. It takes as input the values
 Note that the parameter `type_rain` describes whether $Rain$ is a random sample from a normal or Bernoulli distribution. The distributions of rainfall heights can be approximated with a gamma distribution. The Bernoulli distribution is used if one only consider the impact of rain or no rain on voter turnout. A normal distribution does not represent actual rainfall distributions but is added to run these simulations in other contexts than linking rainfall, voter turnout and election outcomes.
 
 `type_rain` can take the values `gamma`, `bernoulli` or `normal`. `param_rain` represents either $\sigma_R$ if $Rain$ is normal, $p_R$ if it is Bernoulli or a vector of shape and scale parameters for the gamma distribution.
+
+Note that, for readability, in this document, we only display the chunks of code that may be important to understand the assumptions behind our simulations and the way we built our simutaion. We do not display all the arguably "technical" code, in particular the one used to generate tables and graphs. All this code is however openly available on the GitHub of the project.
  
 ```{r DGP_IV}
 generate_data_IV <- function(N,
@@ -165,7 +167,7 @@ We consider that:
 
 We thus consider the following parameters:
 
-```{r simple_param_IV}
+```{r simple_param_IV, echo=FALSE}
 baseline_parameters_IV <- tibble(
   N = 500,
   # type_rain = "bernoulli",
@@ -179,6 +181,8 @@ baseline_parameters_IV <- tibble(
   gamma = 58,
   treatment_effect = -1
 )
+
+baseline_parameters_IV %>% kable()
 ```
 
 Here is an example of data created with our data generating process:
@@ -336,9 +340,9 @@ compute_sim_IV <- function(N,
 
 ### All simulations
 
-We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
-```{r set_param_IV}
+```{r set_param_IV, echo=FALSE}
 fixed_parameters <- baseline_parameters_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
@@ -354,7 +358,7 @@ param_IV <- fixed_parameters %>%
 
 We then run the simulations by mapping our `compute_sim_IV` function on `param_IV`.
 
-```{r run_sim_IV, eval=FALSE}
+```{r run_sim_IV, eval=FALSE, echo=FALSE}
 tic()
 simulations_IV <- pmap_dfr(param_IV, compute_sim_IV)
 beep()
@@ -373,7 +377,7 @@ First, we quickly explore the results.
 simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
 
 simulations_IV %>% 
-  filter(between(estimate, -3, 1)) %>%
+  filter(between(estimate, -2, 0)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
@@ -400,9 +404,8 @@ simulations_IV %>%
   geom_density(aes(
     x = estimate, 
     # y = iv_strength,
-    color = as.factor(iv_strength), 
-    fill = as.factor(iv_strength)),
-    alpha = 0.05
+    color = as.factor(iv_strength)),
+    alpha = 0
   ) +
   labs(
     title = "Distribution of the estimates of the treatement effect",
@@ -575,7 +578,7 @@ simulations_IV %>%
   geom_point(alpha = 0.5) +
   geom_jitter(alpha = 0.5) +
   labs(
-    title = "A correlation betwween IV strength and F-statistic",
+    title = "A correlation between IV strength and F-statistic",
     subtitle = "By significance",
     x = "IV strength",
     y = "F-statistic",
@@ -602,6 +605,46 @@ simulations_IV %>%
     fill = "Significant",
     color = "Significant"
   )
+
+# simulations_IV %>% 
+#   filter(model == "IV") %>% 
+#   mutate(
+#     significant = (p_value <= 0.05),
+#     bias = abs((estimate - true_effect)/true_effect)
+#   ) %>% 
+#   filter(fstat > 10) %>% 
+#   ggplot(aes(x = iv_strength, y = fstat, color = bias)) +
+#   geom_point(alpha = 0.5) +
+#   geom_jitter(alpha = 0.5) +
+#   labs(
+#     title = "A correlation between IV strength and F-statistic",
+#     subtitle = "By significance",
+#     x = "IV strength",
+#     y = "F-statistic"
+#     # color = "Significant"
+#   )
+
+# simulations_IV %>% 
+#   filter(model == "IV") %>% 
+#   mutate(
+#     significant = (p_value <= 0.05)
+#   ) %>% 
+#   group_by(iv_strength) %>% 
+#   summarise(
+#     mean_fstat = mean(fstat),
+#     type_m = median(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE)
+#   ) %>% 
+#   ggplot(aes(x = iv_strength, y = mean_fstat, color = type_m)) +
+#   geom_point() +
+#   # geom_jitter(alpha = 0.5) +
+#   labs(
+#     title = "A correlation between IV strength and F-statistic",
+#     subtitle = "By significance",
+#     x = "IV strength",
+#     y = "F-statistic"
+#     # color = "Significant"
+#   ) +
+#   ylim(c(0,20))
 ```
 
 We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph:
@@ -642,25 +685,124 @@ simulations_IV %>%
   ) 
 ```
 
+# A basic example
+
+For simplicity and for communication purposes, we considered an applied example. However, our results can also hold in general settings. We illustrate this, considering that most of the variables are distributed according to standard normal distributions. We keep the same DAG as it is the classic IV DAG. We also keep the same variable names but one should abstract from their meaning as they do not represent the same measure any longer.
+
+We define the following parameters:
+
+```{r set_param_IV_simple,echo=FALSE}
+simple_parameters_IV <- tibble(
+  N = 500,
+  type_rain = "normal",
+  param_rain = 1,
+  sigma_u = 1,
+  sigma_es = 1,
+  sigma_et = 1,
+  alpha = 0,
+  gamma = 0,
+  treatment_effect = -1
+)
+
+simple_parameters_IV %>% kable()
+```
+
+We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.
+
+```{r sim_simple, echo=FALSE}
+fixed_parameters <- simple_parameters_IV #%>% rbind(...)
+vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
+# vect_iv_strength <- c(0.1)
+vect_ovb_intensity <- c(-0.4)
+n_iter <- 1000
+
+param_IV_simple <- fixed_parameters %>% 
+  crossing(vect_iv_strength, vect_ovb_intensity) %>% 
+  rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
+  crossing(rep_id = 1:n_iter) %>% 
+  select(-rep_id)
+
+# tic()
+# simulations_IV_simple <- pmap_dfr(param_IV_simple, compute_sim_IV)
+# beep()
+# toc()
+# 
+# saveRDS(simulations_IV_simple, here("Outputs/simulations_IV_simple.RDS"))
+simulations_IV_simple <- readRDS(here("Outputs/simulations_IV_simple.RDS"))
+
+simulations_IV_simple %>% 
+  summarise_simulations() %>% 
+  # filter(model %in% c("OLS", "IV")) %>% 
+  mutate(
+    ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
+  ) %>%
+  ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
+  # geom_point() +
+  geom_line(size = 0.8) +
+  facet_wrap(~ ovb_intensity_name) +
+  labs(
+    x = "IV strength", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    color = "Model",
+    title = "Evolution of bias with intensity of the IV",
+    subtitle = "For statistically significant estimates"
+  ) 
+```
+
+The results and the overall illustration are comparable with the political economy example.
+
+```{r bined_fstat_simple, echo=FALSE, fig.asp=0.8}
+simulations_IV_simple %>% 
+  filter(model == "IV") %>%
+  mutate(
+    significant = (p_value <= 0.05),
+    bin_fstat = cut_number(fstat, n = 10) %>% 
+      paste() %>% 
+      str_extract("(?<=,)(\\d|\\.)+") %>% 
+      as.numeric()
+  ) %>% 
+  group_by(ovb_intensity, bin_fstat) %>%
+  summarise(
+    power = mean(significant, na.rm = TRUE)*100, 
+    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+    bias_all = mean(estimate/true_effect, na.rm = TRUE),
+    bias_all_median = median(estimate/true_effect, na.rm = TRUE),
+    median_fstat = mean(fstat, na.rm = TRUE),
+    .groups	= "drop"
+  ) %>% 
+  ungroup() %>% 
+  ggplot(aes(x = bin_fstat, y = bias_signif)) +
+  geom_line() +
+  geom_vline(xintercept = 10) +
+  xlim(c(0, 50)) +
+  labs(
+    x = "Binned F-statistic", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    color = "Model",
+    title = "Evolution of bias with binned F-statistic",
+    subtitle = "For statistically significant estimates",
+    caption = "This graph does not acurately represent 
+    what wwe are interested in"
+  ) 
+```
 
 
-<!-- ```{r} -->
-<!-- simple_parameters_IV <- tibble( -->
-<!--   N = 500, -->
-<!--   type_rain = "normal", -->
-<!--   param_rain = 1, -->
-<!--   sigma_u = 1, -->
-<!--   sigma_es = 1, -->
-<!--   sigma_et = 1, -->
-<!--   alpha = 0, -->
-<!--   gamma = 0, -->
-<!--   treatment_effect = 1 -->
-<!-- ) -->
-<!-- ``` -->
-
-
-
-
-
-
-
+```{r fstat_bias_simple_graph, echo=FALSE, fig.asp=0.7}
+simulations_IV_simple %>% 
+  filter(model == "IV") %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  mutate(bias = estimate/true_effect) %>% 
+  filter(fstat > 10) %>%  
+  # .$bias %>% mean(., na.rm = TRUE)
+  # filter(abs(bias) < 10) %>% 
+  ggplot(aes(x = fstat, y = bias, color = significant)) +
+  geom_point(alpha = 0.5) +
+  labs(
+    title = "Bias as a function of the F-statistic in the simulations",
+    subtitle = "By significance and only for F-stat above 10",
+    x = "F-statistic",
+    y = expression(paste(frac("Estimate", "True Effect"))),
+    color = "Significant"
+  )
+```
