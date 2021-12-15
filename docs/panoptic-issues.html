@@ -2226,7 +2226,12 @@ text-align: justify}
 
 </div>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
-<p>Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy.</p>
+<p>Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy. In this document we investigate the impact of different factors:</p>
+<ul>
+<li>The proportion of unit treated (at number of observations constant). We all know that power is maximized when the proportion of units treated is 0.5. The further away we are from this value, the smaller the power and the larger the exaggeration ratio. (<em>I am not certain, I need to check the formula but</em>) The intuition is that a limited number of treated, or control, limits the variation used to estimate the effect.</li>
+<li>Limiting the variation in y.</li>
+<li>The number of clusters. Considering a small number of clusters is to some extent comparable to considering a small number of units and thus partly acts as limiting the number of observations, thus decreasing power and increasing the exaggeration ratio.</li>
+</ul>
 <h2 id="an-illustrative-example">An illustrative example</h2>
 <p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration.</p>
 <h3 id="modelisation-choices">Modelisation choices</h3>
@@ -2316,73 +2321,73 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-0.2707895</td>
-<td style="text-align: right;">2.3118584</td>
-<td style="text-align: right;">3.0410689</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-0.3719556</td>
+<td style="text-align: right;">-0.5275119</td>
+<td style="text-align: right;">0.3005325</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">0.0081702</td>
-<td style="text-align: right;">-1.2530149</td>
-<td style="text-align: right;">-0.2448448</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-1.9599805</td>
+<td style="text-align: right;">-0.4469374</td>
+<td style="text-align: right;">-1.2069179</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">-0.4879330</td>
-<td style="text-align: right;">0.6003654</td>
-<td style="text-align: right;">1.3124324</td>
+<td style="text-align: right;">0.7495496</td>
+<td style="text-align: right;">-0.6290226</td>
+<td style="text-align: right;">1.3205270</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">0.3497123</td>
-<td style="text-align: right;">0.9884843</td>
-<td style="text-align: right;">2.5381967</td>
+<td style="text-align: right;">0.6338819</td>
+<td style="text-align: right;">-0.3630870</td>
+<td style="text-align: right;">1.4707949</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">-0.0401509</td>
-<td style="text-align: right;">-1.3782838</td>
-<td style="text-align: right;">-0.2184347</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.4089720</td>
+<td style="text-align: right;">-0.6042950</td>
+<td style="text-align: right;">0.8046770</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-2.1915701</td>
-<td style="text-align: right;">-1.2327894</td>
-<td style="text-align: right;">-2.4243595</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-1.0152776</td>
+<td style="text-align: right;">-0.2131326</td>
+<td style="text-align: right;">-0.0284102</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-0.3539582</td>
-<td style="text-align: right;">0.7337044</td>
-<td style="text-align: right;">1.3797462</td>
+<td style="text-align: right;">-1.2914841</td>
+<td style="text-align: right;">-0.2805429</td>
+<td style="text-align: right;">-0.5720270</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">0.5154086</td>
-<td style="text-align: right;">-0.2644893</td>
-<td style="text-align: right;">1.4509193</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-0.5548816</td>
+<td style="text-align: right;">-1.5773425</td>
+<td style="text-align: right;">-1.1322241</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">1.3508588</td>
-<td style="text-align: right;">0.5869988</td>
-<td style="text-align: right;">3.1378576</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-1.6323405</td>
+<td style="text-align: right;">-0.4056719</td>
+<td style="text-align: right;">-1.0380124</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-2.2489139</td>
-<td style="text-align: right;">-0.6755517</td>
-<td style="text-align: right;">-1.9244656</td>
+<td style="text-align: right;">-0.8146654</td>
+<td style="text-align: right;">-0.9870398</td>
+<td style="text-align: right;">-0.8017052</td>
 </tr>
 </tbody>
 </table>

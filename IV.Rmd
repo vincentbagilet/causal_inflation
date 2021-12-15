@@ -40,6 +40,7 @@ opts_chunk$set(fig.path = "images/",
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
+library(broom)
 library(AER)
 library(tictoc)
 library(here)
@@ -253,7 +254,7 @@ After generating the data, we can run an estimation. We want to compare the IV a
 
 ```{r estimate_IV}
 estimate_IV <- function(data) {
-  reg_IV <- ivreg(
+  reg_IV <- AER::ivreg(
     data = data, 
     formula = share ~ turnout | rain
     ) 

@@ -40,16 +40,22 @@ opts_chunk$set(fig.path = "images/",
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
+library(broom)
 library(tictoc)
 library(here)
 library(beepr)
+library(miceadds)
 
 set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 ```
 
 ## Summary and intuition
 
-Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy. 
+Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy. In this document we investigate the impact of different factors:
+
+- The proportion of unit treated (at number of observations constant). We all know that power is maximized when the proportion of units treated is 0.5. The further away we are from this value, the smaller the power and the larger the exaggeration ratio. (*I am not certain, I need to check the formula but*) The intuition is that a limited number of treated, or control, limits the variation used to estimate the effect.
+- Limiting the variation in y (small number of counts in y)
+- The number of clusters. Considering a small number of clusters is to some extent comparable to considering a small number of units and thus partly acts as limiting the number of observations, thus decreasing power and increasing the exaggeration ratio.
 
 ## An illustrative example
 
@@ -138,18 +144,24 @@ baseline_param_panoptic %>%
 
 ### Estimation
 
-After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.
+After generating the data, we can run an estimation. We want to be able to compute the estimation for different 
 
 ```{r estimate_panoptic}
-estimate_panoptic <- function(data) {
-  lm(
-    data = data,
-    formula = y ~ treated
+estimate_panoptic <- function(data, n_clusters) {
+  n_clusters <- ifelse(missing(n_clusters), nrow(data), n_clusters)
+  
+  data %>% 
+    mutate(cluster = cut_number(id, n_clusters, labels = FALSE)) %>% 
+    estimatr::lm_robust(
+      data = .,
+      formula = y ~ treated,
+      clusters = cluster
     ) %>%
     broom::tidy() %>%
     filter(term == "treatedTRUE") %>%
     rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se) 
+    select(estimate, p_value, se) %>% 
+    mutate(n_clusters = n_clusters)
 }
 ```
 
@@ -188,7 +200,6 @@ We will run the simulations for different sets of parameters by mapping our `com
 
 ```{r set_param_panoptic, echo=FALSE}
 fixed_param <- baseline_param_panoptic #%>% rbind(...)
-# vect_p_treat <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 vect_p_treat <- seq(0.1, 0.9, 0.1)
 n_iter <- 1000
 
@@ -220,21 +231,21 @@ First, we quickly explore the results.
 ```{r exploration_results_panoptic, echo=FALSE, fig.asp=0.7}
 sim_panoptic <- readRDS(here("Outputs/sim_panoptic.RDS"))
 
-sim_panoptic %>% 
-  filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
-  ggplot(aes(x = estimate)) +
-  geom_density() +
-  geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
-  facet_wrap(~ p_treat) +
-  labs(
-    title = "Distribution of the estimates of the treatement effect",
-    subtitle = "For different propoportion of units treated",
-    color = "",
-    fill = "",
-    x = "Estimate of the treatement effect",
-    y = "Density",
-    caption = "The vertical line represents the true effect"
-  )
+# sim_panoptic %>% 
+#   filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
+#   ggplot(aes(x = estimate)) +
+#   geom_density() +
+#   geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
+#   facet_wrap(~ p_treat) +
+#   labs(
+#     title = "Distribution of the estimates of the treatement effect",
+#     subtitle = "For different propoportion of units treated",
+#     color = "",
+#     fill = "",
+#     x = "Estimate of the treatement effect",
+#     y = "Density",
+#     caption = "The vertical line represents the true effect"
+#   )
 
 sim_panoptic %>% 
   ggplot() +
@@ -248,13 +259,16 @@ sim_panoptic %>%
     y = "Density"
   )
 
+
 sim_panoptic %>% 
+  filter(p_treat == 0.2) %>%
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
   ggplot(aes(x = estimate, fill = significant)) +
   geom_histogram() +
   geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
   labs(
     title = "Distribution of the estimates of the treatement effect conditional on significativity",
+    subtitle = paste("For a proportion of", 0.2*100, "% units treated"),
     x = "Estimate of the treatement effect",
     y = "Count",
     fill = "",
