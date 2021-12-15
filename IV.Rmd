@@ -62,6 +62,7 @@ A threat of confounders often arises when analyzing the link between voter turno
 ### Modelisation choices
 
 For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
+
 - We abstract from the panel dimension in this analysis and consider only one time period. This is could be considered as looking at the outcomes of a unique election.
 - We only consider the impact of rain on the day of the election.
 - We assume no correlation in rainfall between locations. This could be equivalent to considering only a set of remote locations.
@@ -106,7 +107,7 @@ Note that the parameter `type_rain` describes whether $Rain$ is a random sample 
 
 `type_rain` can take the values `gamma`, `bernoulli` or `normal`. `param_rain` represents either $\sigma_R$ if $Rain$ is normal, $p_R$ if it is Bernoulli or a vector of shape and scale parameters for the gamma distribution.
 
-Note that, for readability, in this document, we only display the chunks of code that may be important to understand the assumptions behind our simulations and the way we built our simutaion. We do not display all the arguably "technical" code, in particular the one used to generate tables and graphs. All this code is however openly available on the GitHub of the project.
+Note that, for readability, in this document, we only display the chunks of code that may be important to understand the assumptions behind our simulations and the way we built our simulation. We do not display all the arguably "technical" code, in particular the one used to generate tables and graphs. All this code is however openly available on the GitHub of the project.
  
 ```{r DGP_IV}
 generate_data_IV <- function(N,

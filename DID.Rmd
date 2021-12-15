@@ -496,10 +496,10 @@ fixed_param <- baseline_param_DID #%>% rbind(...)
 vect_N_i <- c(100)
 vect_N_t <- c(10)
 vect_p_treat <- seq(0.1, 0.5, 0.1)# seq(0.1, 0.9, 0.1)
-n_iter <- 1000
+n_iter <- 200
 
 param_DID_p_treat <- fixed_param %>% 
-  mutate(beta = 0.1) %>% 
+  mutate(beta = 0.4) %>% 
   select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this
   crossing(vect_N_i, vect_N_t, vect_p_treat) %>% 
   rename(N_i = vect_N_i, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
@@ -531,6 +531,5 @@ sim_DID_p_treat %>%
     title = "Evolution of bias with the proportion of units treated",
     subtitle = "For statistically significant estimates, 100 individuals on 10 periods"
   ) 
-  # ylim(c(0.9, 1.1))
 ```
 

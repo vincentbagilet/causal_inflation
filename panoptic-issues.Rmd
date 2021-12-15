@@ -1,0 +1,303 @@
+---
+title: "Simulations for panoptic issues"
+description: "In this document, we run a simulation exercise to illustrate panoptic type M issues arising in causal and non-causal identification studies."
+author:
+  - name: Vincent Bagilet 
+    url: https://vincentbagilet.github.io/
+    affiliation: Columbia University
+    affiliation_url: https://www.columbia.edu/
+  - name: Léo Zabrocki 
+    url: https://www.parisschoolofeconomics.eu/en/
+    affiliation: Paris School of Economics
+    affiliation_url: https://www.parisschoolofeconomics.eu/en/
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup_panoptic, echo=FALSE, results='hide', warning=FALSE}
+library(knitr)
+opts_chunk$set(fig.path = "images/",
+               cache.path = "cache/",
+               cache = FALSE,
+               echo = TRUE, #set to false to hide code
+               message = FALSE,
+               warning = FALSE,
+               out.width = "85%",
+               dpi = 200,
+               fig.align = "center")  
+```  
+
+```{r packages_panoptic, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse) 
+library(knitr) 
+library(mediocrethemes)
+library(tictoc)
+library(here)
+library(beepr)
+
+set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
+```
+
+## Summary and intuition
+
+Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy. 
+
+## An illustrative example
+
+For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider  a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration. 
+
+
+### Modelisation choices
+
+For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
+
+- For now, we consider only standard normal distributions
+
+The DGP can be represented using the following Directed Acyclic Graph (DAG): 
+
+```{r DAG_RDD, echo=FALSE, out.width='30%'}
+include_graphics(here("images/DAG_panoptic.png"))
+```
+
+We thus assume that the outcome $y$ for individual $i$ is defined as follows:
+
+$$y_{i} = \alpha + \beta T_{i} + \delta u_{i} + \epsilon_{i}$$
+
+Where $\alpha$ is a constant, $T_{i}$ a dummy equal to 1 if individual $i$ is treated and if they are not treated, $\beta$ the treatment effect size, $u$ an unobserved variable, $\delta$ the intensity of the OVB and $\epsilon$ an error term.
+
+More precisely, we set:
+
+- $N$ the number of observations
+<!-- - $T \sim \text{Bernoulli}(p_T)$ the treatment. $p_T$ represents the proportion of treated units. -->
+- $T_i = \mathbb{1}\{i\text{ is treated}\}$ the treatment dummy. $p_T$ represents the proportion of treated units.
+- $u \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
+- $\epsilon \sim \mathcal{N}(0, \sigma_{\epsilon}^{2})$ the error term
+
+
+### Data generation
+
+We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis.
+
+Note that, for readability, in this document, we only display the chunks of code that may be important to understand the assumptions behind our simulations and the way we built our simulation. We do not display all the arguably "technical" code, in particular the one used to generate tables and graphs. All this code is however openly available on the GitHub of the project.
+
+```{r DGP_panoptic}
+generate_data_panoptic <- function(N,
+                                   p_treat,
+                                   sigma_u,
+                                   sigma_e,
+                                   alpha,
+                                   treatment_effect, #beta
+                                   ovb_intensity #delta
+                                   ) {
+  tibble(id = 1:N) %>%
+    mutate(
+      # treated = rbernoulli(N, p_treat),
+      treated = (id %in% sample(1:N, p_treat*N)),
+      u = rnorm(nrow(.), 0, sigma_u),
+      e = rnorm(nrow(.), 0, sigma_e),
+      y = alpha + treatment_effect*treated + ovb_intensity*u + e
+    )
+}
+```
+
+<!-- We set baseline values for the parameters to emulate a somehow realistic observational study. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_panoptic`. -->
+
+For now, we consider very simple baseline parameters, mostly standard normal distributions:
+
+```{r simple_param_panoptic, echo=FALSE}
+baseline_param_panoptic <- tibble(
+  N = 500,
+  p_treat = 0.5,
+  sigma_u = 1,
+  sigma_e = 1,
+  alpha = 1,
+  treatment_effect = 0.2, 
+  ovb_intensity = 1
+)
+
+baseline_param_panoptic %>% kable()
+```
+
+Here is an example of data created with our data generating process:
+
+```{r example_data_panoptic, echo=FALSE}
+baseline_param_panoptic %>%
+  mutate(N = 10) %>% 
+  pmap_dfr(generate_data_panoptic) %>% #use pmap to pass the set of parameters
+  kable()
+```
+
+### Estimation
+
+After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.
+
+```{r estimate_panoptic}
+estimate_panoptic <- function(data) {
+  lm(
+    data = data,
+    formula = y ~ treated
+    ) %>%
+    broom::tidy() %>%
+    filter(term == "treatedTRUE") %>%
+    rename(p_value = p.value, se = std.error) %>%
+    select(estimate, p_value, se) 
+}
+```
+
+### One simulation
+
+We can now run a simulation, combining `generate_data_panoptic` and `estimate_panoptic`. To do so we create the function `compute_sim_panoptic`. This simple function takes as input the various parameters. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect. Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+
+```{r compute_sim_panoptic}
+compute_sim_panoptic <- function(N,
+                                 p_treat,
+                                 sigma_u,
+                                 sigma_e,
+                                 alpha,
+                                 treatment_effect,
+                                 ovb_intensity) {
+  generate_data_panoptic(
+    N = N,
+    p_treat = p_treat,
+    sigma_u = sigma_u,
+    sigma_e = sigma_e,
+    alpha = alpha,
+    treatment_effect = treatment_effect,
+    ovb_intensity = ovb_intensity
+  ) %>%
+  estimate_panoptic() %>%
+  mutate(
+    true_effect = treatment_effect,
+    p_treat = p_treat
+  )
+}
+```
+
+### All simulations
+
+We will run the simulations for different sets of parameters by mapping our `compute_sim_panoptic` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_panoptic`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+
+```{r set_param_panoptic, echo=FALSE}
+fixed_param <- baseline_param_panoptic #%>% rbind(...)
+# vect_p_treat <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
+vect_p_treat <- seq(0.1, 0.9, 0.1)
+n_iter <- 1000
+
+param_panoptic <- fixed_param %>%
+  select(-p_treat) %>% 
+  crossing(vect_p_treat) %>%
+  rename(p_treat = vect_p_treat) %>%
+  crossing(rep_id = 1:n_iter) %>%
+  select(-rep_id)
+```
+
+We then run the simulations by mapping our `compute_sim_panoptic` function on `param_panoptic`.
+
+```{r run_sim_panoptic, eval=FALSE, echo=FALSE}
+tic()
+sim_panoptic <- pmap_dfr(param_panoptic, compute_sim_panoptic)
+beep()
+toc()
+
+# saveRDS(sim_panoptic, here("Outputs/sim_panoptic.RDS"))
+```
+
+## Analysis of the results
+
+### Quick exploration
+
+First, we quickly explore the results.
+
+```{r exploration_results_panoptic, echo=FALSE, fig.asp=0.7}
+sim_panoptic <- readRDS(here("Outputs/sim_panoptic.RDS"))
+
+sim_panoptic %>% 
+  filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
+  ggplot(aes(x = estimate)) +
+  geom_density() +
+  geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
+  facet_wrap(~ p_treat) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "For different propoportion of units treated",
+    color = "",
+    fill = "",
+    x = "Estimate of the treatement effect",
+    y = "Density",
+    caption = "The vertical line represents the true effect"
+  )
+
+sim_panoptic %>% 
+  ggplot() +
+  geom_density(aes(x = estimate, color = as.factor(p_treat)), alpha = 0) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect",
+    subtitle = "Comparison across proportions of units treated ",
+    color = "Proporion of units treated",
+    fill = "Proporion of units treated",
+    x = "Estimate of the treatement effect",
+    y = "Density"
+  )
+
+sim_panoptic %>% 
+  mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
+  ggplot(aes(x = estimate, fill = significant)) +
+  geom_histogram() +
+  geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
+  labs(
+    title = "Distribution of the estimates of the treatement effect conditional on significativity",
+    x = "Estimate of the treatement effect",
+    y = "Count",
+    fill = "",
+    caption = "The vertical line represents the true effect"
+  )
+```
+
+### Computing bias and type M
+
+We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.
+
+```{r summarise_panoptic}
+summarise_simulations <- function(data) {
+  data %>%
+    mutate(significant = (p_value <= 0.05)) %>%
+    group_by(p_treat) %>%
+    summarise(
+      power = mean(significant, na.rm = TRUE)*100,
+      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      bias_all_median = median(estimate/true_effect, na.rm = TRUE),
+      .groups	= "drop"
+    ) %>%
+    ungroup()
+}
+
+summary_sim_panoptic <- summarise_simulations(sim_panoptic)
+# saveRDS(summary_sim_panoptic, here("Outputs/summary_sim_panoptic.RDS"))
+```
+
+### Graph
+
+To analyze our results, we build a unique and simple graph:
+
+```{r graph_results_panoptic, echo=FALSE, fig.asp=0.7}
+summary_sim_panoptic %>%
+  ggplot(aes(x = p_treat, y = bias_signif)) +
+  geom_line(size = 0.8) +
+  labs(
+    x = "Proportion of units treated",
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    title = "Evolution of bias with the proportion of units treated",
+    subtitle = "For statistically significant estimates"
+  )
+```
