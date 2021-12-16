@@ -2210,11 +2210,12 @@ Simulations
 <li><a href="#one-simulation">One simulation</a></li>
 <li><a href="#all-simulations">All simulations</a></li>
 </ul></li>
-<li><a href="#analysis-of-the-results">Analysis of the results</a><ul>
+<li><a href="#analysis-of-the-results-proportion-treated-units">Analysis of the results (proportion treated units)</a><ul>
 <li><a href="#quick-exploration">Quick exploration</a></li>
 <li><a href="#computing-bias-and-type-m">Computing bias and type M</a></li>
-<li><a href="#graph">Graph</a></li>
+<li><a href="#the-graph">THE graph</a></li>
 </ul></li>
+<li><a href="#varying-the-number-of-clusters">Varying the number of clusters</a></li>
 </ul>
 </nav>
 </div>
@@ -2229,7 +2230,7 @@ text-align: justify}
 <p>Power and thus type M error can also be affected by aspects that are not proper to one particular identification strategy. In this document we investigate the impact of different factors:</p>
 <ul>
 <li>The proportion of unit treated (at number of observations constant). We all know that power is maximized when the proportion of units treated is 0.5. The further away we are from this value, the smaller the power and the larger the exaggeration ratio. (<em>I am not certain, I need to check the formula but</em>) The intuition is that a limited number of treated, or control, limits the variation used to estimate the effect.</li>
-<li>Limiting the variation in y.</li>
+<li>Limiting the variation in y (small number of counts in y)</li>
 <li>The number of clusters. Considering a small number of clusters is to some extent comparable to considering a small number of units and thus partly acts as limiting the number of observations, thus decreasing power and increasing the exaggeration ratio.</li>
 </ul>
 <h2 id="an-illustrative-example">An illustrative example</h2>
@@ -2321,91 +2322,124 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">-0.3719556</td>
-<td style="text-align: right;">-0.5275119</td>
-<td style="text-align: right;">0.3005325</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.8037496</td>
+<td style="text-align: right;">0.4011674</td>
+<td style="text-align: right;">2.2049170</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">-1.9599805</td>
-<td style="text-align: right;">-0.4469374</td>
-<td style="text-align: right;">-1.2069179</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">0.0525026</td>
+<td style="text-align: right;">1.3331472</td>
+<td style="text-align: right;">2.3856498</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">0.7495496</td>
-<td style="text-align: right;">-0.6290226</td>
-<td style="text-align: right;">1.3205270</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-0.4579376</td>
+<td style="text-align: right;">-0.5030379</td>
+<td style="text-align: right;">0.0390245</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">0.6338819</td>
-<td style="text-align: right;">-0.3630870</td>
-<td style="text-align: right;">1.4707949</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">-2.2833305</td>
+<td style="text-align: right;">-0.0668204</td>
+<td style="text-align: right;">-1.3501509</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">0.4089720</td>
-<td style="text-align: right;">-0.6042950</td>
-<td style="text-align: right;">0.8046770</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-0.3174872</td>
+<td style="text-align: right;">-0.9441623</td>
+<td style="text-align: right;">-0.0616496</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">-1.0152776</td>
-<td style="text-align: right;">-0.2131326</td>
-<td style="text-align: right;">-0.0284102</td>
+<td style="text-align: right;">0.4912762</td>
+<td style="text-align: right;">-0.1986278</td>
+<td style="text-align: right;">1.4926484</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-1.2914841</td>
-<td style="text-align: right;">-0.2805429</td>
-<td style="text-align: right;">-0.5720270</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-0.1044091</td>
+<td style="text-align: right;">-0.3623130</td>
+<td style="text-align: right;">0.7332779</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-0.5548816</td>
-<td style="text-align: right;">-1.5773425</td>
-<td style="text-align: right;">-1.1322241</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-1.2257641</td>
+<td style="text-align: right;">0.8430335</td>
+<td style="text-align: right;">0.8172693</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-1.6323405</td>
-<td style="text-align: right;">-0.4056719</td>
-<td style="text-align: right;">-1.0380124</td>
+<td style="text-align: right;">-1.4918630</td>
+<td style="text-align: right;">-0.6269970</td>
+<td style="text-align: right;">-1.1188600</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">-0.8146654</td>
-<td style="text-align: right;">-0.9870398</td>
-<td style="text-align: right;">-0.8017052</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">-0.4717193</td>
+<td style="text-align: right;">-0.4784194</td>
+<td style="text-align: right;">0.2498613</td>
 </tr>
 </tbody>
 </table>
 </div>
 <h3 id="estimation">Estimation</h3>
-<p>After generating the data, we can run an estimation. We want to compare the IV and the OLS for different IV strength values. Hence, we need to estimate both an IV and an OLS and return both set of outcomes of interest.</p>
+<p>After generating the data, we can run an estimation. We want to be able to run the estimation for different numbers of clusters. We create artificial clusters, based on the individual identification numbers <code>id</code>. When we do not wish to cluster the standard errors, we simply set the cluster variable to be equal to the id so that the “clustering” is at the individual level. Note that we use the function <code>lm_robust</code> from the <code>estimatr</code> package to compute this clustering.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>estimate_panoptic</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span> <span class='op'>{</span>
-  <span class='fu'><a href='https://rdrr.io/r/stats/lm.html'>lm</a></span><span class='op'>(</span>
-    data <span class='op'>=</span> <span class='va'>data</span>,
-    formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>treated</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>estimate_panoptic</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span>, <span class='va'>n_clusters</span> <span class='op'>=</span> <span class='cn'>NA</span><span class='op'>)</span> <span class='op'>{</span>
+  <span class='va'>n_clusters_mod</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/NA.html'>is.na</a></span><span class='op'>(</span><span class='va'>n_clusters</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/nrow.html'>nrow</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>, <span class='va'>n_clusters</span><span class='op'>)</span>
+  
+  <span class='va'>data</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>mutate</span><span class='op'>(</span>cluster <span class='op'>=</span> <span class='fu'>cut_number</span><span class='op'>(</span><span class='va'>id</span>, <span class='va'>n_clusters_mod</span>, labels <span class='op'>=</span> <span class='cn'>FALSE</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>estimatr</span><span class='fu'>::</span><span class='fu'><a href='https://declaredesign.org/r/estimatr/reference/lm_robust.html'>lm_robust</a></span><span class='op'>(</span>
+      data <span class='op'>=</span> <span class='va'>.</span>,
+      formula <span class='op'>=</span> <span class='va'>y</span> <span class='op'>~</span> <span class='va'>treated</span>,
+      clusters <span class='op'>=</span> <span class='va'>cluster</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>as_tibble</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>==</span> <span class='st'>"treatedTRUE"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>rename</span><span class='op'>(</span>p_value <span class='op'>=</span> <span class='va'>p.value</span>, se <span class='op'>=</span> <span class='va'>std.error</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-    <span class='fu'>select</span><span class='op'>(</span><span class='va'>estimate</span>, <span class='va'>p_value</span>, <span class='va'>se</span><span class='op'>)</span> 
+    <span class='fu'>select</span><span class='op'>(</span><span class='va'>estimate</span>, <span class='va'>p_value</span>, <span class='va'>se</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>mutate</span><span class='op'>(</span>n_clusters <span class='op'>=</span> <span class='va'>n_clusters</span><span class='op'>)</span>
 <span class='op'>}</span>
+
+<span class='co'># estimate_panoptic_2 &lt;- function(data, n_clusters = NA) {</span>
+<span class='co'># </span>
+<span class='co'>#   if (is.na(n_clusters)) {</span>
+<span class='co'>#     reg &lt;- lm(</span>
+<span class='co'>#       data = data,</span>
+<span class='co'>#       formula = y ~ treated</span>
+<span class='co'>#     )</span>
+<span class='co'>#   } else {</span>
+<span class='co'>#     reg &lt;- data %&gt;%</span>
+<span class='co'>#       mutate(cluster = cut_number(id, n_clusters, labels = FALSE)) %&gt;%</span>
+<span class='co'>#       estimatr::lm_robust(</span>
+<span class='co'>#         data = .,</span>
+<span class='co'>#         formula = y ~ treated,</span>
+<span class='co'>#         clusters = cluster</span>
+<span class='co'>#       )</span>
+<span class='co'>#   }</span>
+<span class='co'># </span>
+<span class='co'>#   reg %&gt;%</span>
+<span class='co'>#     broom::tidy() %&gt;%</span>
+<span class='co'>#     as_tibble() %&gt;% </span>
+<span class='co'>#     filter(term == "treatedTRUE") %&gt;%</span>
+<span class='co'>#     rename(p_value = p.value, se = std.error) %&gt;%</span>
+<span class='co'>#     select(estimate, p_value, se) %&gt;%</span>
+<span class='co'>#     mutate(n_clusters = n_clusters)</span>
+<span class='co'># }</span>
 </code></pre>
 </div>
 </div>
@@ -2419,7 +2453,8 @@ text-align: justify}
                                  <span class='va'>sigma_e</span>,
                                  <span class='va'>alpha</span>,
                                  <span class='va'>treatment_effect</span>,
-                                 <span class='va'>ovb_intensity</span><span class='op'>)</span> <span class='op'>{</span>
+                                 <span class='va'>ovb_intensity</span>,
+                                 <span class='va'>n_clusters</span> <span class='op'>=</span> <span class='cn'>NA</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='fu'>generate_data_panoptic</span><span class='op'>(</span>
     N <span class='op'>=</span> <span class='va'>N</span>,
     p_treat <span class='op'>=</span> <span class='va'>p_treat</span>,
@@ -2429,29 +2464,30 @@ text-align: justify}
     treatment_effect <span class='op'>=</span> <span class='va'>treatment_effect</span>,
     ovb_intensity <span class='op'>=</span> <span class='va'>ovb_intensity</span>
   <span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>estimate_panoptic</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+  <span class='fu'>estimate_panoptic</span><span class='op'>(</span>n_clusters <span class='op'>=</span> <span class='va'>n_clusters</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
   <span class='fu'>mutate</span><span class='op'>(</span>
     true_effect <span class='op'>=</span> <span class='va'>treatment_effect</span>,
     p_treat <span class='op'>=</span> <span class='va'>p_treat</span>
-  <span class='op'>)</span>
+  <span class='op'>)</span> 
 <span class='op'>}</span>
 </code></pre>
 </div>
 </div>
 <h3 id="all-simulations">All simulations</h3>
-<p>We will run the simulations for different sets of parameters by mapping our <code>compute_sim_panoptic</code> function on each set of parameters. We thus create a table with all the values of the parameters we want to test, <code>param_panoptic</code>. Note that in this table each set of parameters appears <code>n_iter</code> times as we want to run the analysis <span class="math inline">\(n_{iter}\)</span> times for each set of parameters.</p>
+<p>We will run the simulations for different sets of parameters by mapping our <code>compute_sim_p_treat</code> function on each set of parameters. We thus create a table with all the values of the parameters we want to test, <code>param_p_treat</code>. First, we only vary the proportion of unit treated. We will vary the number of clusters in a second analysis.</p>
+<p>Note that in this table each set of parameters appears <code>n_iter</code> times as we want to run the analysis <span class="math inline">\(n_{iter}\)</span> times for each set of parameters.</p>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
-<p>We then run the simulations by mapping our <code>compute_sim_panoptic</code> function on <code>param_panoptic</code>.</p>
+<p>We then run the simulations by mapping our <code>compute_sim_p_treat</code> function on <code>param_p_treat</code>.</p>
 <div class="layout-chunk" data-layout="l-body">
 
 </div>
-<h2 id="analysis-of-the-results">Analysis of the results</h2>
+<h2 id="analysis-of-the-results-proportion-treated-units">Analysis of the results (proportion treated units)</h2>
 <h3 id="quick-exploration">Quick exploration</h3>
 <p>First, we quickly explore the results.</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/exploration_results_panoptic-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/exploration_results_panoptic-2.png" width="85%" style="display: block; margin: auto;" /><img src="images/exploration_results_panoptic-3.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/exploration_results_p_treat-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/exploration_results_p_treat-2.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <h3 id="computing-bias-and-type-m">Computing bias and type M</h3>
 <p>We want to compare <span class="math inline">\(\mathbb{E}[\beta_0 - \widehat{\beta}]\)</span> and <span class="math inline">\(\mathbb{E}[|\beta_0 - \widehat{\beta}||signif]\)</span>. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
@@ -2460,7 +2496,7 @@ text-align: justify}
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>summarise_simulations</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span> <span class='op'>{</span>
   <span class='va'>data</span> <span class='op'>%&gt;%</span>
     <span class='fu'>mutate</span><span class='op'>(</span>significant <span class='op'>=</span> <span class='op'>(</span><span class='va'>p_value</span> <span class='op'>&lt;=</span> <span class='fl'>0.05</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-    <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>p_treat</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>p_treat</span>, <span class='va'>n_clusters</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>summarise</span><span class='op'>(</span>
       power <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>significant</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>*</span><span class='fl'>100</span>,
       type_m <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>significant</span>, <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>estimate</span> <span class='op'>-</span> <span class='va'>true_effect</span><span class='op'>)</span>, <span class='cn'>NA</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
@@ -2472,15 +2508,19 @@ text-align: justify}
     <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
 <span class='op'>}</span>
 
-<span class='va'>summary_sim_panoptic</span> <span class='op'>&lt;-</span> <span class='fu'>summarise_simulations</span><span class='op'>(</span><span class='va'>sim_panoptic</span><span class='op'>)</span>
-<span class='co'># saveRDS(summary_sim_panoptic, here("Outputs/summary_sim_panoptic.RDS"))</span>
+<span class='va'>summary_sim_p_treat</span> <span class='op'>&lt;-</span> <span class='fu'>summarise_simulations</span><span class='op'>(</span><span class='va'>sim_p_treat</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>
-<h3 id="graph">Graph</h3>
+<h3 id="the-graph">THE graph</h3>
 <p>To analyze our results, we build a unique and simple graph:</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/graph_results_panoptic-1.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/graph_results_p_treat-1.png" width="85%" style="display: block; margin: auto;" /></p>
+</div>
+<h2 id="varying-the-number-of-clusters">Varying the number of clusters</h2>
+<p>We then reproduce a similar type of analysis and graph but varying the number of clusters.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="images/set_param_clusters-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->

@@ -144,25 +144,52 @@ baseline_param_panoptic %>%
 
 ### Estimation
 
-After generating the data, we can run an estimation. We want to be able to compute the estimation for different 
+After generating the data, we can run an estimation. We want to be able to run the estimation for different numbers of clusters. We create artificial clusters, based on the individual identification numbers `id`. When we do not wish to cluster the standard errors, we simply set the cluster variable to be equal to the id so that the "clustering" is at the individual level. Note that we use the function `lm_robust` from the `estimatr` package to compute this clustering.
 
 ```{r estimate_panoptic}
-estimate_panoptic <- function(data, n_clusters) {
-  n_clusters <- ifelse(missing(n_clusters), nrow(data), n_clusters)
+estimate_panoptic <- function(data, n_clusters = NA) {
+  n_clusters_mod <- ifelse(is.na(n_clusters), nrow(data), n_clusters)
   
-  data %>% 
-    mutate(cluster = cut_number(id, n_clusters, labels = FALSE)) %>% 
+  data %>%
+    mutate(cluster = cut_number(id, n_clusters_mod, labels = FALSE)) %>%
     estimatr::lm_robust(
       data = .,
       formula = y ~ treated,
       clusters = cluster
     ) %>%
     broom::tidy() %>%
+    as_tibble() %>% 
     filter(term == "treatedTRUE") %>%
     rename(p_value = p.value, se = std.error) %>%
-    select(estimate, p_value, se) %>% 
+    select(estimate, p_value, se) %>%
     mutate(n_clusters = n_clusters)
 }
+
+# estimate_panoptic_2 <- function(data, n_clusters = NA) {
+# 
+#   if (is.na(n_clusters)) {
+#     reg <- lm(
+#       data = data,
+#       formula = y ~ treated
+#     )
+#   } else {
+#     reg <- data %>%
+#       mutate(cluster = cut_number(id, n_clusters, labels = FALSE)) %>%
+#       estimatr::lm_robust(
+#         data = .,
+#         formula = y ~ treated,
+#         clusters = cluster
+#       )
+#   }
+# 
+#   reg %>%
+#     broom::tidy() %>%
+#     as_tibble() %>% 
+#     filter(term == "treatedTRUE") %>%
+#     rename(p_value = p.value, se = std.error) %>%
+#     select(estimate, p_value, se) %>%
+#     mutate(n_clusters = n_clusters)
+# }
 ```
 
 ### One simulation
@@ -176,7 +203,8 @@ compute_sim_panoptic <- function(N,
                                  sigma_e,
                                  alpha,
                                  treatment_effect,
-                                 ovb_intensity) {
+                                 ovb_intensity,
+                                 n_clusters = NA) {
   generate_data_panoptic(
     N = N,
     p_treat = p_treat,
@@ -186,24 +214,26 @@ compute_sim_panoptic <- function(N,
     treatment_effect = treatment_effect,
     ovb_intensity = ovb_intensity
   ) %>%
-  estimate_panoptic() %>%
+  estimate_panoptic(n_clusters = n_clusters) %>%
   mutate(
     true_effect = treatment_effect,
     p_treat = p_treat
-  )
+  ) 
 }
 ```
 
 ### All simulations
 
-We will run the simulations for different sets of parameters by mapping our `compute_sim_panoptic` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_panoptic`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+We will run the simulations for different sets of parameters by mapping our `compute_sim_p_treat` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_p_treat`. First, we only vary the proportion of unit treated. We will vary the number of clusters in a second analysis.
 
-```{r set_param_panoptic, echo=FALSE}
+Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+
+```{r set_param_p_treat, echo=FALSE}
 fixed_param <- baseline_param_panoptic #%>% rbind(...)
 vect_p_treat <- seq(0.1, 0.9, 0.1)
 n_iter <- 1000
 
-param_panoptic <- fixed_param %>%
+param_p_treat <- fixed_param %>%
   select(-p_treat) %>% 
   crossing(vect_p_treat) %>%
   rename(p_treat = vect_p_treat) %>%
@@ -211,31 +241,31 @@ param_panoptic <- fixed_param %>%
   select(-rep_id)
 ```
 
-We then run the simulations by mapping our `compute_sim_panoptic` function on `param_panoptic`.
+We then run the simulations by mapping our `compute_sim_p_treat` function on `param_p_treat`.
 
-```{r run_sim_panoptic, eval=FALSE, echo=FALSE}
+```{r run_sim_p_treat, eval=FALSE, echo=FALSE}
 tic()
-sim_panoptic <- pmap_dfr(param_panoptic, compute_sim_panoptic)
+sim_p_treat <- pmap_dfr(param_p_treat, compute_sim_panoptic)
 beep()
 toc()
 
-# saveRDS(sim_panoptic, here("Outputs/sim_panoptic.RDS"))
+# saveRDS(sim_p_treat, here("Outputs/sim_p_treat.RDS"))
 ```
 
-## Analysis of the results
+## Analysis of the results (proportion treated units)
 
 ### Quick exploration
 
 First, we quickly explore the results.
 
-```{r exploration_results_panoptic, echo=FALSE, fig.asp=0.7}
-sim_panoptic <- readRDS(here("Outputs/sim_panoptic.RDS"))
+```{r exploration_results_p_treat, echo=FALSE, fig.asp=0.7}
+sim_p_treat <- readRDS(here("Outputs/sim_p_treat.RDS"))
 
-# sim_panoptic %>% 
+# sim_p_treat %>% 
 #   filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
 #   ggplot(aes(x = estimate)) +
 #   geom_density() +
-#   geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
+#   geom_vline(xintercept = unique(sim_p_treat$true_effect)) +
 #   facet_wrap(~ p_treat) +
 #   labs(
 #     title = "Distribution of the estimates of the treatement effect",
@@ -247,7 +277,7 @@ sim_panoptic <- readRDS(here("Outputs/sim_panoptic.RDS"))
 #     caption = "The vertical line represents the true effect"
 #   )
 
-sim_panoptic %>% 
+sim_p_treat %>% 
   ggplot() +
   geom_density(aes(x = estimate, color = as.factor(p_treat)), alpha = 0) +
   labs(
@@ -260,12 +290,12 @@ sim_panoptic %>%
   )
 
 
-sim_panoptic %>% 
+sim_p_treat %>% 
   filter(p_treat == 0.2) %>%
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
   ggplot(aes(x = estimate, fill = significant)) +
   geom_histogram() +
-  geom_vline(xintercept = unique(sim_panoptic$true_effect)) +
+  geom_vline(xintercept = unique(sim_p_treat$true_effect)) +
   labs(
     title = "Distribution of the estimates of the treatement effect conditional on significativity",
     subtitle = paste("For a proportion of", 0.2*100, "% units treated"),
@@ -280,11 +310,11 @@ sim_panoptic %>%
 
 We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.
 
-```{r summarise_panoptic}
+```{r summarise_p_treat}
 summarise_simulations <- function(data) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>%
-    group_by(p_treat) %>%
+    group_by(p_treat, n_clusters) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100,
       type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
@@ -296,16 +326,15 @@ summarise_simulations <- function(data) {
     ungroup()
 }
 
-summary_sim_panoptic <- summarise_simulations(sim_panoptic)
-# saveRDS(summary_sim_panoptic, here("Outputs/summary_sim_panoptic.RDS"))
+summary_sim_p_treat <- summarise_simulations(sim_p_treat)
 ```
 
-### Graph
+### THE graph
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results_panoptic, echo=FALSE, fig.asp=0.7}
-summary_sim_panoptic %>%
+```{r graph_results_p_treat, echo=FALSE, fig.asp=0.7}
+summary_sim_p_treat %>%
   ggplot(aes(x = p_treat, y = bias_signif)) +
   geom_line(size = 0.8) +
   labs(
@@ -315,3 +344,42 @@ summary_sim_panoptic %>%
     subtitle = "For statistically significant estimates"
   )
 ```
+
+## Varying the number of clusters
+
+We then reproduce a similar type of analysis and graph but varying the number of clusters.
+
+
+```{r set_param_clusters, echo=FALSE}
+fixed_param <- baseline_param_panoptic
+vect_n_clusters <- seq(50, 500, 50)
+n_iter <- 100
+
+param_clusters <- fixed_param %>%
+  crossing(vect_n_clusters) %>%
+  rename(n_clusters = vect_n_clusters) %>%
+  crossing(rep_id = 1:n_iter) %>%
+  select(-rep_id)
+
+# tic()
+# sim_clusters <- pmap_dfr(param_clusters, compute_sim_panoptic)
+# beep()
+# toc()
+
+# saveRDS(sim_clusters, here("Outputs/sim_clusters.RDS"))
+sim_clusters <- readRDS(here("Outputs/sim_clusters.RDS"))
+
+summary_sim_clusters <- summarise_simulations(sim_clusters)
+
+summary_sim_clusters %>%
+  ggplot(aes(x = n_clusters, y = bias_signif)) +
+  geom_line(size = 0.8) +
+  labs(
+    x = "Number of clusters",
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    title = "Evolution of bias with the number of clusters",
+    subtitle = "For statistically significant estimates"
+  )
+```
+
+
