@@ -1,7 +1,7 @@
 ---
 title: "Matching Simulations"
 description: |
-  "In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure."
+  In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/
@@ -35,10 +35,10 @@ opts_chunk$set(fig.path = "images/",
                out.width = "85%",
                dpi = 200,
                fig.align = "center",
-               dev.args = list(bg="transparent"))  
+               dev.args = list(bg = "transparent"))  
 ``` 
 
-In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. We create fake-data similar to those used for analyzing non-randomized labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at vincent.bagilet@columbia.edu and leo.zabrocki@psemail.eu.
+In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. We create fake-data similar to those used for analyzing non-randomized labor training program.
 
 # Packages Loading
 
@@ -55,10 +55,10 @@ library(DT) # for displaying the data as tables
 library(mediocrethemes) # vincent's custom ggplot2 theme
 library(tictoc) # for measuring running time
 library(beepr) # for making a sound when the code is done
-library(here)
+library(here) # for paths management
 
 # set ggplot theme
-set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
+set_mediocre_all(pal = "coty")
 ```
 
 # Data Generating Procedure
@@ -68,12 +68,8 @@ set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 To illustrate the the Type M error - OVB trade-off, we simulate fake-data from a non-randomized labor training program targeting young individuals:
 
 * We first create the units identifiers (`id`).
-* We then simulate 4 correlated binary covariates: 
 * The true propensity score variable `true_ps` is drawn from $N(0.3, 0.1)$ for control units and from $N(0.5, 0.12)$ for treated units.
-* Once the the true propensity scores are created, we define the potential outcomes of each individual. Here, potential outcomes represent the income (in euros) of the individuals if they undertake the training program or not. The potential outcome without treatment adoption, Y(0), is simulated using the following equation:
-
-`y_0 = 2000 * true_ps + rnorm(n(), mean = 300, sd = 200)`
-
+* Once the the true propensity scores are created, we define the potential outcomes of each individual. Here, potential outcomes represent the income (in euros) of the individuals if they undertake the training program or not. The potential outcome without treatment adoption, Y(0), is simulated using the following equation: `y_0 = 2000 * true_ps + rnorm(n(), mean = 300, sd = 200)`
 * We finally simulate the potential outcomes when individuals benefit from the training program. The average treatment effect on the treated (ATT) was set to 100. The average treatment effect on the control (ATC) was set to 50.
 
 ### Function to Generate the Data
@@ -81,10 +77,14 @@ To illustrate the the Type M error - OVB trade-off, we simulate fake-data from a
 We display below the code for the function `generate_data_matching()` which creates the dataset. Its single argument takes the desired sample size.
 
 ```{r dgp_matching}
-generate_data_matching  <- function(sample_size) {
-  data <- tibble(id = 1:sample_size) %>%
+generate_data_matching  <- function(N,
+                                    p_treat,
+                                    atc,
+                                    att,
+                                    wage) {
+  data <- tibble(id = 1:N) %>%
     mutate(
-      treatment = rbinom(n = sample_size, size = 1, prob = 0.25),
+      treatment = rbinom(n = N, size = 1, prob = p_treat),
       true_ps = ifelse(
         treatment == 0,
         rnorm(n(), mean = 0.3, sd = 0.1),
@@ -94,11 +94,11 @@ generate_data_matching  <- function(sample_size) {
                           true_ps < 0 ~ 0,
                           true_ps >= 0 & true_ps <= 1 ~ true_ps),
       # generate the potential outcomes
-      y_0 = 2000 * true_ps + rnorm(n(), mean = 300, sd = 200),
+      y_0 = wage * true_ps + rnorm(n(), mean = 300, sd = 200),
       y_0 = y_0 %>% round(., 0),
       y_1 = ifelse(treatment == 1,
-                   y_0 + 100,
-                   y_0 + 50),
+                   y_0 + att,
+                   y_0 + atc),
       # generate observed outcomes
       y_obs = ifelse(treatment == 1, y_1, y_0) %>% round(., 0)
     )
@@ -106,13 +106,26 @@ generate_data_matching  <- function(sample_size) {
 }
 ```
 
+We display below the baseline parameters:
+
+```{r baseline_param_matching}
+baseline_param_match <- tibble(
+  N = 300,
+  p_treat = 0.25,
+  atc = 50,
+  att = 100,
+  wage = 2000
+)
+```
+
+
 ### EDA for One Dataset
 
 We run one iteration of the function `generate_data_matching()` to explore the resulting data with 500 units:
 
 ```{r display_dataset}
 # run the function for a sample of 500 units
-data <- generate_data_matching(500)
+data <- baseline_param_match %>% pmap_dfr(generate_data_matching)
 
 # display the table
 datatable(data)
@@ -126,10 +139,8 @@ data %>%
   ggplot(., aes(x = true_ps, fill = treatment)) +
   geom_density(colour = NA) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  xlab("True Propensity Score") + ylab("") +
-  labs(fill = 'Status:') +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_blank())
+  xlab("True Propensity Score") + ylab("Density") +
+  labs(fill = 'Status:')
 ```
 
 We can finally see how the observed revenue is distributed across the two groups:
@@ -140,10 +151,8 @@ data %>%
   ggplot(., aes(x = y_obs, fill = treatment)) +
   geom_density(colour = NA) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  xlab("Revenue (in euros)") + ylab("") +
-  labs(fill = 'Status:') +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_blank())
+  xlab("Revenue (in euros)") + ylab("Density") +
+  labs(fill = 'Status:')
 ```
 
 And we can check whether the ATT and ATC were correctly simulated. The ATT is computed such as:
@@ -186,9 +195,13 @@ We then simulate 1000 datasets of 500 units and run the regression model:
 ```{r sim_outcome_reg}
 # first simulate simulation id
 data_simulations <- tibble(sim_id = 1:1000) %>%
-# then simulate data
-  mutate(data = map(sim_id, ~ generate_data_matching(500))) %>%
-# finally run the reg analysis
+  # then simulate data
+  mutate(data = map(
+    sim_id,
+    ~ pmap_dfr(baseline_param_match, generate_data_matching)
+    )
+  ) %>%
+  # finally run the reg analysis
   mutate(results = map(data, ~ outcome_regression(.)))
 
 # unnest the results
@@ -206,10 +219,8 @@ data_simulations %>%
   geom_vline(xintercept = mean(data_simulations$estimate)) +
   geom_vline(xintercept = 100, colour = "#EAA95C") +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  xlab("Revenue (in euros)") + ylab("") +
-  labs(fill = 'Status:') +
-  theme(panel.grid.major.y = element_blank(),
-        axis.text.y = element_blank())
+  xlab("Revenue (in euros)") + ylab("Density") +
+  labs(fill = 'Status:')
 ```
 
 The average of estimates is equal to `r round(mean(data_simulations$estimate), 0)`.
@@ -240,29 +251,35 @@ ps_function <- function(data, caliper_value) {
   
   data_matched <- match.data(matching_results)
   
-  proportion_matched <- sum(data_matched$treatment)/sum(data$treatment)*100
+  proportion_matched <-
+    sum(data_matched$treatment) / sum(data$treatment) * 100
   
   true_effect <-
     mean(data_matched$y_1[data_matched$treatment == 1]) - mean(data_matched$y_0[data_matched$treatment == 1])
   
-  model_fit <- lm(
-    y_obs ~ treatment,
-    data = data_matched,
-    weights = weights
-  )
+  model_fit <- lm(y_obs ~ treatment,
+                  data = data_matched,
+                  weights = weights)
   
-  ps_att <- broom::tidy(coeftest(model_fit, vcov. = vcovCL, cluster = ~ subclass),
-                        conf.int = TRUE) %>%
+  ps_att <-
+    broom::tidy(coeftest(model_fit, vcov. = vcovCL, cluster = ~ subclass),
+                conf.int = TRUE) %>%
     filter(term == "treatment") %>%
     select(term, estimate, p.value, conf.low, conf.high)
   
-  return(bind_cols(ps_att, proportion_matched = proportion_matched, true_effect = true_effect))
+  return(
+    bind_cols(
+      ps_att,
+      proportion_matched = proportion_matched,
+      true_effect = true_effect
+    )
+  )
 }
 ```
 
 We run the function on the data we previously created:
 
-```{r, echo=TRUE, eval=FALSE}
+```{r, echo=FALSE}
 # testing the function
 ps_function(data, caliper = 0.5)
 ```
@@ -271,23 +288,28 @@ The function returns the estimate for the ATT, the associated $p$-value and 95% 
 
 ### Simulations
 
-We implement Monte-Carlo simulatiuons for a sample size of 300 units and differents values of the caliper:
+We implement Monte-Carlo 100 simulations for different values of the caliper:
 
 ```{r run_sim_matching, eval=FALSE}
 data_simulations <- tibble(sim_id = 1:300) %>%
   # then simulate data
-  mutate(data = map(sim_id, ~ generate_data_matching(300))) %>%
+  mutate(data = map(
+    sim_id,
+    ~ pmap_dfr(baseline_param_match, generate_data_matching)
+  )) %>%
   # generate caliper
-  crossing(caliper = c(seq(from = 1, to = 100, by = 1)/100)) %>%
+  crossing(caliper = c(seq(
+    from = 1, to = 100, by = 1
+  ) / 100)) %>%
   # finally run the matching analysis
   mutate(results = map2(data, caliper, ~ ps_function(.x, .y)))
 
-# unnest results
-simulations_matching <- data_simulations %>% 
+
+data_simulations <- data_simulations %>% 
   select(-data) %>%
   unnest(results)
 
-# saveRDS(simulations_matching, here("Outputs/simulations_matching.RDS"))
+# saveRDS(data_simulations, here("Outputs/simulations_matching.RDS"))
 ```
 
 Once the simulations have been run, we compute the summary statistics using the `summarise_simulations()` function:
@@ -302,8 +324,8 @@ summarise_simulations_matching <- function(data) {
     summarise(
       proportion_matched = mean(proportion_matched),
       power = mean(significant, na.rm = TRUE)*100, 
-      bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
-      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      bias_all = mean(abs(estimate/true_effect), na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
     ungroup()
@@ -320,9 +342,9 @@ And plot the results:
 
 ```{r graph_results_matching, echo = FALSE}
 summary_simulations_matching %>% 
-  pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
+  pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
   mutate(
-    measure = ifelse(measure == "bias_sign", "Significant", "All")) %>% 
+    measure = ifelse(measure == "type_m", "Significant", "All")) %>% 
   ggplot(aes(x = caliper, y = value, color = measure)) + 
   # geom_point() +
   geom_line(size = 0.8) +
