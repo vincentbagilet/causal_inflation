@@ -20,19 +20,19 @@
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -52,7 +52,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ad0000; } /* Alert */
 code span.an { color: #5e5e5e; } /* Annotation */
@@ -88,44 +88,44 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
   <!--radix_placeholder_meta_tags-->
   <title>Unbiased but Inflated Causal Effects: Matching Simulations</title>
-  
-  <meta property="description" itemprop="description" content="&quot;In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.&quot;"/>
-  
-  
+
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error.&quot;"/>
+
+
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2021-12-15"/>
-  <meta property="article:created" itemprop="dateCreated" content="2021-12-15"/>
+  <meta property="article:published" itemprop="datePublished" content="2022-01-10"/>
+  <meta property="article:created" itemprop="dateCreated" content="2022-01-10"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
-  
+
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="Unbiased but Inflated Causal Effects: Matching Simulations"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="&quot;In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.&quot;"/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error.&quot;"/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="Unbiased but Inflated Causal Effects"/>
-  
+
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
   <meta property="twitter:title" content="Unbiased but Inflated Causal Effects: Matching Simulations"/>
-  <meta property="twitter:description" content="&quot;In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.&quot;"/>
-  
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error.&quot;"/>
+
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
-  
+
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Matching Simulations"]},{"type":"character","attributes":{},"value":["\"In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.\"\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University - SIPA"]},{"type":"character","attributes":{},"value":["https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://lzabrocki.github.io/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/"]}]}]},{"type":"character","attributes":{},"value":["2021-12-15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Matching Simulations"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error.\"\n"]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University - SIPA"]},{"type":"character","attributes":{},"value":["https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://lzabrocki.github.io/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/"]}]}]},{"type":"character","attributes":{},"value":["2022-01-10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
   <meta name="distill:offset" content=""/>
-  
+
   <script type="application/javascript">
-  
+
     window.headroom_prevent_pin = false;
-  
+
     window.document.addEventListener("DOMContentLoaded", function (event) {
-  
+
       // initialize headroom for banner
       var header = $('header').get(0);
       var headerHeight = header.offsetHeight;
@@ -142,13 +142,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       if(window.location.hash)
         headroom.unpin();
       $(header).addClass('headroom--transition');
-  
+
       // offset scroll location for banner on hash change
       // (see: https://github.com/WickyNilliams/headroom.js/issues/38)
       window.addEventListener("hashchange", function(event) {
         window.scrollTo(0, window.pageYOffset - (headerHeight + 25));
       });
-  
+
       // responsive menu
       $('.distill-site-header').each(function(i, val) {
         var topnav = $(this);
@@ -157,7 +157,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
           topnav.toggleClass('responsive');
         });
       });
-  
+
       // nav dropdowns
       $('.nav-dropbtn').click(function(e) {
         $(this).next('.nav-dropdown-content').toggleClass('nav-dropdown-active');
@@ -172,99 +172,99 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       });
     });
   </script>
-  
+
   <style type="text/css">
-  
+
   /* Theme (user-documented overrideables for nav appearance) */
-  
+
   .distill-site-nav {
     color: rgba(255, 255, 255, 0.8);
     background-color: #0F2E3D;
     font-size: 15px;
     font-weight: 300;
   }
-  
+
   .distill-site-nav a {
     color: inherit;
     text-decoration: none;
   }
-  
+
   .distill-site-nav a:hover {
     color: white;
   }
-  
+
   @media print {
     .distill-site-nav {
       display: none;
     }
   }
-  
+
   .distill-site-header {
-  
+
   }
-  
+
   .distill-site-footer {
-  
+
   }
-  
-  
+
+
   /* Site Header */
-  
+
   .distill-site-header {
     width: 100%;
     box-sizing: border-box;
     z-index: 3;
   }
-  
+
   .distill-site-header .nav-left {
     display: inline-block;
     margin-left: 8px;
   }
-  
+
   @media screen and (max-width: 768px) {
     .distill-site-header .nav-left {
       margin-left: 0;
     }
   }
-  
-  
+
+
   .distill-site-header .nav-right {
     float: right;
     margin-right: 8px;
   }
-  
+
   .distill-site-header a,
   .distill-site-header .title {
     display: inline-block;
     text-align: center;
     padding: 14px 10px 14px 10px;
   }
-  
+
   .distill-site-header .title {
     font-size: 18px;
     min-width: 150px;
   }
-  
+
   .distill-site-header .logo {
     padding: 0;
   }
-  
+
   .distill-site-header .logo img {
     display: none;
     max-height: 20px;
     width: auto;
     margin-bottom: -4px;
   }
-  
+
   .distill-site-header .nav-image img {
     max-height: 18px;
     width: auto;
     display: inline-block;
     margin-bottom: -3px;
   }
-  
-  
-  
+
+
+
   @media screen and (min-width: 1000px) {
     .distill-site-header .logo img {
       display: inline-block;
@@ -279,17 +279,17 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       padding-left: 12px;
     }
   }
-  
-  
+
+
   .distill-site-header .nav-toggle {
     display: none;
   }
-  
+
   .nav-dropdown {
     display: inline-block;
     position: relative;
   }
-  
+
   .nav-dropdown .nav-dropbtn {
     border: none;
     outline: none;
@@ -303,7 +303,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     margin-top: 1px;
     z-index: 2;
   }
-  
+
   .nav-dropdown-content {
     display: none;
     position: absolute;
@@ -318,18 +318,18 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-top: 4px;
     padding-bottom: 4px;
   }
-  
+
   .nav-dropdown-content hr {
     margin-top: 4px;
     margin-bottom: 4px;
     border: none;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
+
   .nav-dropdown-active {
     display: block;
   }
-  
+
   .nav-dropdown-content a, .nav-dropdown-content .nav-dropdown-header {
     color: black;
     padding: 6px 24px;
@@ -337,7 +337,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     display: block;
     text-align: left;
   }
-  
+
   .nav-dropdown-content .nav-dropdown-header {
     display: block;
     padding: 5px 24px;
@@ -347,21 +347,21 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     color: #999999;
     white-space: nowrap;
   }
-  
+
   .nav-dropdown:hover .nav-dropbtn {
     color: white;
   }
-  
+
   .nav-dropdown-content a:hover {
     background-color: #ddd;
     color: black;
   }
-  
+
   .nav-right .nav-dropdown-content {
     margin-left: -45%;
     right: 0;
   }
-  
+
   @media screen and (max-width: 768px) {
     .distill-site-header a, .distill-site-header .nav-dropdown  {display: none;}
     .distill-site-header a.nav-toggle {
@@ -381,8 +381,8 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       margin-left: 0;
     }
   }
-  
-  
+
+
   @media screen and (max-width: 768px) {
     .distill-site-header.responsive {position: relative; min-height: 500px; }
     .distill-site-header.responsive a.nav-toggle {
@@ -407,9 +407,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       text-align: left;
     }
   }
-  
+
   /* Site Footer */
-  
+
   .distill-site-footer {
     width: 100%;
     overflow: hidden;
@@ -420,19 +420,19 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-bottom: 30px;
     text-align: center;
   }
-  
+
   /* Headroom */
-  
+
   d-title {
     padding-top: 6rem;
   }
-  
+
   @media print {
     d-title {
       padding-top: 4rem;
     }
   }
-  
+
   .headroom {
     z-index: 1000;
     position: fixed;
@@ -440,68 +440,68 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     left: 0;
     right: 0;
   }
-  
+
   .headroom--transition {
     transition: all .4s ease-in-out;
   }
-  
+
   .headroom--unpinned {
     top: -100px;
   }
-  
+
   .headroom--pinned {
     top: 0;
   }
-  
+
   /* adjust viewport for navbar height */
   /* helps vertically center bootstrap (non-distill) content */
   .min-vh-100 {
     min-height: calc(100vh - 100px) !important;
   }
-  
+
   </style>
-  
+
   <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
   <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet"/>
   <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet"/>
   <script src="site_libs/headroom-0.9.4/headroom.min.js"></script>
   <!--/radix_placeholder_navigation_in_header-->
   <!--radix_placeholder_distill-->
-  
+
   <style type="text/css">
-  
+
   body {
     background-color: white;
   }
-  
+
   .pandoc-table {
     width: 100%;
   }
-  
+
   .pandoc-table>caption {
     margin-bottom: 10px;
   }
-  
+
   .pandoc-table th:not([align]) {
     text-align: left;
   }
-  
+
   .pagedtable-footer {
     font-size: 15px;
   }
-  
+
   d-byline .byline {
     grid-template-columns: 2fr 2fr;
   }
-  
+
   d-byline .byline h3 {
     margin-block-start: 1.5em;
   }
-  
+
   d-byline .byline .authors-affiliations h3 {
     margin-block-start: 0.5em;
   }
-  
+
   .authors-affiliations .orcid-id {
     width: 16px;
     height:16px;
@@ -510,12 +510,12 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     vertical-align: middle;
     padding-bottom: 2px;
   }
-  
+
   d-title .dt-tags {
     margin-top: 1em;
     grid-column: text;
   }
-  
+
   .dt-tags .dt-tag {
     text-decoration: none;
     display: inline-block;
@@ -529,24 +529,24 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     text-transform: uppercase;
     font-weight: 500;
   }
-  
+
   d-article table.gt_table td,
   d-article table.gt_table th {
     border-bottom: none;
   }
-  
+
   .html-widget {
     margin-bottom: 2.0em;
   }
-  
+
   .l-screen-inset {
     padding-right: 16px;
   }
-  
+
   .l-screen .caption {
     margin-left: 10px;
   }
-  
+
   .shaded {
     background: rgb(247, 247, 247);
     padding-top: 20px;
@@ -554,75 +554,75 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     border-top: 1px solid rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
+
   .shaded .html-widget {
     margin-bottom: 0;
     border: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
+
   .shaded .shaded-content {
     background: white;
   }
-  
+
   .text-output {
     margin-top: 0;
     line-height: 1.5em;
   }
-  
+
   .hidden {
     display: none !important;
   }
-  
+
   d-article {
     padding-top: 2.5rem;
     padding-bottom: 30px;
   }
-  
+
   d-appendix {
     padding-top: 30px;
   }
-  
+
   d-article>p>img {
     width: 100%;
   }
-  
+
   d-article h2 {
     margin: 1rem 0 1.5rem 0;
   }
-  
+
   d-article h3 {
     margin-top: 1.5rem;
   }
-  
+
   d-article iframe {
     border: 1px solid rgba(0, 0, 0, 0.1);
     margin-bottom: 2.0em;
     width: 100%;
   }
-  
+
   /* Tweak code blocks */
-  
+
   d-article div.sourceCode code,
   d-article pre code {
     font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   }
-  
+
   d-article pre,
   d-article div.sourceCode,
   d-article div.sourceCode pre {
     overflow: auto;
   }
-  
+
   d-article div.sourceCode {
     background-color: white;
   }
-  
+
   d-article div.sourceCode pre {
     padding-left: 10px;
     font-size: 12px;
     border-left: 2px solid rgba(0,0,0,0.1);
   }
-  
+
   d-article pre {
     font-size: 12px;
     color: black;
@@ -634,50 +634,50 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     word-break: normal;
     word-wrap: normal;
     line-height: 1.5;
-  
+
     -moz-tab-size: 4;
     -o-tab-size: 4;
     tab-size: 4;
-  
+
     -webkit-hyphens: none;
     -moz-hyphens: none;
     -ms-hyphens: none;
     hyphens: none;
   }
-  
+
   d-article pre a {
     border-bottom: none;
   }
-  
+
   d-article pre a:hover {
     border-bottom: none;
     text-decoration: underline;
   }
-  
+
   d-article details {
     grid-column: text;
     margin-bottom: 0.8em;
   }
-  
+
   @media(min-width: 768px) {
-  
+
   d-article pre,
   d-article div.sourceCode,
   d-article div.sourceCode pre {
     overflow: visible !important;
   }
-  
+
   d-article div.sourceCode pre {
     padding-left: 18px;
     font-size: 14px;
   }
-  
+
   d-article pre {
     font-size: 14px;
   }
-  
+
   }
-  
+
   figure img.external {
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -685,9 +685,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding: 18px;
     box-sizing: border-box;
   }
-  
+
   /* CSS for d-contents */
-  
+
   .d-contents {
     grid-column: text;
     color: rgba(0,0,0,0.8);
@@ -699,7 +699,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-left: 0.25em;
     justify-self: start;
   }
-  
+
   @media(min-width: 1000px) {
     .d-contents.d-contents-float {
       height: 0;
@@ -710,82 +710,82 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       padding-left: 2em;
     }
   }
-  
+
   .d-contents nav h3 {
     font-size: 18px;
     margin-top: 0;
     margin-bottom: 1em;
   }
-  
+
   .d-contents li {
     list-style-type: none
   }
-  
+
   .d-contents nav > ul {
     padding-left: 0;
   }
-  
+
   .d-contents ul {
     padding-left: 1em
   }
-  
+
   .d-contents nav ul li {
     margin-top: 0.6em;
     margin-bottom: 0.2em;
   }
-  
+
   .d-contents nav a {
     font-size: 13px;
     border-bottom: none;
     text-decoration: none
     color: rgba(0, 0, 0, 0.8);
   }
-  
+
   .d-contents nav a:hover {
     text-decoration: underline solid rgba(0, 0, 0, 0.6)
   }
-  
+
   .d-contents nav > ul > li > a {
     font-weight: 600;
   }
-  
+
   .d-contents nav > ul > li > ul {
     font-weight: inherit;
   }
-  
+
   .d-contents nav > ul > li > ul > li {
     margin-top: 0.2em;
   }
-  
-  
+
+
   .d-contents nav ul {
     margin-top: 0;
     margin-bottom: 0.25em;
   }
-  
+
   .d-article-with-toc h2:nth-child(2) {
     margin-top: 0;
   }
-  
-  
+
+
   /* Figure */
-  
+
   .figure {
     position: relative;
     margin-bottom: 2.5em;
     margin-top: 1.5em;
   }
-  
+
   .figure img {
     width: 100%;
   }
-  
+
   .figure .caption {
     color: rgba(0, 0, 0, 0.6);
     font-size: 12px;
     line-height: 1.5em;
   }
-  
+
   .figure img.external {
     background: white;
     border: 1px solid rgba(0, 0, 0, 0.1);
@@ -793,42 +793,42 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding: 18px;
     box-sizing: border-box;
   }
-  
+
   .figure .caption a {
     color: rgba(0, 0, 0, 0.6);
   }
-  
+
   .figure .caption b,
   .figure .caption strong, {
     font-weight: 600;
     color: rgba(0, 0, 0, 1.0);
   }
-  
+
   /* Citations */
-  
+
   d-article .citation {
     color: inherit;
     cursor: inherit;
   }
-  
+
   div.hanging-indent{
     margin-left: 1em; text-indent: -1em;
   }
-  
+
   /* Citation hover box */
-  
+
   .tippy-box[data-theme~=light-border] {
     background-color: rgba(250, 250, 250, 0.95);
   }
-  
+
   .tippy-content > p {
     margin-bottom: 0;
     padding: 2px;
   }
-  
-  
+
+
   /* Tweak 1000px media break to show more text */
-  
+
   @media(min-width: 1000px) {
     .base-grid,
     distill-header,
@@ -844,11 +844,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       grid-template-columns: [screen-start] 1fr [page-start kicker-start] 80px [middle-start] 50px [text-start kicker-end] 65px 65px 65px 65px 65px 65px 65px 65px [text-end gutter-start] 65px [middle-end] 65px [page-end gutter-end] 1fr [screen-end];
       grid-column-gap: 16px;
     }
-  
+
     .grid {
       grid-column-gap: 16px;
     }
-  
+
     d-article {
       font-size: 1.06rem;
       line-height: 1.7em;
@@ -857,7 +857,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       font-size: 13px;
     }
   }
-  
+
   @media(min-width: 1180px) {
     .base-grid,
     distill-header,
@@ -873,16 +873,16 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       grid-template-columns: [screen-start] 1fr [page-start kicker-start] 60px [middle-start] 60px [text-start kicker-end] 60px 60px 60px 60px 60px 60px 60px 60px [text-end gutter-start] 60px [middle-end] 60px [page-end gutter-end] 1fr [screen-end];
       grid-column-gap: 32px;
     }
-  
+
     .grid {
       grid-column-gap: 32px;
     }
   }
-  
-  
+
+
   /* Get the citation styles for the appendix (not auto-injected on render since
      we do our own rendering of the citation appendix) */
-  
+
   d-appendix .citation-appendix,
   .d-appendix .citation-appendix {
     font-size: 11px;
@@ -899,9 +899,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     white-space: pre-wrap;
     word-wrap: break-word;
   }
-  
+
   /* Include appendix styles here so they can be overridden */
-  
+
   d-appendix {
     contain: layout style;
     font-size: 0.8em;
@@ -913,7 +913,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-top: 60px;
     padding-bottom: 48px;
   }
-  
+
   d-appendix h3 {
     grid-column: page-start / text-start;
     font-size: 15px;
@@ -922,59 +922,59 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     margin-bottom: 0;
     color: rgba(0,0,0,0.65);
   }
-  
+
   d-appendix h3 + * {
     margin-top: 1em;
   }
-  
+
   d-appendix ol {
     padding: 0 0 0 15px;
   }
-  
+
   @media (min-width: 768px) {
     d-appendix ol {
       padding: 0 0 0 30px;
       margin-left: -30px;
     }
   }
-  
+
   d-appendix li {
     margin-bottom: 1em;
   }
-  
+
   d-appendix a {
     color: rgba(0, 0, 0, 0.6);
   }
-  
+
   d-appendix > * {
     grid-column: text;
   }
-  
+
   d-appendix > d-footnote-list,
   d-appendix > d-citation-list,
   d-appendix > distill-appendix {
     grid-column: screen;
   }
-  
+
   /* Include footnote styles here so they can be overridden */
-  
+
   d-footnote-list {
     contain: layout style;
   }
-  
+
   d-footnote-list > * {
     grid-column: text;
   }
-  
+
   d-footnote-list a.footnote-backlink {
     color: rgba(0,0,0,0.3);
     padding-left: 0.5em;
   }
-  
-  
-  
+
+
+
   /* Anchor.js */
-  
+
   .anchorjs-link {
     /*transition: all .25s linear; */
     text-decoration: none;
@@ -985,86 +985,86 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     text-decoration: none;
     border-bottom: none;
   }
-  
+
   /* Social footer */
-  
+
   .social_footer {
     margin-top: 30px;
     margin-bottom: 0;
     color: rgba(0,0,0,0.67);
   }
-  
+
   .disqus-comments {
     margin-right: 30px;
   }
-  
+
   .disqus-comment-count {
     border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     cursor: pointer;
   }
-  
+
   #disqus_thread {
     margin-top: 30px;
   }
-  
+
   .article-sharing a {
     border-bottom: none;
     margin-right: 8px;
   }
-  
+
   .article-sharing a:hover {
     border-bottom: none;
   }
-  
+
   .sidebar-section.subscribe {
     font-size: 12px;
     line-height: 1.6em;
   }
-  
+
   .subscribe p {
     margin-bottom: 0.5em;
   }
-  
-  
+
+
   .article-footer .subscribe {
     font-size: 15px;
     margin-top: 45px;
   }
-  
-  
+
+
   .sidebar-section.custom {
     font-size: 12px;
     line-height: 1.6em;
   }
-  
+
   .custom p {
     margin-bottom: 0.5em;
   }
-  
+
   /* Styles for listing layout (hide title) */
   .layout-listing d-title, .layout-listing .d-title {
     display: none;
   }
-  
+
   /* Styles for posts lists (not auto-injected) */
-  
-  
+
+
   .posts-with-sidebar {
     padding-left: 45px;
     padding-right: 45px;
   }
-  
+
   .posts-list .description h2,
   .posts-list .description p {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
   }
-  
+
   .posts-list .description h2 {
     font-weight: 700;
     border-bottom: none;
     padding-bottom: 0;
   }
-  
+
   .posts-list h2.post-tag {
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
     padding-bottom: 12px;
@@ -1073,7 +1073,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     margin-top: 60px;
     margin-bottom: 24px;
   }
-  
+
   .posts-list .post-preview {
     text-decoration: none;
     overflow: hidden;
@@ -1081,29 +1081,29 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     padding: 24px 0;
   }
-  
+
   .post-preview-last {
     border-bottom: none !important;
   }
-  
+
   .posts-list .posts-list-caption {
     grid-column: screen;
     font-weight: 400;
   }
-  
+
   .posts-list .post-preview h2 {
     margin: 0 0 6px 0;
     line-height: 1.2em;
     font-style: normal;
     font-size: 24px;
   }
-  
+
   .posts-list .post-preview p {
     margin: 0 0 12px 0;
     line-height: 1.4em;
     font-size: 16px;
   }
-  
+
   .posts-list .post-preview .thumbnail {
     box-sizing: border-box;
     margin-bottom: 24px;
@@ -1114,32 +1114,32 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     width: 100%;
     display: block;
   }
-  
+
   .posts-list .metadata {
     font-size: 12px;
     line-height: 1.4em;
     margin-bottom: 18px;
   }
-  
+
   .posts-list .metadata > * {
     display: inline-block;
   }
-  
+
   .posts-list .metadata .publishedDate {
     margin-right: 2em;
   }
-  
+
   .posts-list .metadata .dt-authors {
     display: block;
     margin-top: 0.3em;
     margin-right: 2em;
   }
-  
+
   .posts-list .dt-tags {
     display: block;
     line-height: 1em;
   }
-  
+
   .posts-list .dt-tags .dt-tag {
     display: inline-block;
     color: rgba(0,0,0,0.6);
@@ -1152,24 +1152,24 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     text-transform: uppercase;
     font-weight: 500;
   }
-  
+
   .posts-list img {
     opacity: 1;
   }
-  
+
   .posts-list img[data-src] {
     opacity: 0;
   }
-  
+
   .posts-more {
     clear: both;
   }
-  
-  
+
+
   .posts-sidebar {
     font-size: 16px;
   }
-  
+
   .posts-sidebar h3 {
     font-size: 16px;
     margin-top: 0;
@@ -1177,39 +1177,39 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     font-weight: 400;
     text-transform: uppercase;
   }
-  
+
   .sidebar-section {
     margin-bottom: 30px;
   }
-  
+
   .categories ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
   }
-  
+
   .categories li {
     color: rgba(0, 0, 0, 0.8);
     margin-bottom: 0;
   }
-  
+
   .categories li>a {
     border-bottom: none;
   }
-  
+
   .categories li>a:hover {
     border-bottom: 1px solid rgba(0, 0, 0, 0.4);
   }
-  
+
   .categories .active {
     font-weight: 600;
   }
-  
+
   .categories .category-count {
     color: rgba(0, 0, 0, 0.4);
   }
-  
-  
+
+
   @media(min-width: 768px) {
     .posts-list .post-preview h2 {
       font-size: 26px;
@@ -1245,55 +1245,55 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       padding-bottom: 24px;
     }
   }
-  
-  
+
+
   /* Improve display for browsers without grid (IE/Edge <= 15) */
-  
+
   .downlevel {
     line-height: 1.6em;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
     margin: 0;
   }
-  
+
   .downlevel .d-title {
     padding-top: 6rem;
     padding-bottom: 1.5rem;
   }
-  
+
   .downlevel .d-title h1 {
     font-size: 50px;
     font-weight: 700;
     line-height: 1.1em;
     margin: 0 0 0.5rem;
   }
-  
+
   .downlevel .d-title p {
     font-weight: 300;
     font-size: 1.2rem;
     line-height: 1.55em;
     margin-top: 0;
   }
-  
+
   .downlevel .d-byline {
     padding-top: 0.8em;
     padding-bottom: 0.8em;
     font-size: 0.8rem;
     line-height: 1.8em;
   }
-  
+
   .downlevel .section-separator {
     border: none;
     border-top: 1px solid rgba(0, 0, 0, 0.1);
   }
-  
+
   .downlevel .d-article {
     font-size: 1.06rem;
     line-height: 1.7em;
     padding-top: 1rem;
     padding-bottom: 2rem;
   }
-  
-  
+
+
   .downlevel .d-appendix {
     padding-left: 0;
     padding-right: 0;
@@ -1305,11 +1305,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-top: 40px;
     padding-bottom: 48px;
   }
-  
+
   .downlevel .footnotes ol {
     padding-left: 13px;
   }
-  
+
   .downlevel .base-grid,
   .downlevel .distill-header,
   .downlevel .d-title,
@@ -1326,7 +1326,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     padding-left: 40px;
     padding-right: 40px;
   }
-  
+
   @media(min-width: 768px) {
     .downlevel .base-grid,
     .downlevel .distill-header,
@@ -1346,14 +1346,14 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     max-width: 900px;
   }
   }
-  
+
   .downlevel pre code {
     display: block;
     border-left: 2px solid rgba(0, 0, 0, .1);
     padding: 0 0 0 20px;
     font-size: 14px;
   }
-  
+
   .downlevel code, .downlevel pre {
     color: black;
     background: none;
@@ -1364,27 +1364,27 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     word-break: normal;
     word-wrap: normal;
     line-height: 1.5;
-  
+
     -moz-tab-size: 4;
     -o-tab-size: 4;
     tab-size: 4;
-  
+
     -webkit-hyphens: none;
     -moz-hyphens: none;
     -ms-hyphens: none;
     hyphens: none;
   }
-  
+
   .downlevel .posts-list .post-preview {
     color: inherit;
   }
-  
-  
-  
+
+
+
   </style>
-  
+
   <script type="application/javascript">
-  
+
   function is_downlevel_browser() {
     if (bowser.isUnsupportedBrowser({ msie: "12", msedge: "16"},
                                    window.navigator.userAgent)) {
@@ -1393,20 +1393,20 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       return window.load_distill_framework === undefined;
     }
   }
-  
+
   // show body when load is complete
   function on_load_complete() {
-  
+
     // add anchors
     if (window.anchors) {
       window.anchors.options.placement = 'left';
       window.anchors.add('d-article > h2, d-article > h3, d-article > h4, d-article > h5');
     }
-  
-  
+
+
     // set body to visible
     document.body.style.visibility = 'visible';
-  
+
     // force redraw for leaflet widgets
     if (window.HTMLWidgets) {
       var maps = window.HTMLWidgets.findAll(".leaflet");
@@ -1419,39 +1419,39 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
         });
       });
     }
-  
+
     // trigger 'shown' so htmlwidgets resize
     $('d-article').trigger('shown');
   }
-  
+
   function init_distill() {
-  
+
     init_common();
-  
+
     // create front matter
     var front_matter = $('<d-front-matter></d-front-matter>');
     $('#distill-front-matter').wrap(front_matter);
-  
+
     // create d-title
     $('.d-title').changeElementType('d-title');
-  
+
     // create d-byline
     var byline = $('<d-byline></d-byline>');
     $('.d-byline').replaceWith(byline);
-  
+
     // create d-article
     var article = $('<d-article></d-article>');
     $('.d-article').wrap(article).children().unwrap();
-  
+
     // move posts container into article
     $('.posts-container').appendTo($('d-article'));
-  
+
     // create d-appendix
     $('.d-appendix').changeElementType('d-appendix');
-  
+
     // flag indicating that we have appendix items
     var appendix = $('.appendix-bottom').children('h3').length > 0;
-  
+
     // replace footnotes with <d-footnote>
     $('.footnote-ref').each(function(i, val) {
       appendix = true;
@@ -1467,10 +1467,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     });
     // remove footnotes
     $('.footnotes').remove();
-  
+
     // move refs into #references-listing
     $('#references-listing').replaceWith($('#refs'));
-  
+
     $('h1.appendix, h2.appendix').each(function(i, val) {
       $(this).changeElementType('h3');
     });
@@ -1480,16 +1480,16 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       appendix = true;
       $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('d-appendix'));
     });
-  
+
     // show d-appendix if we have appendix content
     $("d-appendix").css('display', appendix ? 'grid' : 'none');
-  
+
     // localize layout chunks to just output
     $('.layout-chunk').each(function(i, val) {
-  
+
       // capture layout
       var layout = $(this).attr('data-layout');
-  
+
       // apply layout to markdown level block elements
       var elements = $(this).children().not('details, div.sourceCode, pre, script');
       elements.each(function(i, el) {
@@ -1502,40 +1502,40 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
           $(this).wrap(layout_div);
         }
       });
-  
-  
+
+
       // unwrap the layout-chunk div
       $(this).children().unwrap();
     });
-  
+
     // remove code block used to force  highlighting css
     $('.distill-force-highlighting-css').parent().remove();
-  
+
     // remove empty line numbers inserted by pandoc when using a
     // custom syntax highlighting theme
     $('code.sourceCode a:empty').remove();
-  
+
     // load distill framework
     load_distill_framework();
-  
+
     // wait for window.distillRunlevel == 4 to do post processing
     function distill_post_process() {
-  
+
       if (!window.distillRunlevel || window.distillRunlevel < 4)
         return;
-  
+
       // hide author/affiliations entirely if we have no authors
       var front_matter = JSON.parse($("#distill-front-matter").html());
       var have_authors = front_matter.authors && front_matter.authors.length > 0;
       if (!have_authors)
         $('d-byline').addClass('hidden');
-  
+
       // article with toc class
       $('.d-contents').parent().addClass('d-article-with-toc');
-  
+
       // strip links that point to #
       $('.authors-affiliations').find('a[href="#"]').removeAttr('href');
-  
+
       // add orcid ids
       $('.authors-affiliations').find('.author').each(function(i, el) {
         var orcid_id = front_matter.authors[i].orcidID;
@@ -1550,12 +1550,12 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
           $(this).append(a);
         }
       });
-  
+
       // hide elements of author/affiliations grid that have no value
       function hide_byline_column(caption) {
         $('d-byline').find('h3:contains("' + caption + '")').parent().css('visibility', 'hidden');
       }
-  
+
       // affiliations
       var have_affiliations = false;
       for (var i = 0; i<front_matter.authors.length; ++i) {
@@ -1567,11 +1567,11 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       }
       if (!have_affiliations)
         $('d-byline').find('h3:contains("Affiliations")').css('visibility', 'hidden');
-  
+
       // published date
       if (!front_matter.publishedDate)
         hide_byline_column("Published");
-  
+
       // document object identifier
       var doi = $('d-byline').find('h3:contains("DOI")');
       var doi_p = doi.next().empty();
@@ -1591,22 +1591,22 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
            .html(front_matter.doi)
            .appendTo(doi_p);
       }
-  
+
        // change plural form of authors/affiliations
       if (front_matter.authors.length === 1) {
         var grid = $('.authors-affiliations');
         grid.children('h3:contains("Authors")').text('Author');
         grid.children('h3:contains("Affiliations")').text('Affiliation');
       }
-  
+
       // remove d-appendix and d-footnote-list local styles
       $('d-appendix > style:first-child').remove();
       $('d-footnote-list > style:first-child').remove();
-  
+
       // move appendix-bottom entries to the bottom
       $('.appendix-bottom').appendTo('d-appendix').children().unwrap();
       $('.appendix-bottom').remove();
-  
+
       // hoverable references
       $('span.citation[data-cites]').each(function() {
         var refs = $(this).attr('data-cites').split(" ");
@@ -1623,39 +1623,39 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
           placement: 'bottom-start'
         });
       });
-  
+
       // clear polling timer
       clearInterval(tid);
-  
+
       // show body now that everything is ready
       on_load_complete();
     }
-  
+
     var tid = setInterval(distill_post_process, 50);
     distill_post_process();
-  
+
   }
-  
+
   function init_downlevel() {
-  
+
     init_common();
-  
+
      // insert hr after d-title
     $('.d-title').after($('<hr class="section-separator"/>'));
-  
+
     // check if we have authors
     var front_matter = JSON.parse($("#distill-front-matter").html());
     var have_authors = front_matter.authors && front_matter.authors.length > 0;
-  
+
     // manage byline/border
     if (!have_authors)
       $('.d-byline').remove();
     $('.d-byline').after($('<hr class="section-separator"/>'));
     $('.d-byline a').remove();
-  
+
     // remove toc
     $('.d-contents').remove();
-  
+
     // move appendix elements
     $('h1.appendix, h2.appendix').each(function(i, val) {
       $(this).changeElementType('h3');
@@ -1663,62 +1663,62 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     $('h3.appendix').each(function(i, val) {
       $(this).nextUntil($('h1, h2, h3')).addBack().appendTo($('.d-appendix'));
     });
-  
-  
+
+
     // inject headers into references and footnotes
     var refs_header = $('<h3></h3>');
     refs_header.text('References');
     $('#refs').prepend(refs_header);
-  
+
     var footnotes_header = $('<h3></h3');
     footnotes_header.text('Footnotes');
     $('.footnotes').children('hr').first().replaceWith(footnotes_header);
-  
+
     // move appendix-bottom entries to the bottom
     $('.appendix-bottom').appendTo('.d-appendix').children().unwrap();
     $('.appendix-bottom').remove();
-  
+
     // remove appendix if it's empty
     if ($('.d-appendix').children().length === 0)
       $('.d-appendix').remove();
-  
+
     // prepend separator above appendix
     $('.d-appendix').before($('<hr class="section-separator" style="clear: both"/>'));
-  
+
     // trim code
     $('pre>code').each(function(i, val) {
       $(this).html($.trim($(this).html()));
     });
-  
+
     // move posts-container right before article
     $('.posts-container').insertBefore($('.d-article'));
-  
+
     $('body').addClass('downlevel');
-  
+
     on_load_complete();
   }
-  
-  
+
+
   function init_common() {
-  
+
     // jquery plugin to change element types
     (function($) {
       $.fn.changeElementType = function(newType) {
         var attrs = {};
-  
+
         $.each(this[0].attributes, function(idx, attr) {
           attrs[attr.nodeName] = attr.nodeValue;
         });
-  
+
         this.replaceWith(function() {
           return $("<" + newType + "/>", attrs).append($(this).contents());
         });
       };
     })(jQuery);
-  
+
     // prevent underline for linked images
     $('a > img').parent().css({'border-bottom' : 'none'});
-  
+
     // mark non-body figures created by knitr chunks as 100% width
     $('.layout-chunk').each(function(i, val) {
       var figures = $(this).find('img, .html-widget');
@@ -1730,35 +1730,35 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
           var fig = $(this);
           fig.css('width', fig.attr('width') + 'px');
         });
-  
+
       }
     });
-  
+
     // auto-append index.html to post-preview links in file: protocol
     // and in rstudio ide preview
     $('.post-preview').each(function(i, val) {
       if (window.location.protocol === "file:")
         $(this).attr('href', $(this).attr('href') + "index.html");
     });
-  
+
     // get rid of index.html references in header
     if (window.location.protocol !== "file:") {
       $('.distill-site-header a[href]').each(function(i,val) {
         $(this).attr('href', $(this).attr('href').replace("index.html", "./"));
       });
     }
-  
+
     // add class to pandoc style tables
     $('tr.header').parent('thead').parent('table').addClass('pandoc-table');
     $('.kable-table').children('table').addClass('pandoc-table');
-  
+
     // add figcaption style to table captions
     $('caption').parent('table').addClass("figcaption");
-  
+
     // initialize posts list
     if (window.init_posts_list)
       window.init_posts_list();
-  
+
     // implmement disqus comment link
     $('.disqus-comment-count').click(function() {
       window.headroom_prevent_pin = true;
@@ -1772,31 +1772,31 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
       }
     });
   }
-  
+
   document.addEventListener('DOMContentLoaded', function() {
     if (is_downlevel_browser())
       init_downlevel();
     else
       window.addEventListener('WebComponentsReady', init_distill);
   });
-  
+
   </script>
-  
+
   <style type="text/css">
   /* base variables */
-  
+
   /* Edit the CSS properties in this file to create a custom
      Distill theme. Only edit values in the right column
      for each row; values shown are the CSS defaults.
      To return any property to the default,
      you may set its value to: unset
      All rows must end with a semi-colon.                      */
-  
+
   /* Optional: embed custom fonts here with `@import`          */
   /* This must remain at the top of this file.                 */
-  
-  
-  
+
+
+
   html {
     /*-- Main font sizes --*/
     --title-size:      50px;
@@ -1816,7 +1816,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --body-font:       sans-serif;
     --navbar-font:     sans-serif;  /* websites + blogs only */
   }
-  
+
   /*-- ARTICLE METADATA --*/
   d-byline {
     --heading-size:    0.6rem;
@@ -1824,13 +1824,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --body-size:       0.8rem;
     --body-color:      rgba(0, 0, 0, 0.8);
   }
-  
+
   /*-- ARTICLE TABLE OF CONTENTS --*/
   .d-contents {
     --heading-size:    18px;
     --contents-size:   13px;
   }
-  
+
   /*-- ARTICLE APPENDIX --*/
   d-appendix {
     --heading-size:    15px;
@@ -1838,10 +1838,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --text-size:       0.8em;
     --text-color:      rgba(0, 0, 0, 0.5);
   }
-  
+
   /*-- WEBSITE HEADER + FOOTER --*/
   /* These properties only apply to Distill sites and blogs  */
-  
+
   .distill-site-header {
     --title-size:       18px;
     --text-color:       rgba(255, 255, 255, 0.8);
@@ -1849,33 +1849,33 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --hover-color:      white;
     --bkgd-color:       #0F2E3D;
   }
-  
+
   .distill-site-footer {
     --text-color:       rgba(255, 255, 255, 0.8);
     --text-size:        15px;
     --hover-color:      white;
     --bkgd-color:       #0F2E3D;
   }
-  
+
   /*-- Additional custom styles --*/
   /* Add any additional CSS rules below                      */
   </style>
   <style type="text/css">
   /* base variables */
-  
+
   /* Edit the CSS properties in this file to create a custom
      Distill theme. Only edit values in the right column
      for each row; values shown are the CSS defaults.
      To return any property to the default,
      you may set its value to: unset
      All rows must end with a semi-colon.                      */
-  
+
   /* Optional: embed custom fonts here with `@import`          */
   /* This must remain at the top of this file.                 */
   @import url('https://fonts.googleapis.com/css2?family=Lato');
   @import url('https://fonts.googleapis.com/css2?family=Lora');
-  
-  
+
+
   html {
     /*-- Main font sizes --*/
     --title-size:      50px;
@@ -1895,7 +1895,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --body-font:       "Lora", serif;
     --navbar-font:     "Lora", serif;  /* websites + blogs only */
   }
-  
+
   /*-- ARTICLE METADATA --*/
   d-byline {
     --heading-size:    0.6rem;
@@ -1903,13 +1903,13 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --body-size:       0.8rem;
     --body-color:      rgba(0, 0, 0, 0.8);
   }
-  
+
   /*-- ARTICLE TABLE OF CONTENTS --*/
   .d-contents {
     --heading-size:    18px;
     --contents-size:   13px;
   }
-  
+
   /*-- ARTICLE APPENDIX --*/
   d-appendix {
     --heading-size:    15px;
@@ -1917,10 +1917,10 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --text-size:       0.8em;
     --text-color:      rgba(0, 0, 0, 0.5);
   }
-  
+
   /*-- WEBSITE HEADER + FOOTER --*/
   /* These properties only apply to Distill sites and blogs  */
-  
+
   .distill-site-header {
     --font-family:      'Lora', serif;
     --title-size:       21px;
@@ -1929,86 +1929,86 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     --hover-color:      rgba(29, 71, 73, 0.5);
     --bkgd-color:       rgba(255, 255, 255, 0.8);
   }
-  
+
   .distill-site-footer {
     --text-color:       rgba(10, 10, 10, 0.8);
     --text-size:        15px;
     --hover-color:      white;
     --bkgd-color:       rgba(240, 240, 240, 0.8); 
   }
-  
+
   /*-- Additional custom styles --*/
   /* Add any additional CSS rules below                      */
-  
+
   /* Postcard headers */
   h1, h2, h3 {
     color: rgba(29, 71, 73, 0.9);
   }
-  
+
   p {
     color: rgba(0, 0, 0, 0.8);
   }
-  
+
   a {
   	color: rgba(29, 71, 73, 0.9);
   }
-  
+
   a:hover {
   	color: rgba(29, 71, 73, 0.5);
   }
-  
+
   /* Buttons on postcard */
   .btn-outline-dark {
       color: rgba(29, 71, 73, 0.9);
   }
-  
+
   .btn-outline-dark:hover {
       background-color: rgba(29, 71, 73, 0.9);
       color: white;
   }
-  
+
   /*body {
     background-color: rgba(249, 250, 247, 0.8);
   }*/</style>
   <style type="text/css">
   /* base style */
-  
+
   /* FONT FAMILIES */
-  
+
   :root {
     --heading-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
     --mono-default: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     --body-default: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", Arial, sans-serif;
   }
-  
+
   body,
   .posts-list .post-preview p,
   .posts-list .description p {
     font-family: var(--body-font), var(--body-default);
   }
-  
+
   h1, h2, h3, h4, h5, h6,
   .posts-list .post-preview h2,
   .posts-list .description h2 {
     font-family: var(--heading-font), var(--heading-default);
   }
-  
+
   d-article div.sourceCode code,
   d-article pre code {
     font-family: var(--mono-font), var(--mono-default);
   }
-  
-  
+
+
   /*-- TITLE --*/
   d-title h1,
   .posts-list > h1 {
     color: var(--title-color, black);
   }
-  
+
   d-title h1 {
     font-size: var(--title-size, 50px);
   }
-  
+
   /*-- HEADERS --*/
   d-article h1,
   d-article h2,
@@ -2018,7 +2018,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   d-article h6 {
     color: var(--header-color, rgba(0, 0, 0, 0.8));
   }
-  
+
   /*-- BODY --*/
   d-article > p,  /* only text inside of <p> tags */
   d-article > ul, /* lists */
@@ -2026,20 +2026,20 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     color: var(--body-color, rgba(0, 0, 0, 0.8));
     font-size: var(--body-size, 1.06rem);
   }
-  
-  
+
+
   /*-- CODE --*/
   d-article div.sourceCode code,
   d-article pre code {
     font-size: var(--code-size, 14px);
   }
-  
+
   /*-- ASIDE --*/
   d-article aside {
     font-size: var(--aside-size, 12px);
     color: var(--aside-color, rgba(0, 0, 0, 0.6));
   }
-  
+
   /*-- FIGURE CAPTIONS --*/
   figure .caption,
   figure figcaption,
@@ -2047,84 +2047,85 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
     font-size: var(--fig-cap-size, 13px);
     color: var(--fig-cap-color, rgba(0, 0, 0, 0.6));
   }
-  
+
   /*-- METADATA --*/
   d-byline h3 {
     font-size: var(--heading-size, 0.6rem);
     color: var(--heading-color, rgba(0, 0, 0, 0.5));
   }
-  
+
   d-byline {
     font-size: var(--body-size, 0.8rem);
     color: var(--body-color, rgba(0, 0, 0, 0.8));
   }
-  
+
   d-byline a,
   d-article d-byline a {
     color: var(--body-color, rgba(0, 0, 0, 0.8));
   }
-  
+
   /*-- TABLE OF CONTENTS --*/
   .d-contents nav h3 {
     font-size: var(--heading-size, 18px);
   }
-  
+
   .d-contents nav a {
     font-size: var(--contents-size, 13px);
   }
-  
+
   /*-- APPENDIX --*/
   d-appendix h3 {
     font-size: var(--heading-size, 15px);
     color: var(--heading-color, rgba(0, 0, 0, 0.65));
   }
-  
+
   d-appendix {
     font-size: var(--text-size, 0.8em);
     color: var(--text-color, rgba(0, 0, 0, 0.5));
   }
-  
+
   d-appendix d-footnote-list a.footnote-backlink {
     color: var(--text-color, rgba(0, 0, 0, 0.5));
   }
-  
+
   /*-- WEBSITE HEADER + FOOTER --*/
   .distill-site-header .title {
     font-size: var(--title-size, 18px);
     font-family: var(--navbar-font), var(--heading-default);
   }
-  
+
   .distill-site-header a,
   .nav-dropdown .nav-dropbtn {
     font-family: var(--navbar-font), var(--heading-default);
   }
-  
+
   .nav-dropdown .nav-dropbtn {
     color: var(--text-color, rgba(255, 255, 255, 0.8));
     font-size: var(--text-size, 15px);
   }
-  
+
   .distill-site-header a:hover,
   .nav-dropdown:hover .nav-dropbtn {
     color: var(--hover-color, white);
   }
-  
+
   .distill-site-header {
     font-size: var(--text-size, 15px);
     color: var(--text-color, rgba(255, 255, 255, 0.8));
     background-color: var(--bkgd-color, #0F2E3D);
   }
-  
+
   .distill-site-footer {
     font-size: var(--text-size, 15px);
     color: var(--text-color, rgba(255, 255, 255, 0.8));
     background-color: var(--bkgd-color, #0F2E3D);
   }
-  
+
   .distill-site-footer a:hover {
     color: var(--hover-color, white);
   }</style>
   <!--/radix_placeholder_distill-->
+  <script src="site_libs/header-attrs-2.11/header-attrs.js"></script>
   <script src="site_libs/htmlwidgets-1.5.3/htmlwidgets.js"></script>
   <script src="site_libs/jquery-3.5.1/jquery.min.js"></script>
   <link href="site_libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
@@ -2153,7 +2154,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Matching Simulations","description":"\"In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.\"","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University - SIPA","affiliationURL":"https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://lzabrocki.github.io/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/","orcidID":""}],"publishedDate":"2021-12-15T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2021"}
+{"title":"Matching Simulations","description":"In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error.\"","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University - SIPA","affiliationURL":"https://www.sipa.columbia.edu/experience-sipa/sipa-profiles/vincent-bagilet","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://lzabrocki.github.io/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/","orcidID":""}],"publishedDate":"2022-01-10T00:00:00.000+01:00","citationText":"Bagilet & Zabrocki, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2195,7 +2196,7 @@ Simulations
 <h1>Matching Simulations</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p><p>“In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a matching procedure.”</p></p>
+<p><p>In this document, we run a simulation exercise to illustrate how using a matching procedure to avoid confounding may create type M error."</p></p>
 </div>
 
 <div class="d-byline">
@@ -2203,7 +2204,7 @@ Simulations
   
 ,   Léo Zabrocki <a href="https://lzabrocki.github.io/" class="uri">https://lzabrocki.github.io/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/" class="uri">https://www.parisschoolofeconomics.eu/fr/zabrocki-leo/</a>
   
-<br/>2021-12-15
+<br/>2022-01-10
 </div>
 
 <div class="d-article">
@@ -2212,13 +2213,15 @@ Simulations
 <h3>Contents</h3>
 <ul>
 <li><a href="#packages-loading">Packages Loading</a></li>
-<li><a href="#data-generating-procedure">Data Generating Procedure</a><ul>
+<li><a href="#data-generating-procedure">Data Generating Procedure</a>
+<ul>
 <li><a href="#general-approach">General Approach</a></li>
 <li><a href="#function-to-generate-the-data">Function to Generate the Data</a></li>
 <li><a href="#eda-for-one-dataset">EDA for One Dataset</a></li>
 </ul></li>
 <li><a href="#outcome-regression-analysis">Outcome Regression Analysis</a></li>
-<li><a href="#matching-procedure">Matching Procedure</a><ul>
+<li><a href="#matching-procedure">Matching Procedure</a>
+<ul>
 <li><a href="#proposensity-score-function">Proposensity Score Function</a></li>
 <li><a href="#simulations">Simulations</a></li>
 </ul></li>
@@ -2229,7 +2232,7 @@ Simulations
 body {
 text-align: justify}
 </style>
-<p>In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. We create fake-data similar to those used for analyzing non-randomized labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at <a href="mailto:vincent.bagilet@columbia.edu" class="email">vincent.bagilet@columbia.edu</a> and <a href="mailto:leo.zabrocki@psemail.eu" class="email">leo.zabrocki@psemail.eu</a>.</p>
+<p>In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. We create fake-data similar to those used for analyzing non-randomized labor training program.</p>
 <h1 id="packages-loading">Packages Loading</h1>
 <p>We first load the required packages to set-up the simulations:</p>
 <div class="layout-chunk" data-layout="l-body">
@@ -2239,15 +2242,15 @@ text-align: justify}
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://tidyverse.tidyverse.org'>tidyverse</a></span><span class='op'>)</span> <span class='co'># for data manipulation and visualization</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://kosukeimai.github.io/MatchIt/'>MatchIt</a></span><span class='op'>)</span> <span class='co'># for matching analysis</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>lmtest</span><span class='op'>)</span> <span class='co'># for modifying regression standard errors</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='http://sandwich.R-Forge.R-project.org/'>sandwich</a></span><span class='op'>)</span> <span class='co'># for robust and cluster robust standard errors</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://sandwich.R-Forge.R-project.org/'>sandwich</a></span><span class='op'>)</span> <span class='co'># for robust and cluster robust standard errors</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/rstudio/DT'>DT</a></span><span class='op'>)</span> <span class='co'># for displaying the data as tables</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://vincentbagilet.github.io/mediocrethemes/'>mediocrethemes</a></span><span class='op'>)</span> <span class='co'># vincent's custom ggplot2 theme</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://github.com/collectivemedia/tictoc'>tictoc</a></span><span class='op'>)</span> <span class='co'># for measuring running time</span>
 <span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'>beepr</span><span class='op'>)</span> <span class='co'># for making a sound when the code is done</span>
-<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span>
+<span class='kw'><a href='https://rdrr.io/r/base/library.html'>library</a></span><span class='op'>(</span><span class='va'><a href='https://here.r-lib.org/'>here</a></span><span class='op'>)</span> <span class='co'># for paths management</span>
 
 <span class='co'># set ggplot theme</span>
-<span class='fu'><a href='https://vincentbagilet.github.io/mediocrethemes/reference/set_mediocre_all.html'>set_mediocre_all</a></span><span class='op'>(</span>pal <span class='op'>=</span> <span class='st'>"coty"</span><span class='op'>)</span> <span class='co'>#, background = TRUE) #for presentations</span>
+<span class='fu'><a href='https://vincentbagilet.github.io/mediocrethemes/reference/set_mediocre_all.html'>set_mediocre_all</a></span><span class='op'>(</span>pal <span class='op'>=</span> <span class='st'>"coty"</span><span class='op'>)</span>
 </code></pre>
 </div>
 </div>
@@ -2305,10 +2308,10 @@ text-align: justify}
 <span class='fu'><a href='https://rdrr.io/pkg/DT/man/datatable.html'>datatable</a></span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span>
 </code></pre>
 </div>
-<div id="htmlwidget-41470ed8a617b2585287" style="width:100%;height:auto;" class="datatables html-widget"></div>
-<script type="application/json" data-for="htmlwidget-41470ed8a617b2585287">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499","500"],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500],[1,1,0,0,0,0,0,1,1,1,0,0,1,0,1,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,1,0,0,1,1,0,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,1,1,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,1,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,1,0,0,1,1,0,1,0,0,1,0,1,1,0,0,0,1,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,1,0,0,0,1,0,0,1,1,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,0,1,1,1,0,1,0,0,0,0,1,0,0,0,1,1,1,0,0,0,1,1,0,1,0,0,1,0,0,1,1,1,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,0,1,1,0,0,1,0,0,0,1,0,0,1,1,1,0,0,0,0,0,0,0,0,1,0,1,1,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,1,1,0,0,0],[0.446302278305615,0.26532971852034,0.453471348118578,0.256035775824876,0.368551990802491,0.174960310670515,0.344177636700269,0.340917797231222,0.443878184117328,0.602908362553207,0.330483218475774,0.102660062281967,0.499170879953014,0.338381260101235,0.648972358390031,0.381344249778949,0.257418384404188,0.410025038864714,0.597456171434552,0.207439740649298,0.567074986559291,0.250781361861338,0.140327648806343,0.667952150861886,0.343849261509886,0.309870100055356,0.259960296874708,0.311612774777685,0.444302578783119,0.325037944105731,0.425146140896271,0.370877870747385,0.321556612464606,0.603059925197208,0.439878827421815,0.335964080184906,0.316138530774485,0.213143385795423,0.295658489437205,0.34433215148595,0.7429120658219,0.389490172667769,0.379552666417903,0.327009786749313,0.36411271119039,0.226089407047167,0.128958735675857,0.421249931357695,0.430141860524027,0.264261193250988,0.386930697562632,0.24745432375409,0.191475733250746,0.278606252580202,0.254464571654015,0.267825480277595,0.465413124068864,0.342441572376279,0.569405875052524,0.229497537154964,0.234054335560298,0.378762060327377,0.449440902594194,0.332828555327291,0.245482113879203,0.471143219057004,0.23893651696877,0.0365202858219479,0.295741282038657,0.669861540609877,0.363956177830699,0.381537892223065,0.274559485921961,0.211595329434071,0.472204897742848,0.213108773452504,0.18379545983868,0.256405225012561,0.268106026106544,0.278778682509981,0.452491893885548,0.314171168170536,0.254289893348721,0.183421743678371,0.168807277789351,0.250386020261741,0.160584148257774,0.31050487273692,0.0567325696100567,0.343420972011269,0.260194499216014,0.251792303851671,0.272638693134209,0.477868807029799,0.402520387434876,0.39086773225582,0.153142258369298,0.409827245236563,0.393148831078003,0.376840091187185,0.267319691472114,0.15646157044219,0.193417391270089,0.431926976168285,0.307013459588669,0.465332224825923,0.0432277341088959,0.501986981942359,0.507449698658859,0.515172540857665,0.399389242195658,0.454394082914651,0.532627173312116,0.103418480556706,0.395777285299114,0.238298951145603,0.371681432568686,0.733543660707965,0.538952570371795,0.418067240154432,0.362568267403518,0.196476096680195,0.303898139610114,0.226763133023028,0.245592745644382,0.515985335977033,0.342543659528683,0.273421232043679,0.455848571151743,0.34933530659047,0.224599688320224,0.280248450457176,0.421055803932273,0.244818045690253,0.195610536795843,0.367415913300007,0.466084789009489,0.539818776193977,0.355399499381155,0.343743667702786,0.46017261914106,0.246540517497603,0.400639922080989,0.493976688424577,0.594235947471043,0.23072667250234,0.381663782904714,0.204185346635774,0.285249266035315,0.236500467964515,0.171774667092168,0.431310384650738,0.0345324863764161,0.252079582967512,0.420651496489975,0.639318451287988,0.165666168563174,0.475534571662939,0.33454272256123,0.455017281112469,0.290995035326045,0.693519471395949,0.151445323956605,0.399396958839335,0.404822087208616,0.3539047405878,0.296685354966804,0.309028620883485,0.273542267226297,0.514693368919637,0.317078656112154,0.220914413935733,0.567507263385432,0.63784500262525,0.257082950245206,0.576359768383357,0.258102309116904,0.385683017890126,0.255811813183763,0.696729139163423,0.651327225679157,0.218869668061909,0.418767478066537,0.0902559834904828,0.322487041285785,0.297831044374611,0.318984968587262,0.494010528137739,0.264039112413813,0.307521767284136,0.350900986941856,0.125966342581881,0.289506985795792,0.16515552488218,0.300426590851466,0.27171077070982,0.140722585880282,0.38499248237469,0.329375660715212,0.372009250586888,0.440035646814678,0.231996701533632,0.227704931357725,0.183340016917696,0.305635812814203,0.661364063419055,0.415171907283412,0.368396080440473,0.209003329657952,0.577508799234945,0.281436540726537,0.290347303133899,0.361183532292029,0.527116692934911,0.433937208177112,0.479664386365964,0.326718495225668,0.362054646310053,0.469813481888827,0.334407887945338,0.606943481188151,0.653695499207214,0.311485606275337,0.378072157128001,0.274372405162676,0.458341888878496,0.531952723430032,0.409739155761811,0.217307368195458,0.192441235174341,0.375492645989865,0.61296082487492,0.230018348338047,0.129147237564438,0.244130556166156,0.632323269138573,0.332886018972625,0.431613115543109,0.30044943084431,0.30381878596447,0.434260047350093,0.442017434308415,0.412317931795663,0.396993467497989,0.458308310353948,0.551700995798912,0.316614473105766,0.380063598550639,0.199116125868299,0.395464466940049,0.244797191314646,0.477535956299482,0.613837851615753,0.256390681432566,0.194279952613833,0.365198533238006,0.245767953717487,0.440214023531497,0.234589553656528,0.441271378409505,0.311138719145661,0.306920438435969,0.389015243729902,0.481435741797897,0.477073454272185,0.753594717763694,0.321130428763587,0.516645999739435,0.161348652509395,0.120558735508716,0.343274973521812,0.210291265048306,0.232993178804892,0.51972447898061,0.349919774768923,0.437559606007195,0.389455917970675,0.354626035339732,0.512139354684035,0.564598713308971,0.245524608517065,0.516731298680924,0.493928866931,0.37101578271031,0.294187773746429,0.144389942529664,0.291890437777473,0.407502390443796,0.323128262697655,0.267819303936525,0.392066795858615,0.311516807858146,0.358673499814596,0.427178842417908,0.163131324134195,0.360189236044023,0.136238431529264,0.462651776395541,0.470742563862288,0.209847817575518,0.361353450309193,0.0598033845992755,0.400808287671838,0.640997063952059,0.197032735458567,0.586865267894815,0.650881988813872,0.665161339166414,0.366999248835544,0.583698525085157,0.247054198495559,0.263115952926237,0.159095818529229,0.309136880174028,0.516765501143079,0.260225342926449,0.218415218752505,0.343503239919828,0.490149823740856,0.41842536858952,0.455520397173059,0.274537019082212,0.33300131819856,0.367515132022786,0.52564922433368,0.627998394644981,0.314002364869967,0.356241446312028,0.266062602026312,0.173908916139269,0.47797759819876,0.290534220779342,0.11109584361829,0.341554318409757,0.609431309515455,0.478115971308295,0.416130316818397,0.440576849205402,0.320896305961508,0.417411129215084,0.644433296902663,0.408327441266701,0.289120920268983,0.469048491892102,0.265185633437307,0.125652581548047,0.265719993588911,0.406723338000307,0.306366149016957,0.546444305179172,0.291268670031673,0.402381271076801,0.289011457351196,0.251646873815886,0.581025248420343,0.357085561940156,0.128823921058137,0.563022826525581,0.407280528043522,0.303059628751184,0.479228233507729,0.203503537626313,0.453336663127712,0.442706318534883,0.432570385647787,0.33485439131703,0.486591900939328,0.161731796770952,0.280066862452292,0.126471236790685,0.418689368813724,0.250951402673791,0.205411419733486,0.356567690816183,0.317418738637429,0.295512586724247,0.359629045828002,0.458230269593163,0.275908723594723,0.267161425493089,0.251031203860327,0.365104134092463,0.270360634587553,0.393251194886005,0.227647141101983,0.215322987755406,0.276595787574279,0.762835915606094,0.491052368485499,0.22187124714143,0.114979258210213,0.440229739536414,0.441838938544244,0.309970823684926,0.257764299930186,0.374721053067698,0.220228055557394,0.627821487995289,0.541593305851592,0.298371576713173,0.0278578434554159,0.457568353015072,0.224925806473412,0.299728698590718,0.34161861825775,0.547224082679556,0.212944190022269,0.688636073479496,0.155176273654014,0.26711942378714,0.224077966158082,0.14193780325137,0.478421757133456,0.33280405820401,0.427857048465954,0.417443968830701,0.56098477742509,0.252495299321636,0.288129654295077,0.20971861155138,0.239783200718385,0.37131367968611,0.441732507017516,0.182031603167191,0.175891949164401,0.426735119256172,0.584879497391085,0.339483150603778,0.261464994013758,0.503120239586573,0.354054942498325,0.331587760316051,0.282862354607594,0.573004037259917,0.600340988981298,0.591508196802577,0.394710121772612,0.261167288315023,0.278305611396878,0.323232268549219,0.404438089962099,0.411831231256972,0.351562771008862,0.295011561221561,0.71410322954427,0.319937822020276,0.527846454391112,0.554835554397704,0.281412074171869,0.264860134075425,0.45842482243606,0.0853954009247449,0.277691991481681,0.31311285500693,0.258929019460988,0.295331424434392,0.276858262529871,0.608136241635347,0.315900793881538,0.371674846220907,0.508236734833996,0.251057896089238,0.247909494663219,0.255605776577885,0.531455842918533,0.281176297446119,0.410725539156234,0.323881353561257,0.27254786502,0.290226225488038,0.234398648008886,0.735781308087297,0.27615122298732,0.281096296435718,0.240041475937722,0.209607532041332,0.379233807156692,0.539208463489858,0.38384508122816,0.379547731705589,0.147590920463807,0.27230207873622,0.31779305625033,0.590441844107338,0.332072061350383,0.317870251897166,0.301841580946317,0.2906053727661,0.1497266111871,0.289950132134281,0.245378510436452,0.351736966346381,0.349436975583904,0.35486353082981,0.0680622927667491,0.363264164156417,0.340095103996133,0.149109265351523,0.181682693258699,0.219382848348743],[1040,783,1145,834,1107,976,1076,987,1100,1582,1053,468,1450,806,1116,1054,993,1546,1998,663,1307,459,590,1655,889,1030,779,844,1238,868,1414,1092,641,1682,967,1205,1394,557,1036,799,1360,1145,961,620,1168,201,290,994,1272,507,1339,844,697,961,1153,1232,954,1135,1340,576,629,821,1188,1012,696,1181,570,57,895,1490,1335,1060,1195,992,1122,670,588,608,904,684,1355,802,686,770,864,1032,720,1111,185,1035,1031,1389,904,1375,1025,821,286,932,1024,992,918,548,369,1032,935,1330,330,1371,1628,1152,979,1401,1332,924,1194,668,957,1769,1282,875,1245,1304,861,574,608,1301,1008,862,894,952,670,851,1229,815,403,1119,1156,1615,1084,828,1260,1027,1097,1535,1768,545,867,611,820,893,433,1197,349,652,1157,1378,748,1040,1020,1277,534,1736,761,1326,1134,1194,1001,965,886,1359,754,561,1366,1732,931,1411,715,940,649,1559,1531,500,1320,164,968,1124,705,1237,747,761,798,461,1049,640,1266,1085,560,826,828,992,910,742,744,550,825,1780,1144,731,623,1460,881,911,1211,1398,1286,946,1075,973,1308,982,1323,1155,883,1079,811,925,1537,1151,533,849,985,1369,992,284,796,2044,788,1028,866,706,1125,1522,744,959,1269,1351,980,819,803,1341,546,1500,1500,909,734,1171,1318,1500,859,659,1005,776,1027,952,1380,1650,1391,1332,910,540,1076,759,942,1146,1140,1146,964,942,1539,1529,673,1458,1344,1195,556,765,915,1190,1012,1089,1081,847,1047,1172,364,1000,589,1311,989,916,925,660,1312,1056,727,1490,2001,1905,1405,1655,858,922,314,992,1315,511,597,810,1354,1006,1255,944,615,461,1164,1834,1386,1330,553,798,1436,1159,887,506,1385,1563,1072,1310,1150,1214,1264,1115,615,1429,680,229,841,1090,1006,1287,1197,857,827,848,1430,1216,640,1898,1322,827,1196,1027,1228,1064,1204,933,1123,609,813,563,1359,715,490,1488,1057,1053,482,1020,703,757,690,1085,491,1135,727,582,835,1537,958,401,340,1360,1133,1099,882,1135,622,1509,1375,1092,323,1176,644,1275,1041,1199,512,1496,239,631,1279,803,1312,1044,892,970,1536,845,835,829,647,1223,1048,827,586,1151,1618,859,775,1133,833,1014,529,1199,1567,1466,854,755,730,870,1163,1053,1063,805,1769,1054,1565,1353,1014,1072,1292,640,1007,740,620,888,770,1531,717,1180,1725,911,483,850,895,724,775,652,968,811,1005,1577,964,928,864,998,1111,1320,1122,1254,289,838,996,1357,780,1018,1166,962,534,627,1236,1014,1054,645,389,1259,781,346,605,353],[1140,883,1195,884,1157,1026,1126,1087,1200,1682,1103,518,1550,856,1216,1104,1043,1596,2098,713,1407,509,640,1755,939,1080,829,944,1288,918,1464,1142,691,1782,1017,1255,1444,607,1086,899,1460,1195,1011,670,1218,251,340,1044,1322,557,1389,894,747,1011,1203,1282,1054,1185,1440,626,679,921,1238,1062,746,1281,620,107,945,1590,1385,1110,1245,1042,1222,720,638,658,954,734,1405,852,736,820,914,1082,770,1161,235,1085,1081,1439,954,1425,1075,871,336,1032,1074,1042,968,598,419,1082,985,1380,380,1421,1678,1252,1029,1501,1382,974,1294,718,1007,1869,1382,925,1295,1354,911,624,658,1401,1058,912,944,1002,720,901,1329,865,453,1169,1256,1715,1134,878,1360,1077,1147,1635,1868,595,967,661,870,943,483,1247,399,702,1207,1478,798,1140,1070,1377,584,1836,811,1376,1184,1244,1051,1015,936,1459,804,611,1416,1832,981,1511,765,990,699,1659,1631,550,1370,214,1018,1224,755,1337,797,811,848,511,1099,690,1316,1135,610,876,878,1042,1010,792,794,600,875,1880,1194,781,673,1560,931,961,1311,1498,1336,1046,1125,1023,1408,1032,1423,1255,933,1129,861,1025,1637,1201,583,899,1035,1469,1042,334,846,2144,838,1078,916,756,1225,1622,794,1009,1319,1451,1030,869,853,1391,596,1550,1600,959,784,1271,1368,1600,909,709,1055,876,1077,1002,1480,1750,1441,1382,960,590,1126,809,992,1246,1190,1196,1014,992,1589,1629,723,1558,1444,1295,606,815,965,1240,1062,1139,1131,897,1097,1272,414,1050,639,1411,1089,966,975,710,1362,1156,777,1590,2101,2005,1455,1755,908,972,364,1042,1415,561,647,860,1454,1106,1355,994,665,511,1264,1934,1436,1430,603,848,1536,1209,937,606,1485,1663,1172,1410,1200,1264,1364,1165,665,1529,730,279,891,1140,1056,1337,1247,907,877,898,1530,1266,690,1998,1372,877,1296,1077,1278,1114,1304,983,1223,659,863,613,1409,765,540,1538,1107,1103,532,1120,753,807,740,1135,541,1185,777,632,885,1637,1058,451,390,1410,1233,1149,932,1185,672,1609,1475,1142,373,1276,694,1325,1091,1299,562,1596,289,681,1329,853,1362,1094,942,1070,1636,895,885,879,697,1273,1148,927,636,1201,1718,909,825,1183,933,1064,579,1299,1667,1566,904,805,780,920,1213,1103,1113,855,1869,1104,1665,1453,1064,1122,1342,690,1057,790,670,938,820,1631,767,1230,1825,961,533,900,945,774,825,702,1018,861,1055,1677,1014,978,914,1048,1161,1420,1172,1354,339,888,1046,1457,830,1068,1266,1012,584,677,1286,1064,1154,695,439,1359,881,396,655,403],[1140,883,1145,834,1107,976,1076,1087,1200,1682,1053,468,1550,806,1216,1054,993,1546,2098,663,1407,459,590,1755,889,1030,779,944,1238,868,1414,1092,641,1782,967,1205,1394,557,1036,899,1460,1145,961,620,1168,201,290,994,1272,507,1339,844,697,961,1153,1232,1054,1135,1440,576,629,921,1188,1012,696,1281,570,57,895,1590,1335,1060,1195,992,1222,670,588,608,904,684,1355,802,686,770,864,1032,720,1111,185,1035,1031,1389,904,1375,1025,821,286,1032,1024,992,918,548,369,1032,935,1330,330,1371,1628,1252,979,1501,1332,924,1294,668,957,1869,1382,875,1245,1304,861,574,608,1401,1008,862,894,952,670,851,1329,815,403,1119,1256,1715,1084,828,1360,1027,1097,1635,1868,545,967,611,820,893,433,1197,349,652,1157,1478,748,1140,1020,1377,534,1836,761,1326,1134,1194,1001,965,886,1459,754,561,1366,1832,931,1511,715,940,649,1659,1631,500,1320,164,968,1224,705,1337,747,761,798,461,1049,640,1266,1085,560,826,828,992,1010,742,744,550,825,1880,1144,731,623,1560,881,911,1311,1498,1286,1046,1075,973,1408,982,1423,1255,883,1079,811,1025,1637,1151,533,849,985,1469,992,284,796,2144,788,1028,866,706,1225,1622,744,959,1269,1451,980,819,803,1341,546,1500,1600,909,734,1271,1318,1600,859,659,1005,876,1027,952,1480,1750,1391,1332,910,540,1076,759,942,1246,1140,1146,964,942,1539,1629,673,1558,1444,1295,556,765,915,1190,1012,1089,1081,847,1047,1272,364,1000,589,1411,1089,916,925,660,1312,1156,727,1590,2101,2005,1405,1755,858,922,314,992,1415,511,597,810,1454,1106,1355,944,615,461,1264,1934,1386,1430,553,798,1536,1159,887,606,1485,1663,1172,1410,1150,1214,1364,1115,615,1529,680,229,841,1090,1006,1287,1197,857,827,848,1530,1216,640,1998,1322,827,1296,1027,1228,1064,1304,933,1223,609,813,563,1359,715,490,1488,1057,1053,482,1120,703,757,690,1085,491,1135,727,582,835,1637,1058,401,340,1360,1233,1099,882,1135,622,1609,1475,1092,323,1276,644,1275,1041,1299,512,1596,239,631,1279,803,1312,1044,892,1070,1636,845,835,829,647,1223,1148,927,586,1151,1718,859,775,1133,933,1014,529,1299,1667,1566,854,755,730,870,1163,1053,1063,805,1869,1054,1665,1453,1014,1072,1292,640,1007,740,620,888,770,1631,717,1180,1825,911,483,850,895,724,775,652,968,811,1005,1677,964,928,864,998,1111,1420,1122,1354,289,838,996,1457,780,1018,1266,962,534,627,1236,1014,1154,645,389,1359,881,346,605,353]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>id<\/th>\n      <th>treatment<\/th>\n      <th>true_ps<\/th>\n      <th>y_0<\/th>\n      <th>y_1<\/th>\n      <th>y_obs<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<div id="htmlwidget-8c34783fa71bd83d6612" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-8c34783fa71bd83d6612">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100","101","102","103","104","105","106","107","108","109","110","111","112","113","114","115","116","117","118","119","120","121","122","123","124","125","126","127","128","129","130","131","132","133","134","135","136","137","138","139","140","141","142","143","144","145","146","147","148","149","150","151","152","153","154","155","156","157","158","159","160","161","162","163","164","165","166","167","168","169","170","171","172","173","174","175","176","177","178","179","180","181","182","183","184","185","186","187","188","189","190","191","192","193","194","195","196","197","198","199","200","201","202","203","204","205","206","207","208","209","210","211","212","213","214","215","216","217","218","219","220","221","222","223","224","225","226","227","228","229","230","231","232","233","234","235","236","237","238","239","240","241","242","243","244","245","246","247","248","249","250","251","252","253","254","255","256","257","258","259","260","261","262","263","264","265","266","267","268","269","270","271","272","273","274","275","276","277","278","279","280","281","282","283","284","285","286","287","288","289","290","291","292","293","294","295","296","297","298","299","300","301","302","303","304","305","306","307","308","309","310","311","312","313","314","315","316","317","318","319","320","321","322","323","324","325","326","327","328","329","330","331","332","333","334","335","336","337","338","339","340","341","342","343","344","345","346","347","348","349","350","351","352","353","354","355","356","357","358","359","360","361","362","363","364","365","366","367","368","369","370","371","372","373","374","375","376","377","378","379","380","381","382","383","384","385","386","387","388","389","390","391","392","393","394","395","396","397","398","399","400","401","402","403","404","405","406","407","408","409","410","411","412","413","414","415","416","417","418","419","420","421","422","423","424","425","426","427","428","429","430","431","432","433","434","435","436","437","438","439","440","441","442","443","444","445","446","447","448","449","450","451","452","453","454","455","456","457","458","459","460","461","462","463","464","465","466","467","468","469","470","471","472","473","474","475","476","477","478","479","480","481","482","483","484","485","486","487","488","489","490","491","492","493","494","495","496","497","498","499","500"],[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,290,291,292,293,294,295,296,297,298,299,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315,316,317,318,319,320,321,322,323,324,325,326,327,328,329,330,331,332,333,334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,353,354,355,356,357,358,359,360,361,362,363,364,365,366,367,368,369,370,371,372,373,374,375,376,377,378,379,380,381,382,383,384,385,386,387,388,389,390,391,392,393,394,395,396,397,398,399,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415,416,417,418,419,420,421,422,423,424,425,426,427,428,429,430,431,432,433,434,435,436,437,438,439,440,441,442,443,444,445,446,447,448,449,450,451,452,453,454,455,456,457,458,459,460,461,462,463,464,465,466,467,468,469,470,471,472,473,474,475,476,477,478,479,480,481,482,483,484,485,486,487,488,489,490,491,492,493,494,495,496,497,498,499,500],[0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,1,1,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,1,0,1,1,1,1,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,0,1,1,1,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,1,1,0,1,0,0,0,0,0,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,0,0,1,0,0,1,0,1,1,0,0,0,0,0,0,1,1,1,0,0,1,1,0,0,0,0,0,1,0,1,0,0,0,0,1,0,1,0,1,1,0,0,0,0,1,1,1,0,0,0,0,0,1,0,1,0,1,0,1,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,1,0,0,1,0,1,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,0],[0.42890506793551,0.129298079991235,0.451050773684665,0.301030445751202,0.434312464322809,0.560847226660085,0.185451855117985,0.218161139827939,0.340372872569704,0.275586575309359,0.384843888229072,0.439627528221276,0.367764377693439,0.356457972350267,0.344336401224594,0.413444039533717,0.304068608303314,0.368311880159898,0.380271345323124,0.319710470362607,0.329829002133089,0.270201550254898,0.266711364149375,0.479036251343839,0.361701306527268,0.329150742818195,0.3377440811399,0.287305408128083,0.29310368527144,0.375472582357756,0.278203404910509,0.087404430424723,0.369733045162443,0.037122203710557,0.160962645049655,0.342454089307471,0.149373248266574,0.629695831519065,0.302246138326104,0.0337594213941269,0.0922150135238392,0.359143613012952,0.344602549801256,0.191193999393007,0.377916278613085,0.27679696851472,0.40738136263165,0.166670347487999,0.477603373365783,0.267612420482933,0.299845944635297,0.239157466286976,0.133726184533654,0.413876846851743,0.558890750829482,0.665584616122539,0.513624255379775,0.462775837211866,0.367737505907316,0.459388086284442,0.396493632065391,0.250184889580728,0.126463427985147,0.25089502233907,0.452981383001952,0.356283163562088,0.406152453268862,0.440933006836799,0.293625469690596,0.405138017971921,0.499625519934168,0.14042988333323,0.558992244379786,0.344090623266265,0.535585794324203,0.315742831701381,0.33125631107208,0.293977672033673,0.440507579301436,0.0477571611721904,0.33358373106712,0.366892153185104,0.602859723547407,0.193121593083289,0.547209444032626,0.621618597501718,0.332706009641579,0.340382816707158,0.256564457274983,0.27173594971458,0.564162890995769,0.255799914627901,0.10390801376596,0.401207194099995,0.334684039684306,0.415247378085509,0.288112946896171,0.571192151021168,0.212893854826897,0.248620406772292,0.40880567897347,0.21464746538823,0.340722909103969,0.259394079446743,0.19712652348128,0.401479401741875,0.469826033005619,0.324930978652391,0.36019592968238,0.366915108954748,0.3939672832498,0.405465435896675,0.182355598916015,0.499672332239447,0.305874015204997,0.237405640294717,0.207131019275037,0.415305152208685,0.382814934718649,0.428521290403308,0.18231911203365,0.185231811659742,0.23311295947567,0.47758072505984,0.363368633925714,0.226070715667763,0.518116166664985,0.543401923423899,0.20569573326094,0.363142504339777,0.579300714715074,0.182750314799421,0.208664496844138,0.179303720441877,0.471969157007495,0.563999596515508,0.381381461518121,0.235778980199263,0.510621991283235,0.183900192079538,0.316812476414472,0.394387763087521,0.26482408926188,0.207370177998507,0.319131126147995,0.365388269632991,0.315594267827221,0.462918779263701,0.438526631850801,0.139576578814401,0.332915252669324,0.21877021824398,0.284380677675621,0.343195838905439,0.26825688123022,0.259771084371203,0.718271965216968,0.228193479021555,0.289735528139042,0.336876505204581,0.0535432336742445,0.433755966186155,0.355787156623381,0.173427324678377,0.443476584230172,0.121637593928202,0.297520952308909,0.219897242544913,0.25141181739762,0.305074407164792,0.172062279695094,0.303722558154383,0.283961144821657,0.384319336423705,0.302079150104559,0.297690684128694,0.330504243135181,0.344386794704733,0.489308903211571,0.324133212042062,0.35530955002282,0.31732866564419,0.644021476062543,0.16766361465511,0.315677232922926,0.256854274921902,0.26120641256371,0.18258663690271,0.348384924570432,0.212435101905676,0.449833763543528,0.225022977514763,0.291736221388468,0.14189365483211,0.318425428219069,0.256145270561066,0.434749786513299,0.209178631553079,0.368204351591709,0.302255985406606,0.19532926081656,0.258422235545124,0.364961926582392,0.208974031034994,0.655276923674417,0.453078987199207,0.412987522553467,0.279184837273879,0.25741756535867,0.213072145221449,0.607161766169146,0.427756924494431,0.256297344616352,0.184545982768828,0.333405845483082,0.167172565557021,0.149914907703765,0.337035064838485,0.291954226421137,0.0998692728968582,0.156580958118049,0.505808050602877,0.478428975556571,0.405019650924309,0.496461636561615,0.303478831974553,0.195930636336917,0.370908795229415,0.334221123877109,0.383921323893134,0.405010299319041,0.478220829835354,0.27665173481943,0.412120960100622,0.393364148192613,0.312312998922184,0.519703631899167,0.365964972576251,0.656777997399927,0.310680259507047,0.360571724691392,0.320738175553997,0.574673356800873,0.493363874497224,0.204532632170204,0.229523564750932,0.294799286132425,0.623157446041161,0.155960129883769,0.428481120285858,0.278380637525488,0.315912016872053,0.320934673810159,0.344301679558534,0.285671479436041,0.23435277184089,0.215875538179918,0.214105813757586,0.357087711557895,0.243748684564949,0.440840405768186,0.278575863929132,0.300849681185653,0.653676695713593,0.534408330317141,0.543871592308175,0.403710150364679,0.359343984370293,0.199535352429579,0.20432224472573,0.288663761484381,0.428594864138767,0.487296210447837,0.265886279382772,0.360265556803372,0.586266424410382,0.381237553694953,0.270241256415286,0.467682979709619,0.351344695447715,0.573697762026725,0.358236414033374,0.243883590707226,0.573268628916618,0.315037090310948,0.107128921374415,0.452398616533129,0.262282049644564,0.352260388313098,0.527586600204349,0.363627398293987,0.480215381525168,0.565591341586732,0.22162092794667,0.368711320680385,0.268654106455284,0.267708115333251,0.275391915438267,0.309283191601803,0.414829631470335,0.462807741544717,0.601067833189492,0.629473773142422,0.394035846891143,0.235660480824782,0.516786054272042,0.19673725044494,0.308897230588764,0.355540309436414,0.199650477565993,0.286942956091552,0.286541193601522,0.262200996739654,0.446862602505333,0.615071946595344,0.260085706267888,0.260834055484063,0.580811080635219,0.208748876699839,0.0732168001996269,0.465283128119339,0.403447971022341,0.372559776389427,0.566327294003778,0.345879230337327,0.101227856260383,0.502798964443652,0.469143264281505,0.451638120992099,0.36106589273245,0.215229690939451,0.11320380048789,0.662442466790975,0.693149773169745,0.304007318958121,0.260060789566647,0.545100700055131,0.229192065134011,0.387197304524447,0.301014859786714,0.345521977117158,0.195834186740433,0.412142967688591,0.286732237691765,0.263466026502461,0.364015215415295,0.228576116182247,0.188504733247571,0.259071736623756,0.443451862981399,0.237504285161657,0.365804837274514,0.384992544411088,0.590628046358088,0.480375072000816,0.496614224172084,0.50549831199047,0.100390943101574,0.222690120531395,0.392854556475248,0.161504230837043,0.642259013619045,0.239990872865755,0.239578747707047,0.42205438956336,0.253978261480848,0.561308605237357,0.675654700946534,0.440603546132747,0.378603147280917,0.275614025411208,0.200315577281293,0.379360627572686,0.348868963612802,0.513604437678311,0.527709264747628,0.702690596158287,0.320273297159867,0.208848509565128,0.388356032006062,0.477989981514311,0.2053358373555,0.32992942640906,0.175094395845988,0.332298200161543,0.337266594079586,0.614108872070394,0.20014851350984,0.344928104996378,0.175433981560512,0.405419505649178,0.306042395634547,0.342612038049618,0.517580497261497,0.271540205498228,0.557768065128172,0.290725426385108,0.550876789645769,0.624388800532772,0.247158019562654,0.314629097407632,0.408551534554082,0.238375176897143,0.475970917532154,0.533861270367349,0.534531762036304,0.131699969884256,0.0557521686623398,0.265009481535139,0.107249525583293,0.411223612809086,0.0960830553552195,0.296184900938839,0.448380231555827,0.326003468021924,0.541287758996809,0.37282120101132,0.537099499872039,0.443711856499713,0.255591318527124,0.205896463537762,0.256237978193472,0.43743513737957,0.14571936973245,0.232293911610009,0.172808552134831,0.32026734603648,0.254527277309677,0.305943700425491,0.223610874521544,0.212621808249162,0.304965812054889,0.0824840357663302,0.310398765178714,0.408141725258482,0.745400436608441,0.290367608123795,0.291676506916246,0.595090691777053,0.25189523673042,0.351774484271097,0.384930623482572,0.239474124758061,0.388920197826948,0.225047260157332,0.395877097886218,0.23026926465852,0.482379358678669,0.316159184975491,0.428485752483291,0.451958029114441,0.23416163395059,0.331523925145832,0.477004169713686,0.246633098660377,0.180142260761981,0.503927866170394,0.467627705283856,0.31676247807025,0.18749876424516,0.375108032497486,0.291965774842547,0.264119975879991,0.41912811923804,0.435050200738072,0.418370641928786,0.34489887302843,0.266363760808191,0.227413838905795,0.309450708603016,0.243298494182905,0.0953247768207516,0.485804808425525,0.375022479946467,0.566366075700328,0.282699114550646,0.3024875509487,0.221608429398012,0.28065554414126,0.325231336828158,0.422072939717734,0.376238660007074,0.413696945035487,0.577326628272214,0.319463643513764,0.220899132816855,0.262022969884483,0.352184174232011,0.151956926339651,0.335880344359851,0.457255978874275,0.752270285808091,0.277335102452441,0.347583633643789,0.196994570201687,0.219128450791311,0.209124617744019,0.359434866991799,0.149000057203201,0.240622279133879],[1012,220,971,874,1374,1547,275,1011,1121,1125,981,1422,1185,1071,1009,1043,1081,1001,1180,1146,712,606,1032,1174,879,624,1168,971,980,1116,957,658,868,175,695,993,641,1915,1203,352,651,1106,1170,545,1329,714,1084,374,1034,1005,650,749,335,1573,1435,2176,951,1352,780,1308,894,614,344,972,1376,975,1007,1382,1033,1086,1606,586,1548,943,1126,855,1103,582,1374,92,1272,992,1557,331,1431,1433,831,781,1131,910,1356,651,720,1281,877,1238,953,1324,940,579,544,584,919,835,638,1008,1180,1220,1146,1032,1041,1129,854,1342,1004,529,281,1190,1128,776,563,789,1161,1105,1084,922,1301,1393,387,981,1112,831,231,592,1088,1634,900,841,1613,1055,838,1039,721,728,957,1128,1031,1071,1408,414,521,873,987,1208,839,1093,1431,947,377,1244,368,1035,905,742,1488,364,839,1198,798,756,376,979,1322,556,1077,967,1172,955,1851,983,849,1017,1672,693,1102,744,798,562,1102,770,1276,1034,1136,446,798,767,891,916,1000,953,355,647,823,491,1555,1534,950,710,932,586,1287,822,846,887,933,235,833,1454,707,523,772,956,1375,1304,1172,905,690,1040,967,763,986,1086,918,1367,1113,736,1359,1244,1638,1067,772,803,1401,1331,807,690,873,1458,646,1239,947,1306,748,1062,904,650,771,861,963,812,922,1004,848,1832,1085,1329,1386,1072,604,420,749,1091,947,1054,1100,1507,1130,758,1227,950,1610,998,984,1299,888,845,1088,811,1370,1331,1171,1288,1295,378,1124,711,909,602,859,1182,1267,1567,1575,1038,960,1373,438,725,969,737,1013,875,416,1018,1444,943,722,1725,1045,280,999,1052,1071,1691,983,522,1344,1151,1368,1192,809,173,1707,1452,372,544,1234,670,1251,836,1182,689,1067,720,757,746,725,547,686,1238,708,831,1229,1462,1250,1498,1167,510,775,1264,429,1836,1000,894,1318,707,1499,1598,1302,644,485,740,1263,1315,1384,1244,1727,679,570,1065,1000,608,1237,673,861,985,1447,780,847,737,1441,925,1136,1183,681,1817,938,1290,1611,1042,963,1230,569,1186,1302,1636,566,540,603,423,1192,367,613,1286,1118,1407,999,1120,1152,756,794,830,1399,891,1028,481,1445,650,682,936,687,1132,330,696,1067,1742,1204,727,1663,862,982,1095,690,567,801,1184,855,1180,926,1136,1196,684,1206,1113,933,600,1309,1147,716,802,1024,1168,771,870,1090,1271,738,617,540,600,734,530,992,1168,1305,939,977,952,1242,1167,1189,900,1322,1958,1087,574,920,1302,790,1241,1144,1509,909,525,633,725,607,1234,476,820],[1062,270,1071,924,1424,1647,325,1061,1221,1175,1031,1472,1235,1121,1059,1093,1131,1051,1230,1196,762,656,1082,1274,929,674,1218,1021,1030,1166,1007,708,968,225,745,1043,691,2015,1253,402,701,1156,1220,595,1379,764,1134,424,1134,1055,700,799,385,1673,1535,2276,1001,1402,830,1358,944,664,394,1022,1426,1025,1107,1432,1083,1186,1706,636,1648,993,1226,905,1153,632,1474,142,1322,1042,1657,381,1481,1533,881,831,1181,960,1456,701,770,1331,977,1338,1003,1424,990,629,594,634,969,885,688,1108,1230,1270,1196,1132,1091,1179,904,1442,1054,579,331,1240,1178,876,613,839,1211,1205,1134,972,1401,1493,437,1031,1212,881,281,642,1188,1684,950,891,1663,1105,888,1139,771,778,1057,1178,1081,1171,1458,464,571,923,1037,1258,889,1143,1531,997,427,1294,418,1135,955,792,1588,414,939,1248,848,806,426,1029,1422,606,1127,1017,1222,1005,1951,1033,899,1067,1772,743,1152,794,848,612,1152,820,1376,1084,1236,496,848,817,941,966,1100,1003,405,697,923,541,1655,1584,1000,760,982,636,1387,872,896,937,983,285,883,1504,757,573,822,1056,1425,1354,1272,955,740,1090,1067,813,1036,1186,968,1417,1163,786,1459,1294,1738,1117,872,903,1501,1431,857,740,923,1558,696,1339,997,1406,798,1112,954,700,821,911,1063,862,1022,1054,948,1932,1185,1429,1436,1122,654,470,799,1141,997,1104,1150,1607,1180,808,1277,1000,1660,1098,1034,1399,938,895,1138,861,1420,1431,1221,1388,1395,428,1224,761,959,652,909,1232,1367,1667,1625,1088,1010,1473,488,775,1019,787,1063,925,466,1068,1544,993,772,1825,1095,330,1049,1102,1121,1791,1033,572,1394,1251,1418,1242,859,223,1807,1552,422,594,1334,720,1351,886,1232,739,1117,770,807,796,775,597,736,1288,758,881,1329,1562,1350,1548,1267,560,825,1314,479,1936,1050,944,1418,757,1599,1698,1352,694,535,790,1313,1365,1484,1344,1827,729,620,1165,1100,658,1287,723,911,1035,1547,830,947,787,1491,975,1186,1283,731,1917,988,1390,1711,1092,1013,1280,619,1286,1402,1736,616,590,653,473,1242,467,663,1386,1168,1507,1049,1220,1252,806,844,880,1499,941,1078,531,1495,700,732,986,737,1232,380,796,1117,1842,1254,777,1763,912,1082,1145,740,617,851,1234,905,1280,976,1186,1246,734,1256,1163,983,650,1359,1197,766,852,1074,1218,821,920,1140,1321,788,667,590,650,784,580,1042,1218,1405,989,1027,1002,1292,1217,1289,950,1372,2008,1137,624,970,1352,840,1291,1194,1609,959,625,683,775,657,1284,526,870],[1012,220,1071,874,1374,1647,275,1011,1221,1125,981,1422,1185,1071,1009,1043,1081,1001,1180,1146,712,606,1032,1274,879,624,1168,971,980,1116,957,658,968,175,695,993,641,2015,1203,352,651,1106,1170,545,1329,714,1084,374,1134,1005,650,749,335,1673,1535,2276,951,1352,780,1308,894,614,344,972,1376,975,1107,1382,1033,1186,1706,586,1648,943,1226,855,1103,582,1474,92,1272,992,1657,331,1431,1533,831,781,1131,910,1456,651,720,1281,977,1338,953,1424,940,579,544,584,919,835,638,1108,1180,1220,1146,1132,1041,1129,854,1442,1004,529,281,1190,1128,876,563,789,1161,1205,1084,922,1401,1493,387,981,1212,831,231,592,1188,1634,900,841,1613,1055,838,1139,721,728,1057,1128,1031,1171,1408,414,521,873,987,1208,839,1093,1531,947,377,1244,368,1135,905,742,1588,364,939,1198,798,756,376,979,1422,556,1077,967,1172,955,1951,983,849,1017,1772,693,1102,744,798,562,1102,770,1376,1034,1236,446,798,767,891,916,1100,953,355,647,923,491,1655,1534,950,710,932,586,1387,822,846,887,933,235,833,1454,707,523,772,1056,1375,1304,1272,905,690,1040,1067,763,986,1186,918,1367,1113,736,1459,1244,1738,1067,872,903,1501,1431,807,690,873,1558,646,1339,947,1406,748,1062,904,650,771,861,1063,812,1022,1004,948,1932,1185,1429,1386,1072,604,420,749,1091,947,1054,1100,1607,1130,758,1227,950,1610,1098,984,1399,888,845,1088,811,1370,1431,1171,1388,1395,378,1224,711,909,602,859,1182,1367,1667,1575,1038,960,1473,438,725,969,737,1013,875,416,1018,1544,943,722,1825,1045,280,999,1052,1071,1791,983,522,1344,1251,1368,1192,809,173,1807,1552,372,544,1334,670,1351,836,1182,689,1067,720,757,746,725,547,686,1238,708,831,1329,1562,1350,1498,1267,510,775,1264,429,1936,1000,894,1418,707,1599,1698,1302,644,485,740,1263,1315,1484,1344,1827,679,570,1165,1100,608,1237,673,861,985,1547,780,947,737,1441,925,1136,1283,681,1917,938,1390,1711,1042,963,1230,569,1286,1402,1736,566,540,603,423,1192,467,613,1386,1118,1507,999,1220,1252,756,794,830,1499,891,1028,481,1445,650,682,936,687,1232,330,796,1067,1842,1204,727,1763,862,1082,1095,690,567,801,1184,855,1280,926,1136,1196,684,1206,1113,933,600,1309,1147,716,802,1024,1168,771,870,1090,1271,738,617,540,600,734,530,992,1168,1405,939,977,952,1242,1167,1289,900,1322,1958,1087,574,920,1302,790,1241,1144,1609,909,625,633,725,607,1234,476,820]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>id<\/th>\n      <th>treatment<\/th>\n      <th>true_ps<\/th>\n      <th>y_0<\/th>\n      <th>y_1<\/th>\n      <th>y_obs<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
 </div>
-<p>About 26.2% of units are treated. We display below the true propensity score distributions by treatment status:</p>
+<p>About 24.4% of units are treated. We display below the true propensity score distributions by treatment status:</p>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/graph_true_ps-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
