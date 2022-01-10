@@ -33,7 +33,8 @@ opts_chunk$set(fig.path = "images/",
                warning = FALSE,
                out.width = "85%",
                dpi = 200,
-               fig.align = "center")  
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
 ```  
 
 ```{r packages_RDD, message=FALSE, warning=FALSE, include=FALSE}
@@ -45,7 +46,7 @@ library(tictoc)
 library(here)
 library(beepr)
 
-set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
+set_mediocre_all(pal = "coty")
 ```
 
 ## Summary and intuition
@@ -288,7 +289,8 @@ Here is an example of an output of this function.
 ```{r example_output_sim_RDD, echo=FALSE}
 baseline_param_RDD %>% 
   mutate(delta = 1) %>% 
-  pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2))
+  pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2)) %>% 
+  kable()
 ```
 
 ### All simulations
@@ -336,9 +338,9 @@ toc()
 
 ### Quick exploration
 
-First, we quickly explore the results.
+First, we quickly explore the results. In the following figure, we can see that for small bandwidth estimates are unbiased but imprecise while for large bandwidths estimates are precise but biased.
 
-```{r exploration_results_RDD, echo=FALSE}
+```{r result_density_RDD, echo=FALSE, fig.asp=0.8}
 sim_rdd <- readRDS(here("Outputs/sim_rdd.RDS"))
 
 sim_rdd %>%
@@ -350,12 +352,16 @@ sim_rdd %>%
   geom_vline(aes(xintercept = true_effect), linetype = "dashed") +
   facet_wrap(~ bw_name) +
   labs(
-    title = "Distribution of the estimates of the treatement effect",
-    subtitle = "For different bandwidth sizes",
-    x = "Estimate of the treatement effect",
+    title = "Distribution of the estimates of the treatment effect",
+    subtitle = "For different bandwidth sizes, as proportion of observations in the bandwidth",
+    x = "Estimate of the treatment effect",
     y = "Density",
   )
+```
 
+When the bandwidth is relatively small, estimates are spread out and the mean of statistically significant estimates is larger than the true effect. Note that the average of all estimates, significant and non-significant, is close to the true effect. Applying a statistical significance filter leads to overestimate the true effect in this case.
+
+```{r result_histogram_RDD, echo=FALSE}
 sim_rdd %>% 
   filter(bw == vect_bw[2]) %>%
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
@@ -368,9 +374,9 @@ sim_rdd %>%
   geom_vline(aes(xintercept = 1)) +
   # facet_wrap(~ bw) +
   labs(
-    title = "Distribution of the estimates of the treatement effect",
+    title = "Distribution of the estimates of the treatment effect",
     subtitle = str_c("For a bandwidth containing ", vect_bw[2]*100, "% of the observations"),
-    x = "Estimate of the treatement effect",
+    x = "Estimate of the treatment effect",
     y = "Count",
     fill = "",
     caption = "The solid line represents the average mean effect for significant 
@@ -393,9 +399,10 @@ sim_rdd %>%
 #   summarise(average_effect = mean(estimate))
 ```
 
+
 ### Computing bias and type M
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]$ and $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]$. The first term represents the bias and the second term represents the type M error. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
 ```{r summarise_RDD}
 summarise_simulations <- function(data) {
@@ -404,9 +411,8 @@ summarise_simulations <- function(data) {
     group_by(delta, bw) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
-      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
-      bias_sign = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
-      bias_all = mean(estimate/true_effect, na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      bias_all = mean(abs(estimate/true_effect), na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
     ungroup()
@@ -422,9 +428,9 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r graph_results_RDD, echo=FALSE}
 summary_sim_rdd %>% 
-  pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
+  pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
   mutate(
-    measure = ifelse(measure == "bias_sign", "Significant", "All"),
+    measure = ifelse(measure == "type_m", "Significant", "All"),
     delta_name = paste("OVB intensity:", delta)
   ) %>% 
   ggplot(aes(x = bw, y = value, color = measure)) + 
@@ -438,7 +444,20 @@ summary_sim_rdd %>%
     title = "Evolution of bias with bandwith size, conditional on significativity",
     # subtitle = "For several values of OVB intensity",
     caption = "Bandwidth size as a proportion of the total number of observations"
-  ) 
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
 ```
 
+We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.
+
+```{r}
+summary_sim_rdd %>% 
+  ggplot(aes(x = bw, y = power)) + 
+  geom_line(size = 0.8) +
+  labs(
+    x = "Bandwidth size",
+    y = "Power",
+    title = "Evolution of power with bandwith size"
+  )
+```
 

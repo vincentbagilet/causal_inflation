@@ -34,7 +34,8 @@ opts_chunk$set(fig.path = "images/",
                warning = FALSE,
                out.width = "85%",
                dpi = 200,
-               fig.align = "center")  
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
 ``` 
 
 In this document, we show through simulations the Type M error - omitted variable bias trade-off for observational studies relying on matching methods. We create fake-data similar to those used for analyzing non-randomized labor training program. Should you have any questions or find coding errors, please do not hesitate to reach us at vincent.bagilet@columbia.edu and leo.zabrocki@psemail.eu.

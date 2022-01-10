@@ -2204,7 +2204,7 @@ Simulations
 <ul>
 <li><a href="#summary-and-intuition">Summary and intuition</a></li>
 <li><a href="#an-illustrative-example">An illustrative example</a><ul>
-<li><a href="#modelisation-choices">Modelisation choices</a></li>
+<li><a href="#modeling-choices">Modeling choices</a></li>
 <li><a href="#data-generation">Data generation</a></li>
 <li><a href="#estimation">Estimation</a></li>
 <li><a href="#one-simulation">One simulation</a></li>
@@ -2228,7 +2228,7 @@ text-align: justify}
 <h2 id="an-illustrative-example">An illustrative example</h2>
 <!-- For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings.  -->
 <!-- A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks. -->
-<h3 id="modelisation-choices">Modelisation choices</h3>
+<h3 id="modeling-choices">Modeling choices</h3>
 <p>To simplify, I consider the assumptions described below. Of course these assumptions are purely arbitrary and I invite you to play with them. Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0.</p>
 <ul>
 <li>Each individual has fixed characteristics drawn from a normal distribution,</li>
@@ -2410,10 +2410,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.7549193</td>
-<td style="text-align: right;">1.7549193</td>
-<td style="text-align: right;">1.7549193</td>
-<td style="text-align: right;">1.7549193</td>
+<td style="text-align: right;">-2.1674942</td>
+<td style="text-align: right;">-1.1674942</td>
+<td style="text-align: right;">-1.1674942</td>
+<td style="text-align: right;">-1.1674942</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
@@ -2427,10 +2427,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.8456332</td>
-<td style="text-align: right;">1.8456332</td>
-<td style="text-align: right;">1.8456332</td>
-<td style="text-align: right;">1.8456332</td>
+<td style="text-align: right;">-0.7731616</td>
+<td style="text-align: right;">0.2268384</td>
+<td style="text-align: right;">0.2268384</td>
+<td style="text-align: right;">0.2268384</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
@@ -2444,10 +2444,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.5156536</td>
-<td style="text-align: right;">0.4843464</td>
-<td style="text-align: right;">0.4843464</td>
-<td style="text-align: right;">0.4843464</td>
+<td style="text-align: right;">-0.2794447</td>
+<td style="text-align: right;">0.7205553</td>
+<td style="text-align: right;">0.7205553</td>
+<td style="text-align: right;">0.7205553</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
@@ -2461,10 +2461,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.8766981</td>
-<td style="text-align: right;">0.1233019</td>
-<td style="text-align: right;">0.1233019</td>
-<td style="text-align: right;">0.1233019</td>
+<td style="text-align: right;">-0.7092973</td>
+<td style="text-align: right;">0.2907027</td>
+<td style="text-align: right;">0.2907027</td>
+<td style="text-align: right;">0.2907027</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
@@ -2478,10 +2478,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-1.5535010</td>
-<td style="text-align: right;">-0.5535010</td>
-<td style="text-align: right;">-0.5535010</td>
-<td style="text-align: right;">-0.5535010</td>
+<td style="text-align: right;">0.3442857</td>
+<td style="text-align: right;">1.3442857</td>
+<td style="text-align: right;">1.3442857</td>
+<td style="text-align: right;">1.3442857</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
@@ -2495,10 +2495,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.3758065</td>
-<td style="text-align: right;">1.3758065</td>
-<td style="text-align: right;">1.3758065</td>
-<td style="text-align: right;">1.3758065</td>
+<td style="text-align: right;">-1.5789894</td>
+<td style="text-align: right;">-0.5789894</td>
+<td style="text-align: right;">-0.5789894</td>
+<td style="text-align: right;">-0.5789894</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
@@ -2512,10 +2512,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.8303756</td>
-<td style="text-align: right;">1.8303756</td>
-<td style="text-align: right;">1.8303756</td>
-<td style="text-align: right;">1.8303756</td>
+<td style="text-align: right;">-2.1478112</td>
+<td style="text-align: right;">-1.1478112</td>
+<td style="text-align: right;">-1.1478112</td>
+<td style="text-align: right;">-1.1478112</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
@@ -2529,10 +2529,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.9188738</td>
-<td style="text-align: right;">2.9188738</td>
-<td style="text-align: right;">2.9188738</td>
-<td style="text-align: right;">2.9188738</td>
+<td style="text-align: right;">1.0627709</td>
+<td style="text-align: right;">2.0627709</td>
+<td style="text-align: right;">2.0627709</td>
+<td style="text-align: right;">2.0627709</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
@@ -2546,10 +2546,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-3</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.3149502</td>
-<td style="text-align: right;">1.3149502</td>
-<td style="text-align: right;">2.3149502</td>
-<td style="text-align: right;">1.3149502</td>
+<td style="text-align: right;">1.6618032</td>
+<td style="text-align: right;">2.6618032</td>
+<td style="text-align: right;">3.6618032</td>
+<td style="text-align: right;">2.6618032</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
@@ -2563,10 +2563,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-2</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.1177072</td>
-<td style="text-align: right;">2.1177072</td>
-<td style="text-align: right;">3.1177072</td>
-<td style="text-align: right;">2.1177072</td>
+<td style="text-align: right;">0.3135374</td>
+<td style="text-align: right;">1.3135374</td>
+<td style="text-align: right;">2.3135374</td>
+<td style="text-align: right;">1.3135374</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
@@ -2580,10 +2580,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.2661388</td>
-<td style="text-align: right;">2.2661388</td>
-<td style="text-align: right;">3.2661388</td>
-<td style="text-align: right;">2.2661388</td>
+<td style="text-align: right;">-0.6204604</td>
+<td style="text-align: right;">0.3795396</td>
+<td style="text-align: right;">1.3795396</td>
+<td style="text-align: right;">0.3795396</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
@@ -2597,10 +2597,10 @@ text-align: justify}
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.4636386</td>
-<td style="text-align: right;">0.5363614</td>
-<td style="text-align: right;">1.5363614</td>
-<td style="text-align: right;">0.5363614</td>
+<td style="text-align: right;">-0.3895688</td>
+<td style="text-align: right;">0.6104312</td>
+<td style="text-align: right;">1.6104312</td>
+<td style="text-align: right;">0.6104312</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
@@ -2614,10 +2614,10 @@ text-align: justify}
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.0707441</td>
-<td style="text-align: right;">1.0707441</td>
-<td style="text-align: right;">2.0707441</td>
-<td style="text-align: right;">2.0707441</td>
+<td style="text-align: right;">-0.0253525</td>
+<td style="text-align: right;">0.9746475</td>
+<td style="text-align: right;">1.9746475</td>
+<td style="text-align: right;">1.9746475</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
@@ -2631,10 +2631,10 @@ text-align: justify}
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.5101003</td>
-<td style="text-align: right;">2.5101003</td>
-<td style="text-align: right;">3.5101003</td>
-<td style="text-align: right;">3.5101003</td>
+<td style="text-align: right;">0.1725214</td>
+<td style="text-align: right;">1.1725214</td>
+<td style="text-align: right;">2.1725214</td>
+<td style="text-align: right;">2.1725214</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
@@ -2648,10 +2648,10 @@ text-align: justify}
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.6666397</td>
-<td style="text-align: right;">1.6666397</td>
-<td style="text-align: right;">2.6666397</td>
-<td style="text-align: right;">2.6666397</td>
+<td style="text-align: right;">-1.0051718</td>
+<td style="text-align: right;">-0.0051718</td>
+<td style="text-align: right;">0.9948282</td>
+<td style="text-align: right;">0.9948282</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
@@ -2665,10 +2665,10 @@ text-align: justify}
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.0830161</td>
-<td style="text-align: right;">0.9169839</td>
-<td style="text-align: right;">1.9169839</td>
-<td style="text-align: right;">1.9169839</td>
+<td style="text-align: right;">0.8420314</td>
+<td style="text-align: right;">1.8420314</td>
+<td style="text-align: right;">2.8420314</td>
+<td style="text-align: right;">2.8420314</td>
 </tr>
 </tbody>
 </table>
@@ -2680,7 +2680,7 @@ text-align: justify}
 <!-- Now, let's vary treatment effect size across individuals, considering a staggered adoption. -->
 <!-- ```{r treatment_effect_DID, echo=FALSE} -->
 <!-- labs_graph_size <- labs( -->
-<!--     title = "Treatement effect size across time and individuals", -->
+<!--     title = "Treatment effect size across time and individuals", -->
 <!--     x = "Time index",  -->
 <!--     y = "Individual id",  -->
 <!--     fill = "Treatment effect size" -->
@@ -2771,9 +2771,9 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">treated</td>
-<td style="text-align: right;">0.9284093</td>
-<td style="text-align: right;">0.084357</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.955986</td>
+<td style="text-align: right;">0.1258343</td>
+<td style="text-align: right;">4e-07</td>
 </tr>
 </tbody>
 </table>
@@ -2858,9 +2858,9 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">treated</td>
-<td style="text-align: right;">1.033404</td>
-<td style="text-align: right;">0.1048697</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.162665</td>
+<td style="text-align: right;">0.1356029</td>
+<td style="text-align: right;">1e-07</td>
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">50</td>
 <td style="text-align: right;">0.5</td>
@@ -2915,7 +2915,7 @@ text-align: justify}
 </div>
 <h2 id="varying-the-proportion-of-treated">Varying the proportion of treated</h2>
 <div class="layout-chunk" data-layout="l-body">
-<pre><code>58.98 sec elapsed</code></pre>
+<pre><code>69.357 sec elapsed</code></pre>
 <p><img src="images/sim_p_treat-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/sim_p_treat-2.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>

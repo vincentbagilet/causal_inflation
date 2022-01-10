@@ -33,7 +33,8 @@ opts_chunk$set(fig.path = "images/",
                warning = FALSE,
                out.width = "85%",
                dpi = 200,
-               fig.align = "center")  
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
 ```  
 
 ```{r packages_panoptic, message=FALSE, warning=FALSE, include=FALSE}
@@ -47,7 +48,7 @@ library(beepr)
 library(lmtest)
 library(sandwich)
 
-set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
+set_mediocre_all(pal = "coty")
 ```
 
 ## Summary and intuition
@@ -283,11 +284,11 @@ sim_p_treat <- readRDS(here("Outputs/sim_p_treat.RDS"))
 #   geom_vline(xintercept = unique(sim_p_treat$true_effect)) +
 #   facet_wrap(~ p_treat) +
 #   labs(
-#     title = "Distribution of the estimates of the treatement effect",
+#     title = "Distribution of the estimates of the treatment effect",
 #     subtitle = "For different propoportion of units treated",
 #     color = "",
 #     fill = "",
-#     x = "Estimate of the treatement effect",
+#     x = "Estimate of the treatment effect",
 #     y = "Density",
 #     caption = "The vertical line represents the true effect"
 #   )
@@ -296,11 +297,11 @@ sim_p_treat %>%
   ggplot() +
   geom_density(aes(x = estimate, color = as.factor(p_treat)), alpha = 0) +
   labs(
-    title = "Distribution of the estimates of the treatement effect",
+    title = "Distribution of the estimates of the treatment effect",
     subtitle = "Comparison across proportions of units treated ",
     color = "Proporion of units treated",
     fill = "Proporion of units treated",
-    x = "Estimate of the treatement effect",
+    x = "Estimate of the treatment effect",
     y = "Density"
   )
 
@@ -312,9 +313,9 @@ sim_p_treat %>%
   geom_histogram() +
   geom_vline(xintercept = unique(sim_p_treat$true_effect)) +
   labs(
-    title = "Distribution of the estimates of the treatement effect conditional on significativity",
+    title = "Distribution of the estimates of the treatment effect conditional on significativity",
     subtitle = paste("For a proportion of", 0.2*100, "% units treated"),
-    x = "Estimate of the treatement effect",
+    x = "Estimate of the treatment effect",
     y = "Count",
     fill = "",
     caption = "The vertical line represents the true effect"

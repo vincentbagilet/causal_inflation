@@ -2249,10 +2249,10 @@ text-align: justify}
 <ul>
 <li><span class="math inline">\(N\)</span> the number of students</li>
 <li><span class="math inline">\(U \sim \mathcal{N}(0, \sigma_u^{2})\)</span> the unobserved ability.</li>
-<li><span class="math inline">\(Qual_i = H_i + \delta U_i^{3}\)</span> where <span class="math inline">\(H \sim \mathcal{N}(\mu_h, \sigma_h^{2})\)</span>. We center the qualification scores such that treated units are below 0 and non treated ones above.</li>
+<li><span class="math inline">\(Qual_i = H_i + \delta U_i^{2}\)</span> where <span class="math inline">\(H \sim \mathcal{N}(\mu_h, \sigma_h^{2})\)</span>. We center the qualification scores such that treated units are below 0 and non treated ones above.</li>
 <li><span class="math inline">\(T_i = \mathbb{I}[Qual_{i} &lt; q_c]\)</span> where for now and for simplicity, <span class="math inline">\(q_c\)</span> is a fixed grade threshold given as the quantile in the qualification score distribution.</li>
 <li><span class="math inline">\(e \sim \mathcal{N}(0, \sigma_e^2)\)</span></li>
-<li><span class="math inline">\(Final_{i} = \alpha + \beta T_i + \gamma Qual_{i} + \delta U_i^{3} + e_{i}\)</span></li>
+<li><span class="math inline">\(Final_{i} = \alpha + \beta T_i + \gamma Qual_{i} + \delta U_i^{2} + e_{i}\)</span></li>
 </ul>
 <h3 id="data-generation">Data generation</h3>
 <p>We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis.</p>
@@ -2292,10 +2292,10 @@ text-align: justify}
 </code></pre>
 </div>
 </div>
-<p>We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_parameters_RDD</code>.</p>
+<p>We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_param_RDD</code>.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>baseline_parameters_RDD</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>baseline_param_RDD</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
   N <span class='op'>=</span> <span class='fl'>1000</span>,
   sigma_u <span class='op'>=</span> <span class='fl'>0.5</span>,
   mu_h <span class='op'>=</span> <span class='fl'>75</span>,
@@ -2328,112 +2328,112 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">-0.5048337</td>
-<td style="text-align: right;">79.55031</td>
-<td style="text-align: right;">-0.4402043</td>
+<td style="text-align: right;">0.4330823</td>
+<td style="text-align: right;">80.70603</td>
+<td style="text-align: right;">4.8361755</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">75.49987</td>
-<td style="text-align: right;">76.49987</td>
-<td style="text-align: right;">75.49987</td>
+<td style="text-align: right;">81.51796</td>
+<td style="text-align: right;">82.51796</td>
+<td style="text-align: right;">81.51796</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.6441597</td>
-<td style="text-align: right;">78.85272</td>
-<td style="text-align: right;">1.1822576</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">76.79410</td>
-<td style="text-align: right;">77.79410</td>
-<td style="text-align: right;">76.79410</td>
+<td style="text-align: right;">0.0942671</td>
+<td style="text-align: right;">75.23900</td>
+<td style="text-align: right;">1.1462353</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">73.82243</td>
+<td style="text-align: right;">74.82243</td>
+<td style="text-align: right;">74.82243</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">-0.6240314</td>
-<td style="text-align: right;">61.02924</td>
-<td style="text-align: right;">4.7347876</td>
+<td style="text-align: right;">-0.0418272</td>
+<td style="text-align: right;">65.33548</td>
+<td style="text-align: right;">3.3869641</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">67.84467</td>
-<td style="text-align: right;">68.84467</td>
-<td style="text-align: right;">68.84467</td>
+<td style="text-align: right;">69.12355</td>
+<td style="text-align: right;">70.12355</td>
+<td style="text-align: right;">70.12355</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">-0.5036124</td>
-<td style="text-align: right;">68.81873</td>
-<td style="text-align: right;">-12.4731123</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">55.95362</td>
-<td style="text-align: right;">56.95362</td>
-<td style="text-align: right;">56.95362</td>
+<td style="text-align: right;">0.0037051</td>
+<td style="text-align: right;">78.89305</td>
+<td style="text-align: right;">3.6874072</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">78.91256</td>
+<td style="text-align: right;">79.91256</td>
+<td style="text-align: right;">78.91256</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">1.5288887</td>
-<td style="text-align: right;">83.82056</td>
-<td style="text-align: right;">-2.4220536</td>
+<td style="text-align: right;">-0.3756924</td>
+<td style="text-align: right;">77.74444</td>
+<td style="text-align: right;">-2.2495499</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">78.58984</td>
-<td style="text-align: right;">79.58984</td>
-<td style="text-align: right;">78.58984</td>
+<td style="text-align: right;">72.31270</td>
+<td style="text-align: right;">73.31270</td>
+<td style="text-align: right;">72.31270</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">0.6334853</td>
-<td style="text-align: right;">78.82468</td>
-<td style="text-align: right;">0.5204335</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">76.09901</td>
-<td style="text-align: right;">77.09901</td>
-<td style="text-align: right;">76.09901</td>
+<td style="text-align: right;">-0.1371518</td>
+<td style="text-align: right;">61.27316</td>
+<td style="text-align: right;">-1.7107335</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">61.19929</td>
+<td style="text-align: right;">62.19929</td>
+<td style="text-align: right;">62.19929</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">0.1254397</td>
-<td style="text-align: right;">68.25213</td>
-<td style="text-align: right;">-0.5936079</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">67.19862</td>
-<td style="text-align: right;">68.19862</td>
-<td style="text-align: right;">68.19862</td>
+<td style="text-align: right;">0.4657378</td>
+<td style="text-align: right;">85.28003</td>
+<td style="text-align: right;">0.4733444</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">80.38628</td>
+<td style="text-align: right;">81.38628</td>
+<td style="text-align: right;">80.38628</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">-0.8634185</td>
-<td style="text-align: right;">66.14737</td>
-<td style="text-align: right;">-1.2109387</td>
+<td style="text-align: right;">0.0807173</td>
+<td style="text-align: right;">69.08269</td>
+<td style="text-align: right;">0.3815391</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">65.83771</td>
-<td style="text-align: right;">66.83771</td>
-<td style="text-align: right;">66.83771</td>
+<td style="text-align: right;">68.74594</td>
+<td style="text-align: right;">69.74594</td>
+<td style="text-align: right;">69.74594</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.5215211</td>
-<td style="text-align: right;">65.86093</td>
-<td style="text-align: right;">0.7337940</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">67.10843</td>
-<td style="text-align: right;">68.10843</td>
-<td style="text-align: right;">68.10843</td>
+<td style="text-align: right;">0.2098066</td>
+<td style="text-align: right;">78.73868</td>
+<td style="text-align: right;">5.3042502</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">80.46534</td>
+<td style="text-align: right;">81.46534</td>
+<td style="text-align: right;">80.46534</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">-0.6589292</td>
-<td style="text-align: right;">70.22386</td>
-<td style="text-align: right;">-1.7543831</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">67.83650</td>
-<td style="text-align: right;">68.83650</td>
-<td style="text-align: right;">67.83650</td>
+<td style="text-align: right;">-0.6058583</td>
+<td style="text-align: right;">68.97243</td>
+<td style="text-align: right;">-2.6077159</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">66.04005</td>
+<td style="text-align: right;">67.04005</td>
+<td style="text-align: right;">67.04005</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 </tbody>
@@ -2447,7 +2447,7 @@ text-align: justify}
   <span class='va'>data</span> <span class='op'>&lt;-</span> <span class='va'>data</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>mutate</span><span class='op'>(</span>
       treated_bw <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span>
-        <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://dplyr.tidyverse.org/reference/between.html'>between</a></span><span class='op'>(</span>
+        <span class='fu'>dplyr</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/dplyr/man/between.html'>between</a></span><span class='op'>(</span>
           <span class='va'>qual</span>, 
           <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>qual</span>, <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>q_c</span><span class='op'>)</span> <span class='op'>-</span> <span class='va'>bw</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>, 
           <span class='fu'><a href='https://rdrr.io/r/stats/quantile.html'>quantile</a></span><span class='op'>(</span><span class='va'>qual</span>, <span class='fu'><a href='https://rdrr.io/r/base/unique.html'>unique</a></span><span class='op'>(</span><span class='va'>q_c</span><span class='op'>)</span> <span class='op'>+</span> <span class='va'>bw</span><span class='op'>/</span><span class='fl'>2</span><span class='op'>)</span>
@@ -2489,7 +2489,7 @@ text-align: justify}
     data <span class='op'>=</span> <span class='va'>data_in_bw</span>, 
     formula <span class='op'>=</span> <span class='va'>final</span> <span class='op'>~</span> <span class='va'>treated</span> <span class='op'>+</span> <span class='va'>qual</span>
   <span class='op'>)</span> <span class='op'>%&gt;%</span> 
-    <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://generics.r-lib.org/reference/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
+    <span class='fu'>broom</span><span class='fu'>::</span><span class='fu'><a href='https://rdrr.io/pkg/generics/man/tidy.html'>tidy</a></span><span class='op'>(</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='va'>term</span> <span class='op'>==</span> <span class='st'>"treatedTRUE"</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>rename</span><span class='op'>(</span>p_value <span class='op'>=</span> <span class='va'>p.value</span>, se <span class='op'>=</span> <span class='va'>std.error</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>select</span><span class='op'>(</span><span class='va'>estimate</span>, <span class='va'>p_value</span>, <span class='va'>se</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
@@ -2540,17 +2540,42 @@ text-align: justify}
 </div>
 <p>Here is an example of an output of this function.</p>
 <div class="layout-chunk" data-layout="l-body">
-<pre><code># A tibble: 2 x 6
-  estimate p_value    se true_effect    bw delta
-     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1     2.73  0.0558  1.41           1   0.1     1
-2     2.37  0.0226  1.03           1   0.2     1</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: right;">estimate</th>
+<th style="text-align: right;">p_value</th>
+<th style="text-align: right;">se</th>
+<th style="text-align: right;">true_effect</th>
+<th style="text-align: right;">bw</th>
+<th style="text-align: right;">delta</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">2.156786</td>
+<td style="text-align: right;">0.1683250</td>
+<td style="text-align: right;">1.553910</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2.068786</td>
+<td style="text-align: right;">0.0787043</td>
+<td style="text-align: right;">1.170505</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
 </div>
 <h3 id="all-simulations">All simulations</h3>
 <p>We will run the simulations for different sets of parameters by mapping our <code>compute_sim_RDD</code> function on each set of parameters. We thus create a table with all the values of the parameters we want to test <code>param_rdd</code>. Note that in this table each set of parameters appears <code>n_iter</code> times as we want to run the analysis <span class="math inline">\(n_{iter}\)</span> times for each set of parameters.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>simple_parameters_RDD</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>simple_param_RDD</span> <span class='op'>&lt;-</span> <span class='fu'>tibble</span><span class='op'>(</span>
   N <span class='op'>=</span> <span class='fl'>500</span>,
   sigma_u <span class='op'>=</span> <span class='fl'>1</span>,
   mu_h <span class='op'>=</span> <span class='fl'>0</span>,
@@ -2562,13 +2587,13 @@ text-align: justify}
   q_c <span class='op'>=</span> <span class='fl'>0.5</span>
 <span class='op'>)</span>
 
-<span class='va'>fixed_parameters_RDD</span> <span class='op'>&lt;-</span> <span class='va'>simple_parameters_RDD</span> <span class='co'>#%&gt;% rbind(...)</span>
+<span class='va'>fixed_param_RDD</span> <span class='op'>&lt;-</span> <span class='va'>simple_param_RDD</span> <span class='co'>#%&gt;% rbind(...)</span>
 <span class='co'># vect_bw &lt;- seq(0.05, 0.4, 0.05)</span>
 <span class='va'>vect_bw</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.4</span>, <span class='fl'>0.05</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.4</span>, <span class='fl'>1</span>, <span class='fl'>0.1</span><span class='op'>)</span><span class='op'>)</span>
 <span class='va'>vect_delta</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>3</span><span class='op'>)</span>
 <span class='va'>n_iter</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
 
-<span class='va'>param_rdd</span> <span class='op'>&lt;-</span> <span class='va'>fixed_parameters_RDD</span> <span class='op'>%&gt;%</span> 
+<span class='va'>param_rdd</span> <span class='op'>&lt;-</span> <span class='va'>fixed_param_RDD</span> <span class='op'>%&gt;%</span> 
   <span class='fu'>crossing</span><span class='op'>(</span>delta <span class='op'>=</span> <span class='va'>vect_delta</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'>mutate</span><span class='op'>(</span>vect_bw <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span><span class='op'>(</span><span class='va'>vect_bw</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
   <span class='fu'>crossing</span><span class='op'>(</span>rep_id <span class='op'>=</span> <span class='fl'>1</span><span class='op'>:</span><span class='va'>n_iter</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
@@ -2580,22 +2605,26 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='fu'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>tic</a></span><span class='op'>(</span><span class='op'>)</span>
-<span class='va'>simulations_rdd</span> <span class='op'>&lt;-</span> <span class='fu'>pmap_dfr</span><span class='op'>(</span><span class='va'>param_rdd</span>, <span class='va'>compute_sim_RDD</span><span class='op'>)</span>
+<span class='va'>sim_rdd</span> <span class='op'>&lt;-</span> <span class='fu'>pmap_dfr</span><span class='op'>(</span><span class='va'>param_rdd</span>, <span class='va'>compute_sim_RDD</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/pkg/beepr/man/beep.html'>beep</a></span><span class='op'>(</span><span class='op'>)</span>
 <span class='fu'><a href='https://rdrr.io/pkg/tictoc/man/tic.html'>toc</a></span><span class='op'>(</span><span class='op'>)</span>
 
-<span class='co'># saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))</span>
+<span class='co'># saveRDS(sim_rdd, here("Outputs/sim_rdd.RDS"))</span>
 </code></pre>
 </div>
 </div>
 <h2 id="analysis-of-the-results">Analysis of the results</h2>
 <h3 id="quick-exploration">Quick exploration</h3>
-<p>First, we quickly explore the results.</p>
+<p>First, we quickly explore the results. In the following figure, we can see that for small bandwidth estimates are unbiased but imprecise while for large bandwidths estimates are precise but biased.</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/exploration_results_RDD-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/exploration_results_RDD-2.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/result_density_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
+</div>
+<p>When the bandwidth is relatively small, estimates are spread out and the mean of statistically significant estimates is larger than the true effect. Note that the average of all estimates, significant and non-significant, is close to the true effect. Applying a statistical significance filter leads to overestimate the true effect in this case.</p>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="images/result_histogram_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <h3 id="computing-bias-and-type-m">Computing bias and type M</h3>
-<p>We want to compare <span class="math inline">\(\mathbb{E}[\beta_0 - \widehat{\beta_{RDD}}]\)</span> and <span class="math inline">\(\mathbb{E}[|\beta_0 - \widehat{\beta_{RDD}}||signif]\)</span>. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
+<p>We want to compare <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]\)</span> and <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]\)</span>. The first term represents the bias and the second term represents the type M error. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>summarise_simulations</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span> <span class='op'>{</span>
@@ -2604,16 +2633,15 @@ text-align: justify}
     <span class='fu'>group_by</span><span class='op'>(</span><span class='va'>delta</span>, <span class='va'>bw</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
     <span class='fu'>summarise</span><span class='op'>(</span>
       power <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>significant</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span><span class='op'>*</span><span class='fl'>100</span>, 
-      type_m <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>significant</span>, <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>estimate</span> <span class='op'>-</span> <span class='va'>true_effect</span><span class='op'>)</span>, <span class='cn'>NA</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
-      bias_sign <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>significant</span>, <span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>, <span class='cn'>NA</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
-      bias_all <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+      type_m <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>significant</span>, <span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span><span class='op'>)</span>, <span class='cn'>NA</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
+      bias_all <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/mean.html'>mean</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/MathFun.html'>abs</a></span><span class='op'>(</span><span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span><span class='op'>)</span>, na.rm <span class='op'>=</span> <span class='cn'>TRUE</span><span class='op'>)</span>,
       .groups  <span class='op'>=</span> <span class='st'>"drop"</span>
     <span class='op'>)</span> <span class='op'>%&gt;%</span> 
     <span class='fu'>ungroup</span><span class='op'>(</span><span class='op'>)</span>
 <span class='op'>}</span> 
 
-<span class='va'>summary_simulations_rdd</span> <span class='op'>&lt;-</span> <span class='fu'>summarise_simulations</span><span class='op'>(</span><span class='va'>simulations_rdd</span><span class='op'>)</span>
-<span class='co'># saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS"))</span>
+<span class='va'>summary_sim_rdd</span> <span class='op'>&lt;-</span> <span class='fu'>summarise_simulations</span><span class='op'>(</span><span class='va'>sim_rdd</span><span class='op'>)</span>
+<span class='co'># saveRDS(summary_sim_rdd, here("Outputs/summary_sim_rdd.RDS"))</span>
 </code></pre>
 </div>
 </div>
@@ -2622,7 +2650,22 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/graph_results_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<p>We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.</p>
+<div class="layout-chunk" data-layout="l-body">
+<div class="sourceCode">
+<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>summary_sim_rdd</span> <span class='op'>%&gt;%</span> 
+  <span class='fu'>ggplot</span><span class='op'>(</span><span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>bw</span>, y <span class='op'>=</span> <span class='va'>power</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
+  <span class='fu'>geom_line</span><span class='op'>(</span>size <span class='op'>=</span> <span class='fl'>0.8</span><span class='op'>)</span> <span class='op'>+</span>
+  <span class='fu'>labs</span><span class='op'>(</span>
+    x <span class='op'>=</span> <span class='st'>"Bandwidth size"</span>,
+    y <span class='op'>=</span> <span class='st'>"Power"</span>,
+    title <span class='op'>=</span> <span class='st'>"Evolution of power with bandwith size"</span>
+  <span class='op'>)</span>
+</code></pre>
+</div>
+<p><img src="images/unnamed-chunk-1-1.png" width="85%" style="display: block; margin: auto;" /></p>
+</div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
