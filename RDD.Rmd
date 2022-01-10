@@ -1,6 +1,6 @@
 ---
 title: "Simulations RDD"
-description: "In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of a Regression Discontinuity Design (RDD)."
+description: "In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/
@@ -50,15 +50,15 @@ set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 
 ## Summary and intuition
 
-In the case of the RDD, the OVB/type M trade-off is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of OVB is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing type M error.
+In the case of the RDD, the confounding/type M error trade-off is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of confounding is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing type M error.
 
 ## An illustrative example
 
-To illustrate this trade-off between OVB and type M error, we consider a standard application of the RD design in economics of education where an grant or additional lessons are assigned based on the score obtained by students on a standardized test. Students with test scores below a given threshold receive the treatment while those above do not. Yet, students far above and far below the threshold may differ along unobserved characteristics such as ability. To limit this bias, the effect of the treatment is estimated by comparing the outcomes of students just below and just above this threshold. This enable to limit disparities in terms of unobserved characteristics.
+To illustrate this trade-off, we consider a standard application of the RD design in economics of education where a grant or additional lessons are assigned based on the score obtained by students on a standardized test. Students with test scores below a given threshold receive the treatment while those above do not. Yet, students far above and far below the threshold may differ along unobserved characteristics such as ability. To limit this bias, the effect of the treatment is estimated by comparing the outcomes of students just below and just above this threshold. This enable to limit disparities in terms of unobserved characteristics.
 
 [Thistlewaite and Campbell (1960)](https://psycnet.apa.org/record/1962-00061-001) introduced the concept of RDD using this type of quasi-experiment. In their paper, they take advantage of a sharp discontinuity in the assignment of an award (a Certificate of Merit) based on qualifying scores at a test. This type of analysis is still used today and many papers leveraging similar methodologies have been published since this seminal work. For instance, [Jacob and Lefgren (2004)](https://direct.mit.edu/rest/article/86/1/226/57489/Remedial-Education-and-Student-Achievement-A) exploit this type of discontinuity to study the impact of  summer school and grade retention programs on test scores. Students who score below a given score are required to attend a summer school and to retake the test. Students who do not pass the second have to repeat the grade. 
 
-### Modelisation choices
+### Modeling choices
 
 In the present analysis, we build our simulations to replicate a similar type of quasi-experiment. In our fictional example, all students scoring below a cutoff $C$ in a qualification test are required to take additional lessons. We want to estimate the effect of these additional lessons on scores on a final test taken by all students a year later. 
 
@@ -66,7 +66,7 @@ We assume that the final score of student $i$, $Final_i$, is correlated with the
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
-```{r DAG_RDD, echo=FALSE, out.width='40%'}
+```{r DAG_RDD, echo=FALSE, out.width='60%'}
 include_graphics(here("images/DAG_RDD.png"))
 ```
 
@@ -88,10 +88,10 @@ More precisely, we set:
 
 - $N$ the number of students
 - $U \sim \mathcal{N}(0, \sigma_u^{2})$ the unobserved ability.
-- $Qual_i = H_i + \delta U_i^{3}$ where $H \sim \mathcal{N}(\mu_h, \sigma_h^{2})$. We center the qualification scores such that treated units are below 0 and non treated ones above.
+- $Qual_i = H_i + \delta U_i^{2}$ where $H \sim \mathcal{N}(\mu_h, \sigma_h^{2})$. We center the qualification scores such that treated units are below 0 and non treated ones above.
 - $T_i = \mathbb{I}[Qual_{i} < q_c]$ where for now and for simplicity, $q_c$ is a fixed grade threshold given as the quantile in the qualification score distribution.
 - $e \sim \mathcal{N}(0, \sigma_e^2)$
-- $Final_{i} = \alpha  + \beta T_i + \gamma Qual_{i} +  \delta U_i^{3} + e_{i}$
+- $Final_{i} = \alpha  + \beta T_i + \gamma Qual_{i} +  \delta U_i^{2} + e_{i}$
 
 ### Data generation
 
@@ -132,10 +132,10 @@ generate_data_rdd <- function(N,
 }
 ```
 
-We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_RDD`.
+We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_RDD`.
 
 ```{r baseline_param_RDD}
-baseline_parameters_RDD <- tibble(
+baseline_param_RDD <- tibble(
   N = 1000,
   sigma_u = 0.5,
   mu_h = 75,
@@ -151,7 +151,7 @@ baseline_parameters_RDD <- tibble(
 Here is an example of data created with our data generating process:
 
 ```{r example_data_RDD, echo=FALSE}
-baseline_parameters_RDD %>% 
+baseline_param_RDD %>% 
   mutate(N = 10, delta = 1) %>% 
   pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
   kable()
@@ -181,7 +181,7 @@ define_bw <- function (data, bw) {
 The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
 
 ```{r graph_bandwidth_RDD, echo=FALSE}
-baseline_parameters_RDD %>% 
+baseline_param_RDD %>% 
   mutate(delta = 1) %>% 
   pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
   define_bw(0.5) %>%
@@ -286,7 +286,7 @@ compute_sim_RDD <- function(N,
 Here is an example of an output of this function.
 
 ```{r example_output_sim_RDD, echo=FALSE}
-baseline_parameters_RDD %>% 
+baseline_param_RDD %>% 
   mutate(delta = 1) %>% 
   pmap_dfr(compute_sim_RDD, vect_bw = c(0.1, 0.2))
 ```
@@ -296,7 +296,7 @@ baseline_parameters_RDD %>%
 We will run the simulations for different sets of parameters by mapping our `compute_sim_RDD` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_RDD}
-simple_parameters_RDD <- tibble(
+simple_param_RDD <- tibble(
   N = 500,
   sigma_u = 1,
   mu_h = 0,
@@ -308,13 +308,13 @@ simple_parameters_RDD <- tibble(
   q_c = 0.5
 )
 
-fixed_parameters_RDD <- simple_parameters_RDD #%>% rbind(...)
+fixed_param_RDD <- simple_param_RDD #%>% rbind(...)
 # vect_bw <- seq(0.05, 0.4, 0.05)
 vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
 vect_delta <- c(3)
 n_iter <- 1000
 
-param_rdd <- fixed_parameters_RDD %>% 
+param_rdd <- fixed_param_RDD %>% 
   crossing(delta = vect_delta) %>% 
   mutate(vect_bw = list(vect_bw)) %>% 
   crossing(rep_id = 1:n_iter) %>% 
@@ -325,11 +325,11 @@ We then run the simulations by mapping our `compute_sim_RDD` function on `param_
 
 ```{r run_sim_RDD, eval=FALSE}
 tic()
-simulations_rdd <- pmap_dfr(param_rdd, compute_sim_RDD)
+sim_rdd <- pmap_dfr(param_rdd, compute_sim_RDD)
 beep()
 toc()
 
-# saveRDS(simulations_rdd, here("Outputs/simulations_rdd.RDS"))
+# saveRDS(sim_rdd, here("Outputs/sim_rdd.RDS"))
 ```
 
 ## Analysis of the results
@@ -339,9 +339,9 @@ toc()
 First, we quickly explore the results.
 
 ```{r exploration_results_RDD, echo=FALSE}
-simulations_rdd <- readRDS(here("Outputs/simulations_rdd.RDS"))
+sim_rdd <- readRDS(here("Outputs/sim_rdd.RDS"))
 
-simulations_rdd %>%
+sim_rdd %>%
   # filter(bw == vect_bw[5]) %>%
   mutate(bw_name = str_c("Bandwidth: ", bw)) %>% 
   ggplot(aes(x = estimate)) +
@@ -356,7 +356,7 @@ simulations_rdd %>%
     y = "Density",
   )
 
-simulations_rdd %>% 
+sim_rdd %>% 
   filter(bw == vect_bw[2]) %>%
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
   ggplot(aes(x = estimate, fill = significant)) + 
@@ -377,7 +377,7 @@ simulations_rdd %>%
     estimates (in absolute value), the dashed line represents the true effect"
   ) 
 
-# simulations_rdd %>% 
+# sim_rdd %>% 
 #   filter(bw == 0.2) %>% 
 #   mutate(significant = (p_value < 0.05)) %>% 
 #   group_by(delta) %>% 
@@ -388,7 +388,7 @@ simulations_rdd %>%
 #   geom_hline(aes(yintercept = mean(estimate))) +
 #   facet_wrap(~ delta)
 # 
-# simulations_rdd %>% 
+# sim_rdd %>% 
 #   group_by(delta, bw) %>% 
 #   summarise(average_effect = mean(estimate))
 ```
@@ -412,8 +412,8 @@ summarise_simulations <- function(data) {
     ungroup()
 } 
 
-summary_simulations_rdd <- summarise_simulations(simulations_rdd)
-# saveRDS(summary_simulations_rdd, here("Outputs/summary_simulations_rdd.RDS"))
+summary_sim_rdd <- summarise_simulations(sim_rdd)
+# saveRDS(summary_sim_rdd, here("Outputs/summary_sim_rdd.RDS"))
 ```
 
 ### Graph
@@ -421,7 +421,7 @@ summary_simulations_rdd <- summarise_simulations(simulations_rdd)
 To analyze our results, we build a unique and simple graph:
 
 ```{r graph_results_RDD, echo=FALSE}
-summary_simulations_rdd %>% 
+summary_sim_rdd %>% 
   pivot_longer(cols = c(bias_sign, bias_all), names_to = "measure") %>% 
   mutate(
     measure = ifelse(measure == "bias_sign", "Significant", "All"),

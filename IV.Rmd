@@ -60,7 +60,7 @@ For readability and to illustrate this loss in power, we consider an example set
 
 A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems [have been highlighted](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610) in this instance but we abstract from them and simulate no exclusion restriction violations here.
 
-### Modelisation choices
+### Modeling choices
 
 For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
 
@@ -148,7 +148,7 @@ generate_data_IV <- function(N,
 }
 ```
 
-We set baseline values for the parameters to emulate a somehow realistic observational study. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_parameters_IV`.
+We set baseline values for the parameters to emulate a somehow realistic observational study. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_IV`.
 
 We get "inspiration" for the values of parameters from 
 [Fujiwara et al.](https://www.aeaweb.org/articles?id=10.1257/app.20140533)
@@ -170,7 +170,7 @@ We consider that:
 We thus consider the following parameters:
 
 ```{r simple_param_IV, echo=FALSE}
-baseline_parameters_IV <- tibble(
+baseline_param_IV <- tibble(
   N = 500,
   # type_rain = "bernoulli",
   # param_rain = 0.4,
@@ -184,13 +184,13 @@ baseline_parameters_IV <- tibble(
   treatment_effect = -1
 )
 
-baseline_parameters_IV %>% kable()
+baseline_param_IV %>% kable()
 ```
 
 Here is an example of data created with our data generating process:
 
 ```{r example_data_IV, echo=FALSE}
-baseline_parameters_IV %>% 
+baseline_param_IV %>% 
   mutate(N = 10, iv_strength = -0.5, ovb_intensity = -1) %>% 
   pmap_dfr(generate_data_IV) %>% #use pmap to pass the set of parameters
   kable()
@@ -201,7 +201,7 @@ baseline_parameters_IV %>%
 We just quickly explore the distribution of the data for a baseline set of parameters. For this, we consider a mid range value for IV strength (-0.5).
 
 ```{r explore_data_IV, echo=FALSE}
-ex_data <- baseline_parameters_IV %>% 
+ex_data <- baseline_param_IV %>% 
   mutate(N = 10000, iv_strength = -0.5, ovb_intensity = -1) %>% 
   pmap_dfr(generate_data_IV) 
 
@@ -345,7 +345,7 @@ compute_sim_IV <- function(N,
 We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_IV, echo=FALSE}
-fixed_parameters <- baseline_parameters_IV #%>% rbind(...)
+fixed_parameters <- baseline_param_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
 vect_ovb_intensity <- c(-1)
@@ -362,11 +362,11 @@ We then run the simulations by mapping our `compute_sim_IV` function on `param_I
 
 ```{r run_sim_IV, eval=FALSE, echo=FALSE}
 tic()
-simulations_IV <- pmap_dfr(param_IV, compute_sim_IV)
+sim_IV <- pmap_dfr(param_IV, compute_sim_IV)
 beep()
 toc()
 
-# saveRDS(simulations_IV, here("Outputs/simulations_IV.RDS"))
+# saveRDS(sim_IV, here("Outputs/sim_IV.RDS"))
 ```
 
 ## Analysis of the results
@@ -376,9 +376,9 @@ toc()
 First, we quickly explore the results.
 
 ```{r exploration_results_IV, echo=FALSE, fig.asp=0.7}
-simulations_IV <- readRDS(here("Outputs/simulations_IV.RDS"))
+sim_IV <- readRDS(here("Outputs/sim_IV.RDS"))
 
-simulations_IV %>% 
+sim_IV %>% 
   filter(between(estimate, -2, 0)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
@@ -397,7 +397,7 @@ simulations_IV %>%
     caption = "The vertical line represents the true effect"
   )
 
-simulations_IV %>%
+sim_IV %>%
   filter(between(estimate, -3, 1)) %>%
   filter(model == "IV") %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
@@ -419,7 +419,7 @@ simulations_IV %>%
     caption = "For readibility, extreme estimates are filtered out"
   )
 
-data_one_sim_IV <- simulations_IV %>% 
+data_one_sim_IV <- sim_IV %>% 
   filter(between(estimate, -3, 1)) %>%
   filter(iv_strength == 0.1) %>% 
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
@@ -450,7 +450,7 @@ We notice that the OLS is always biased and that the IV is never biased. However
 
 ```{r distrib_for_presentation, eval=TRUE, include=FALSE}
 #Graph only for presentations, not compiled in the main .Rmd
-simulations_IV %>% 
+sim_IV %>% 
   # filter(between(estimate, 0.5, 1.7)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength == 0.4) %>% 
@@ -493,8 +493,8 @@ summarise_simulations <- function(data) {
     ungroup()
 } 
 
-summary_simulations_IV <- summarise_simulations(simulations_IV)
-# saveRDS(summary_simulations_IV, here("Outputs/summary_simulations_IV.RDS"))
+summary_sim_IV <- summarise_simulations(sim_IV)
+# saveRDS(summary_sim_IV, here("Outputs/summary_sim_IV.RDS"))
 ```
 
 ### Graph
@@ -502,7 +502,7 @@ summary_simulations_IV <- summarise_simulations(simulations_IV)
 To analyze our results, we build a unique and simple graph:
 
 ```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
-summary_simulations_IV %>% 
+summary_sim_IV %>% 
   # filter(model %in% c("OLS", "IV")) %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
@@ -519,7 +519,7 @@ summary_simulations_IV %>%
     subtitle = "For statistically significant estimates"
   ) 
 
-# summary_simulations_IV %>% 
+# summary_sim_IV %>% 
 #   pivot_longer(c(bias_signif, bias_all), names_to = "bias_type", values_to = "bias") %>% 
 #   ggplot(aes(x = iv_strength, y = bias, color = bias_type)) + 
 #   geom_line(size = 0.8) 
@@ -528,7 +528,7 @@ summary_simulations_IV %>%
 Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. For now, we consider the median because for very low IV strength, we get very extreme values. We need to investigate this further.
 
 ```{r graph_results_all_IV, echo=FALSE, fig.asp=0.7}
-summary_simulations_IV %>% 
+summary_sim_IV %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
@@ -552,7 +552,7 @@ summary_simulations_IV %>%
 We then run some exploratory analysis to see the link between type M and F-stat (under construction).
 
 ```{r fstat_bias_graph, echo=FALSE, fig.asp=0.7}
-simulations_IV %>% 
+sim_IV %>% 
   filter(model == "IV") %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   mutate(bias = estimate/true_effect) %>% 
@@ -573,7 +573,7 @@ simulations_IV %>%
 We can notice that there is a correlation between what we call IV strength and the F statistic. When looking in more details at the distribution of F-stats, we can notice that, even for some IV strength, there are a a good chunk of significant estimates with F-stats greater thant the standard but arbitrary threshold of 10.
 
 ```{r IV_strength_fstat_graph, echo=FALSE, fig.asp=0.8}
-simulations_IV %>% 
+sim_IV %>% 
   filter(model == "IV") %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   ggplot(aes(x = iv_strength, y = fstat, color = significant)) +
@@ -588,11 +588,11 @@ simulations_IV %>%
   )
   # ylim(c(0, 40))
 
-# lm(data = simulations_IV, fstat ~ iv_strength) %>% 
+# lm(data = sim_IV, fstat ~ iv_strength) %>% 
 #   summary() %>% 
 #   .$adj.r.squared
 
-simulations_IV %>% 
+sim_IV %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   filter(model == "IV") %>% 
   ggplot() +
@@ -608,7 +608,7 @@ simulations_IV %>%
     color = "Significant"
   )
 
-# simulations_IV %>% 
+# sim_IV %>% 
 #   filter(model == "IV") %>% 
 #   mutate(
 #     significant = (p_value <= 0.05),
@@ -626,7 +626,7 @@ simulations_IV %>%
 #     # color = "Significant"
 #   )
 
-# simulations_IV %>% 
+# sim_IV %>% 
 #   filter(model == "IV") %>% 
 #   mutate(
 #     significant = (p_value <= 0.05)
@@ -652,7 +652,7 @@ simulations_IV %>%
 We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph:
 
 ```{r bined_fstat, echo=FALSE, fig.asp=0.8}
-simulations_IV %>% 
+sim_IV %>% 
   filter(model == "IV") %>%
   mutate(
     significant = (p_value <= 0.05),
@@ -694,7 +694,7 @@ For simplicity and for communication purposes, we considered an applied example.
 We define the following parameters:
 
 ```{r set_param_IV_simple,echo=FALSE}
-simple_parameters_IV <- tibble(
+simple_param_IV <- tibble(
   N = 500,
   type_rain = "normal",
   param_rain = 1,
@@ -706,13 +706,13 @@ simple_parameters_IV <- tibble(
   treatment_effect = -1
 )
 
-simple_parameters_IV %>% kable()
+simple_param_IV %>% kable()
 ```
 
 We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.
 
 ```{r sim_simple, echo=FALSE}
-fixed_parameters <- simple_parameters_IV #%>% rbind(...)
+fixed_parameters <- simple_param_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
 vect_ovb_intensity <- c(-0.4)
@@ -725,14 +725,14 @@ param_IV_simple <- fixed_parameters %>%
   select(-rep_id)
 
 # tic()
-# simulations_IV_simple <- pmap_dfr(param_IV_simple, compute_sim_IV)
+# sim_IV_simple <- pmap_dfr(param_IV_simple, compute_sim_IV)
 # beep()
 # toc()
 # 
-# saveRDS(simulations_IV_simple, here("Outputs/simulations_IV_simple.RDS"))
-simulations_IV_simple <- readRDS(here("Outputs/simulations_IV_simple.RDS"))
+# saveRDS(sim_IV_simple, here("Outputs/sim_IV_simple.RDS"))
+sim_IV_simple <- readRDS(here("Outputs/sim_IV_simple.RDS"))
 
-simulations_IV_simple %>% 
+sim_IV_simple %>% 
   summarise_simulations() %>% 
   # filter(model %in% c("OLS", "IV")) %>% 
   mutate(
@@ -754,7 +754,7 @@ simulations_IV_simple %>%
 The results and the overall illustration are comparable with the political economy example.
 
 ```{r bined_fstat_simple, echo=FALSE, fig.asp=0.8}
-simulations_IV_simple %>% 
+sim_IV_simple %>% 
   filter(model == "IV") %>%
   mutate(
     significant = (p_value <= 0.05),
@@ -791,7 +791,7 @@ simulations_IV_simple %>%
 
 
 ```{r fstat_bias_simple_graph, echo=FALSE, fig.asp=0.7}
-simulations_IV_simple %>% 
+sim_IV_simple %>% 
   filter(model == "IV") %>% 
   mutate(significant = (p_value <= 0.05)) %>% 
   mutate(bias = estimate/true_effect) %>% 

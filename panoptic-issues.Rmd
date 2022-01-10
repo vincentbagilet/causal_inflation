@@ -44,7 +44,8 @@ library(broom)
 library(tictoc)
 library(here)
 library(beepr)
-library(miceadds)
+library(lmtest)
+library(sandwich)
 
 set_mediocre_all(pal = "coty") #, background = TRUE) #for presentations
 ```
@@ -62,7 +63,7 @@ Power and thus type M error can also be affected by aspects that are not proper 
 For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider  a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration. 
 
 
-### Modelisation choices
+### Modeling choices
 
 For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
 
@@ -126,7 +127,7 @@ baseline_param_panoptic <- tibble(
   sigma_u = 1,
   sigma_e = 1,
   alpha = 1,
-  treatment_effect = 0.2, 
+  treatment_effect = 0.4, 
   ovb_intensity = 1
 )
 
@@ -152,18 +153,32 @@ estimate_panoptic <- function(data, n_clusters = NA) {
   
   data %>%
     mutate(cluster = cut_number(id, n_clusters_mod, labels = FALSE)) %>%
-    estimatr::lm_robust(
-      data = .,
-      formula = y ~ treated,
-      clusters = cluster
-    ) %>%
+    lm(data = ., formula = y ~ treated) %>%
+    coeftest(vcov = vcovCL, cluster = ~cluster) %>% 
     broom::tidy() %>%
-    as_tibble() %>% 
     filter(term == "treatedTRUE") %>%
     rename(p_value = p.value, se = std.error) %>%
     select(estimate, p_value, se) %>%
     mutate(n_clusters = n_clusters)
 }
+
+# estimate_panoptic_1 <- function(data, n_clusters = NA) {
+#   n_clusters_mod <- ifelse(is.na(n_clusters), nrow(data), n_clusters)
+#   
+#   data %>%
+#     mutate(cluster = cut_number(id, n_clusters_mod, labels = FALSE)) %>%
+#     estimatr::lm_robust(
+#       data = .,
+#       formula = y ~ treated,
+#       clusters = cluster
+#     ) %>%
+#     broom::tidy() %>%
+#     as_tibble() %>% 
+#     filter(term == "treatedTRUE") %>%
+#     rename(p_value = p.value, se = std.error) %>%
+#     select(estimate, p_value, se) %>%
+#     mutate(n_clusters = n_clusters)
+# }
 
 # estimate_panoptic_2 <- function(data, n_clusters = NA) {
 # 
@@ -311,13 +326,13 @@ sim_p_treat %>%
 We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.
 
 ```{r summarise_p_treat}
-summarise_simulations <- function(data) {
+summarise_sim_panoptic <- function(data) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>%
     group_by(p_treat, n_clusters) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100,
-      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -326,7 +341,7 @@ summarise_simulations <- function(data) {
     ungroup()
 }
 
-summary_sim_p_treat <- summarise_simulations(sim_p_treat)
+summary_sim_p_treat <- summarise_sim_panoptic(sim_p_treat)
 ```
 
 ### THE graph
@@ -351,8 +366,8 @@ We then reproduce a similar type of analysis and graph but varying the number of
 
 
 ```{r set_param_clusters, echo=FALSE}
-fixed_param <- baseline_param_panoptic
-vect_n_clusters <- seq(50, 500, 50)
+fixed_param <- baseline_param_panoptic %>% mutate(treatment_effect = 0.05)
+vect_n_clusters <- #c(seq(5, 50, 5), seq(50, 500, 50))
 n_iter <- 100
 
 param_clusters <- fixed_param %>%
@@ -361,15 +376,15 @@ param_clusters <- fixed_param %>%
   crossing(rep_id = 1:n_iter) %>%
   select(-rep_id)
 
-# tic()
-# sim_clusters <- pmap_dfr(param_clusters, compute_sim_panoptic)
-# beep()
-# toc()
+tic()
+sim_clusters <- pmap_dfr(param_clusters, compute_sim_panoptic)
+beep()
+toc()
 
 # saveRDS(sim_clusters, here("Outputs/sim_clusters.RDS"))
-sim_clusters <- readRDS(here("Outputs/sim_clusters.RDS"))
+# sim_clusters <- readRDS(here("Outputs/sim_clusters.RDS"))
 
-summary_sim_clusters <- summarise_simulations(sim_clusters)
+summary_sim_clusters <- summarise_sim_panoptic(sim_clusters)
 
 summary_sim_clusters %>%
   ggplot(aes(x = n_clusters, y = bias_signif)) +

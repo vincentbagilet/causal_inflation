@@ -59,7 +59,7 @@ In the case of Event studies and DiD, the OVB/type M trade-off is  mediated by t
 
 <!-- A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks. -->
 
-### Modelisation choices
+### Modeling choices
 
 To simplify, I consider the assumptions described below. Of course these assumptions are purely arbitrary and I invite you to play with them. Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0.
 
@@ -470,7 +470,7 @@ summary_sim_DID <- summarise_sim_DID(sim_DID)
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
+```{r graph_results_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
   mutate(
     N_i = as.factor(N_i),
@@ -492,7 +492,7 @@ summary_sim_DID %>%
 
 
 
-```{r sim_p_treat, echo=FALSE}
+```{r sim_p_treat, echo=FALSE, message=FALSE}
 fixed_param <- baseline_param_DID #%>% rbind(...)
 vect_N_i <- c(100)
 vect_N_t <- c(10)

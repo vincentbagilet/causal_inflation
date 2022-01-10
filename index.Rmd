@@ -5,7 +5,7 @@ angle: 130
 site: distill::distill_website
 links:
   - label: '`r fontawesome::fa("github")` GitHub'
-    url: "https://github.com/vincentbagilet/OVB-typeM"
+    url: "https://github.com/vincentbagilet/causal_inflation"
 output:
   postcards::trestles
 ---
