@@ -135,7 +135,7 @@ generate_data_rdd <- function(N,
 
 We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_RDD`.
 
-```{r baseline_param_RDD}
+```{r baseline_param_RDD, echo=FALSE}
 baseline_param_RDD <- tibble(
   N = 1000,
   sigma_u = 0.5,
@@ -147,6 +147,8 @@ baseline_param_RDD <- tibble(
   gamma = 0.7,
   q_c = 0.5
 )
+
+baseline_param_RDD %>% kable()
 ```
 
 Here is an example of data created with our data generating process:

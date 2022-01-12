@@ -89,32 +89,32 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   <!--radix_placeholder_meta_tags-->
   <title>Unbiased but Inflated Causal Effects: Simulations IV</title>
   
-  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-01-10"/>
-  <meta property="article:created" itemprop="dateCreated" content="2022-01-10"/>
+  <meta property="article:published" itemprop="datePublished" content="2022-01-12"/>
+  <meta property="article:created" itemprop="dateCreated" content="2022-01-12"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
   <meta property="og:title" content="Unbiased but Inflated Causal Effects: Simulations IV"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
   <meta property="og:locale" content="en_US"/>
   <meta property="og:site_name" content="Unbiased but Inflated Causal Effects"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
   <meta property="twitter:title" content="Unbiased but Inflated Causal Effects: Simulations IV"/>
-  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."/>
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations IV"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-01-10"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations IV"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-01-12"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2144,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Simulations IV","description":"In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-01-10T00:00:00.000+01:00","citationText":"Bagilet & Zabrocki, 2022"}
+{"title":"Simulations IV","description":"In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-01-12T00:00:00.000+01:00","citationText":"Bagilet & Zabrocki, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2186,7 +2186,7 @@ Simulations
 <h1>Simulations IV</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>In this document, we run a simulation exercise to illustrate the existence of a trade-off between Omitted Variable Bias (OVB) and type M error in the context of an Instrumental Variable (IV) strategy.</p>
+<p>In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error.</p>
 </div>
 
 <div class="d-byline">
@@ -2194,7 +2194,7 @@ Simulations
   
 ,   Léo Zabrocki <a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a>
   
-<br/>2022-01-10
+<br/>2022-01-12
 </div>
 
 <div class="d-article">
@@ -2228,7 +2228,7 @@ text-align: justify}
 
 </div>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
-<p>In the case of the IV, the OVB/type M trade-off is mediated by the ‘strength’ of the instrument considered. When the instrument does not explain a lot of the variation in the explanatory variable, the IV can still be successful in avoiding OVB but the power can low, potentially leading to high rates of type M error.</p>
+<p>In the case of the IV, the confounding/type M trade-off is mediated by the ‘strength’ of the instrument considered. When the instrument does not explain a lot of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but the power can low, potentially leading to high rates of type M error.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
 <p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration.</p>
 <p>A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610">have been highlighted</a> in this instance but we abstract from them and simulate no exclusion restriction violations here.</p>
@@ -2254,7 +2254,7 @@ text-align: justify}
 <p>More precisely, we set:</p>
 <ul>
 <li><span class="math inline">\(N\)</span> the number of observations</li>
-<li><span class="math inline">\(Rain \sim \mathcal{N}(0, \sigma_{R}^{2})\)</span> or <span class="math inline">\(Rain \sim \text{Bernoulli}(p_R)\)</span> the instrument</li>
+<li><span class="math inline">\(Rain \sim \text{Gamma}(k, \theta)\)</span>, <span class="math inline">\(Rain \sim \mathcal{N}(0, \sigma_{R}^{2})\)</span> or <span class="math inline">\(Rain \sim \text{Bernoulli}(p_R)\)</span> the instrument</li>
 <li><span class="math inline">\(u \sim \mathcal{N}(0, \sigma_{u}^{2})\)</span> the unobserved variable</li>
 <li><span class="math inline">\(e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S}^{2})\)</span></li>
 <li><span class="math inline">\(e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T}^{2})\)</span></li>
@@ -2644,7 +2644,10 @@ text-align: justify}
 </div>
 <p>We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph:</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/bined_fstat-1.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/binned_fstat-1.png" width="85%" style="display: block; margin: auto;" /></p>
+</div>
+<div class="layout-chunk" data-layout="l-body">
+<p><img src="images/binned_fstat_facet-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <h1 id="a-basic-example">A basic example</h1>
 <p>For simplicity and for communication purposes, we considered an applied example. However, our results can also hold in general settings. We illustrate this, considering that most of the variables are distributed according to standard normal distributions. We keep the same DAG as it is the classic IV DAG. We also keep the same variable names but one should abstract from their meaning as they do not represent the same measure any longer.</p>
@@ -2666,7 +2669,7 @@ text-align: justify}
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">500</td>
+<td style="text-align: right;">250</td>
 <td style="text-align: left;">normal</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">1</td>
@@ -2674,13 +2677,14 @@ text-align: justify}
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-1</td>
+<td style="text-align: right;">-0.1</td>
 </tr>
 </tbody>
 </table>
 </div>
 <p>We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.</p>
 <div class="layout-chunk" data-layout="l-body">
+<pre><code>421.41 sec elapsed</code></pre>
 <p><img src="images/sim_simple-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <p>The results and the overall illustration are comparable with the political economy example.</p>
@@ -2690,7 +2694,7 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/fstat_bias_simple_graph-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>
