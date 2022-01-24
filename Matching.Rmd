@@ -348,9 +348,7 @@ data_simulations <- tibble(sim_id = 1:300) %>%
     ~ pmap_dfr(baseline_param_match, generate_data_matching)
   )) %>%
   # generate caliper
-  crossing(caliper = c(seq(
-    from = 1, to = 100, by = 1
-  ) / 100)) %>%
+  crossing(caliper = seq(0.01, 1, 0.01)) %>%
   # finally run the matching analysis
   mutate(results = map2(data, caliper, ~ ps_function(.x, .y)))
 
@@ -407,23 +405,9 @@ summary_sim_matching %>%
 
 The blue line indicates the inflation of all estimates, regardless of their statistical significance. As the value of the caliper increases, estimates are more biased: this is due to the fact that we are comparing units that are less similar. The yellow line represents the inflation of statistically significant estimates at the 5% level. We clearly see with this line the danger of editorial policies biased toward small $p$-values: with low values of the caliper, statistically significant estimates are inflated!
 
-```{r graph_results_matching_2, echo = FALSE}
-summary_sim_matching %>% 
-  pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
-  mutate(
-    measure = ifelse(measure == "type_m", "Significant", "All")) %>% 
-  ggplot(aes(x = caliper, y = value, color = measure)) + 
-  geom_line(size = 0.8) +
-  labs(
-    x = "Caliper", 
-    y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
-    color = "Estimates",
-    title = "Evolution of the Inflation of Estimates with the Caliper") 
-```
-
 Why statistically significant estimates are inflated with low values of the caliper? The figure below gives the answer: as the value of the caliper decreases, the sample size of the matched sample is reduced and thereby the statistical power shrinks. Only large estimates can be statistically significant but these estimates are misleading.
 
-```{r graph_results_matching_3, echo = FALSE}
+```{r graph_results_matching_power, echo = FALSE}
 summary_sim_matching %>% 
   ggplot(aes(x = caliper, y = power)) + 
   geom_line(size = 0.8) +

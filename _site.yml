@@ -11,6 +11,8 @@ navbar:
       href: index.html
     - text: "Intuition"
       href: experiments.html
+    - text: "Summary"
+      href: summary.html
     - text: "Simulations"
       menu:
         - text: "RDD"

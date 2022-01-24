@@ -1,0 +1,33 @@
+---
+title: "Plain language summary"
+description: |
+  In this paper, we show that, combined with current academic publication practices, front line empirical methods, efficient to identify how a factor causes another, may be more likely to exaggerate effect sizes.
+site: distill::distill_website
+---
+
+Empirical studies often aim to get a sense of how a factor *causes* another. For instance, one may want to evaluate the impact of a professional training program on wages. Such effects are often challenging to estimate. A simple difference between the wages of people who participated in the program or not may not reflect the actual wage increase brought by the program. For instance, it might be the case that people who participated in the program would have earned higher wages even if they did not take the training. To measure the actual magnitude of the effect of the program, researchers use a particular set of methods, causal inference methods. In this paper, we show how academic publication practices can lead these otherwise effective methods to yield incorrect effect sizes. 
+
+These methods yield, on average, the true effect. However they can be imprecise, meaning that the range of possible values for the true effect they produce can be wide. Since, studies are often only carried out once, it might be the case that, by chance, a given study would produce an effect far away from the true effect. On the other hand, we know that publication practices favor effects that are clearly different from zero, *ie* larger. 
+Combining these publication practices and this relative imprecision of causal inference methods thus creates another type of problem leading results to possibly differ from the true effect. Hence, these methods enable to avoid a first problem but are also more prone to another problem. In this paper, we show that there is a trade-off between these two problems.
+
+To do so we build simulations, generating fake data representative of real life questions. We use simulations because to evaluate how far the result of an analysis is from the true effect, one needs to know this true effect. In real life cases, the true effect is never known.
+
+Recommendations
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

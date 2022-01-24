@@ -452,14 +452,16 @@ summary_sim_rdd %>%
 
 We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.
 
-```{r}
+```{r graph_results_RDD_power}
 summary_sim_rdd %>% 
   ggplot(aes(x = bw, y = power)) + 
   geom_line(size = 0.8) +
   labs(
     x = "Bandwidth size",
     y = "Power",
-    title = "Evolution of power with bandwith size"
-  )
+    title = "Evolution of power with bandwith size",
+    caption = "Bandwidth size as a proportion of the total number of observations"
+  ) +
+  xlim(c(0,100))
 ```
 
