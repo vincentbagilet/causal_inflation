@@ -32,8 +32,9 @@ opts_chunk$set(fig.path = "images/",
                message = FALSE,
                warning = FALSE,
                out.width = "85%",
-               dpi = 200,
-               fig.align = "center")  
+               dpi = 300,
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
 ```  
 
 ```{r packages_IV, message=FALSE, warning=FALSE, include=FALSE}
@@ -271,8 +272,6 @@ data_graph_distrib %>%
 <!-- #   filter((RCT == "Yes") & (Replicated == "Replicated")) %>%  -->
 <!-- #   .$ReplicationPaperTitle -->
 <!-- ``` -->
-
-
 
 
 

@@ -1,0 +1,94 @@
+---
+title: "Addressing the power issue"
+description: "In this document, we discuss and illustrate how one could addresss power issues in their observational studies"
+author:
+  - name: Vincent Bagilet 
+    url: https://vincentbagilet.github.io/
+    affiliation: Columbia University
+    affiliation_url: https://www.columbia.edu/
+  - name: Léo Zabrocki 
+    url: https://www.parisschoolofeconomics.eu/en/
+    affiliation: Paris School of Economics
+    affiliation_url: https://www.parisschoolofeconomics.eu/en/
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+editor_options: 
+  chunk_output_type: console
+---
+
+<style>
+body {
+text-align: justify}
+</style>
+
+```{r setup_IV, include=FALSE, results='hide', warning=FALSE}
+library(knitr)
+opts_chunk$set(fig.path = "images/",
+               cache.path = "cache/",
+               cache = FALSE,
+               echo = TRUE, #set to false to hide code
+               message = FALSE,
+               warning = FALSE,
+               out.width = "85%",
+               dpi = 300,
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
+```  
+
+```{r packages_IV, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse) 
+library(knitr) 
+library(mediocrethemes)
+library(here)
+library(retrodesign)
+
+
+set_mediocre_all(pal = "coty")
+```
+
+
+## Post estimation analysis
+
+### Retrodesign
+
+```{r retrodesign_generate}
+se <- 0.2
+
+retro <- retro_design(as.list(seq(0.05, 0.4, by = 0.01)), se) %>%
+  unnest(cols = c(effect_size, power, type_s, type_m)) %>%
+  select(-type_s) %>% 
+  mutate(power = power * 100) %>%
+  rename(
+    "Statistical Power (%)" = power,
+    "Type-M Error (Exaggeration Ratio)" = type_m
+  ) %>%
+  pivot_longer(
+    cols = -c(effect_size),
+    names_to = "statistic",
+    values_to = "value"
+  )
+```
+
+
+```{r retrodesign_graph}
+retro %>% 
+  ggplot(aes(x = effect_size, y  = value)) +
+  geom_line(size = 1.1) +
+  facet_wrap( ~ statistic, scales = "free") +
+  # geom_vline(aes(xintercept = 0.4)) +
+  geom_vline(aes(xintercept = 0.22)) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 7)) +
+  labs(
+    title = "Evolution of power and type-M error with true effect size",
+    x ="Hypothetical True Effect Size",
+    y = "",
+    caption = paste("Standard error =", se)
+  )
+  
+```
+
+
+
+
