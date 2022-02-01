@@ -73,7 +73,7 @@ For simplicity, we consider several assumptions. These assumptions is not repres
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
 ```{r DAG_RDD, echo=FALSE, out.width='30%'}
-include_graphics(here("images/DAG_panoptic.png"))
+include_graphics(here("images/DAGs/DAGs.003.png"))
 ```
 
 We thus assume that the outcome $y$ for individual $i$ is defined as follows:

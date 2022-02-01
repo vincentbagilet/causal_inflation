@@ -73,7 +73,7 @@ For simplicity, we consider several assumptions. These assumptions is not repres
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
 ```{r DAG_RDD, echo=FALSE, out.width='70%'}
-include_graphics(here("images/DAG_IV.png"))
+include_graphics(here("images/DAGs/DAGs.001.png"))
 ```
 
 The DGP for the vote share of let's say the republican party in location $i$, $Share_i$, is defined as follows:

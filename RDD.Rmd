@@ -68,7 +68,7 @@ We assume that the final score of student $i$, $Final_i$, is correlated with the
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
 ```{r DAG_RDD, echo=FALSE, out.width='60%'}
-include_graphics(here("images/DAG_RDD.png"))
+include_graphics(here("images/DAGs/DAGs.002.png"))
 ```
 
 Final test scores are thus defined as follows:
