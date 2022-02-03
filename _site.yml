@@ -1,5 +1,5 @@
 name: "."
-title: "Unbiased but Inflated Causal Effects"
+title: "Unconfounded but Inflated Causal Effects"
 theme: causal_inflation_website.css
 description: |
   Causal Inflation
@@ -23,10 +23,10 @@ navbar:
           href: Matching.html
         - text: "DiD / Event study"
           href: DID.html
-        - text: "Panoptic issues"
-          href: panoptic-issues.html
+        - text: "Crosscutting issues"
+          href: crosscutting-issues.html
     - text: "Solutions"
-      href: "addressing_issues.html"
+      href: addressing_issues.html
   source_url: https://github.com/vincentbagilet/causal_inflation
   search: false
 output: distill::distill_article

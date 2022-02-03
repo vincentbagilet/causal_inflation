@@ -87,34 +87,34 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>Unbiased but Inflated Causal Effects: Simulations RDD</title>
+  <title>Unconfounded but Inflated Causal Effects: Simulations RDD</title>
   
-  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error."/>
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-01-24"/>
-  <meta property="article:created" itemprop="dateCreated" content="2022-01-24"/>
+  <meta property="article:published" itemprop="datePublished" content="2022-02-01"/>
+  <meta property="article:created" itemprop="dateCreated" content="2022-02-01"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Unbiased but Inflated Causal Effects: Simulations RDD"/>
+  <meta property="og:title" content="Unconfounded but Inflated Causal Effects: Simulations RDD"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error."/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   <meta property="og:locale" content="en_US"/>
-  <meta property="og:site_name" content="Unbiased but Inflated Causal Effects"/>
+  <meta property="og:site_name" content="Unconfounded but Inflated Causal Effects"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Unbiased but Inflated Causal Effects: Simulations RDD"/>
-  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error."/>
+  <meta property="twitter:title" content="Unconfounded but Inflated Causal Effects: Simulations RDD"/>
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations RDD"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-01-24"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations RDD"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-02-01"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2144,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Simulations RDD","description":"In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-01-24T00:00:00.000+01:00","citationText":"Bagilet & Zabrocki, 2022"}
+{"title":"Simulations RDD","description":"In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-02-01T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2152,7 +2152,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <header class="header header--fixed" role="banner">
 <nav class="distill-site-nav distill-site-header">
 <div class="nav-left">
-<a href="index.html" class="title">Unbiased but Inflated Causal Effects</a>
+<a href="index.html" class="title">Unconfounded but Inflated Causal Effects</a>
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
@@ -2169,7 +2169,7 @@ Simulations
 <a href="IV.html">IV</a>
 <a href="Matching.html">Matching</a>
 <a href="DID.html">DiD / Event study</a>
-<a href="panoptic-issues.html">Panoptic issues</a>
+<a href="crosscutting-issues.html">Crosscutting issues</a>
 </div>
 </div>
 <a href="addressing_issues.html">Solutions</a>
@@ -2188,7 +2188,7 @@ Simulations
 <h1>Simulations RDD</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may create type M error.</p>
+<p>In this document, we run a simulation exercise to illustrate how using a Regression Discontinuity Design (RDD) to avoid confounders may lead to a loss in power and inflated effect sizes.</p>
 </div>
 
 <div class="d-byline">
@@ -2196,7 +2196,7 @@ Simulations
   
 ,   Léo Zabrocki <a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a>
   
-<br/>2022-01-24
+<br/>2022-02-01
 </div>
 
 <div class="d-article">
@@ -2215,7 +2215,7 @@ Simulations
 </ul></li>
 <li><a href="#analysis-of-the-results">Analysis of the results</a><ul>
 <li><a href="#quick-exploration">Quick exploration</a></li>
-<li><a href="#computing-bias-and-type-m">Computing bias and type M</a></li>
+<li><a href="#computing-the-bias-and-exaggeration-ratio">Computing the bias and exaggeration ratio</a></li>
 <li><a href="#graph">Graph</a></li>
 </ul></li>
 </ul>
@@ -2226,7 +2226,7 @@ body {
 text-align: justify}
 </style>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
-<p>In the case of the RDD, the confounding/type M error trade-off is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of confounding is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing type M error.</p>
+<p>In the case of the RDD, the trade-offbetween avoiding confounding and inflated effect sizes due to low power issues is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of confounding is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing the exaggeration ratio.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
 <p>To illustrate this trade-off, we consider a standard application of the RD design in economics of education where a grant or additional lessons are assigned based on the score obtained by students on a standardized test. Students with test scores below a given threshold receive the treatment while those above do not. Yet, students far above and far below the threshold may differ along unobserved characteristics such as ability. To limit this bias, the effect of the treatment is estimated by comparing the outcomes of students just below and just above this threshold. This enable to limit disparities in terms of unobserved characteristics.</p>
 <p><a href="https://psycnet.apa.org/record/1962-00061-001">Thistlewaite and Campbell (1960)</a> introduced the concept of RDD using this type of quasi-experiment. In their paper, they take advantage of a sharp discontinuity in the assignment of an award (a Certificate of Merit) based on qualifying scores at a test. This type of analysis is still used today and many papers leveraging similar methodologies have been published since this seminal work. For instance, <a href="https://direct.mit.edu/rest/article/86/1/226/57489/Remedial-Education-and-Student-Achievement-A">Jacob and Lefgren (2004)</a> exploit this type of discontinuity to study the impact of summer school and grade retention programs on test scores. Students who score below a given score are required to attend a summer school and to retake the test. Students who do not pass the second have to repeat the grade.</p>
@@ -2235,7 +2235,7 @@ text-align: justify}
 <p>We assume that the final score of student <span class="math inline">\(i\)</span>, <span class="math inline">\(Final_i\)</span>, is correlated with their qualification score <span class="math inline">\(Qual_i\)</span> and their treatment status <span class="math inline">\(T_i\)</span>, <em>ie</em> whether student <span class="math inline">\(i\)</span> received additional lessons or not. We further assume that both qualification and final test scores are affected by students’ unobserved ability <span class="math inline">\(U_i\)</span> in a non linear way.</p>
 <p>The DGP can be represented using the following Directed Acyclic Graph (DAG):</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/DAG_RDD.png" width="60%" style="display: block; margin: auto;" /></p>
+<p><img src="images/DAGs/DAGs.002.png" width="60%" style="display: block; margin: auto;" /></p>
 </div>
 <p>Final test scores are thus defined as follows:</p>
 <p><span class="math display">\[Final_{i} = \alpha + \beta T_i + \gamma Qual_{i} +  \delta f(U_i) + \epsilon_{i}\]</span> Where <span class="math inline">\(\alpha\)</span> is a constant, <span class="math inline">\(f\)</span> a non linear function and <span class="math inline">\(e \sim \mathcal{N}(0, \sigma_{e})\)</span> noise. The parameter of interest is <span class="math inline">\(\beta\)</span>. Translating this into a potential outcomes framework, we have <span class="math inline">\(Final_i(0) = \alpha + \gamma Qual_{i} + \delta f(U_i) + \epsilon_{i}\)</span> and <span class="math inline">\(Final_i(1) = \alpha + \gamma Qual_{i} + \beta + \delta f(U_i) + \epsilon_{i}\)</span></p>
@@ -2344,112 +2344,112 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.6184824</td>
-<td style="text-align: right;">81.22040</td>
-<td style="text-align: right;">-4.3558763</td>
-<td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">72.88093</td>
-<td style="text-align: right;">73.88093</td>
-<td style="text-align: right;">72.88093</td>
+<td style="text-align: right;">-0.5456702</td>
+<td style="text-align: right;">73.17195</td>
+<td style="text-align: right;">-3.1348582</td>
+<td style="text-align: left;">TRUE</td>
+<td style="text-align: right;">68.38326</td>
+<td style="text-align: right;">69.38326</td>
+<td style="text-align: right;">69.38326</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.1769192</td>
-<td style="text-align: right;">65.83023</td>
-<td style="text-align: right;">2.8614875</td>
-<td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">68.97395</td>
-<td style="text-align: right;">69.97395</td>
-<td style="text-align: right;">69.97395</td>
+<td style="text-align: right;">0.4400975</td>
+<td style="text-align: right;">80.17588</td>
+<td style="text-align: right;">-1.4804655</td>
+<td style="text-align: left;">FALSE</td>
+<td style="text-align: right;">74.83633</td>
+<td style="text-align: right;">75.83633</td>
+<td style="text-align: right;">74.83633</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.7391287</td>
-<td style="text-align: right;">76.25360</td>
-<td style="text-align: right;">3.4724584</td>
+<td style="text-align: right;">-0.1428185</td>
+<td style="text-align: right;">82.02497</td>
+<td style="text-align: right;">-0.1976024</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">77.39629</td>
-<td style="text-align: right;">78.39629</td>
-<td style="text-align: right;">77.39629</td>
+<td style="text-align: right;">77.24027</td>
+<td style="text-align: right;">78.24027</td>
+<td style="text-align: right;">77.24027</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">0.2756673</td>
-<td style="text-align: right;">70.57394</td>
-<td style="text-align: right;">5.5570385</td>
+<td style="text-align: right;">-0.2798130</td>
+<td style="text-align: right;">70.95572</td>
+<td style="text-align: right;">-5.1059249</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">75.03479</td>
-<td style="text-align: right;">76.03479</td>
-<td style="text-align: right;">76.03479</td>
+<td style="text-align: right;">64.64137</td>
+<td style="text-align: right;">65.64137</td>
+<td style="text-align: right;">65.64137</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">-0.6398870</td>
-<td style="text-align: right;">76.15083</td>
-<td style="text-align: right;">-0.7083878</td>
+<td style="text-align: right;">0.6406033</td>
+<td style="text-align: right;">78.62839</td>
+<td style="text-align: right;">-4.7413954</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">73.00665</td>
-<td style="text-align: right;">74.00665</td>
-<td style="text-align: right;">73.00665</td>
+<td style="text-align: right;">70.70885</td>
+<td style="text-align: right;">71.70885</td>
+<td style="text-align: right;">70.70885</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">-0.6178104</td>
-<td style="text-align: right;">76.70284</td>
-<td style="text-align: right;">-6.4382163</td>
+<td style="text-align: right;">0.1438244</td>
+<td style="text-align: right;">80.38656</td>
+<td style="text-align: right;">-0.2610681</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">67.63546</td>
-<td style="text-align: right;">68.63546</td>
-<td style="text-align: right;">67.63546</td>
+<td style="text-align: right;">76.03021</td>
+<td style="text-align: right;">77.03021</td>
+<td style="text-align: right;">76.03021</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">0.0479340</td>
-<td style="text-align: right;">77.05372</td>
-<td style="text-align: right;">-5.4455459</td>
+<td style="text-align: right;">-0.4372243</td>
+<td style="text-align: right;">85.19550</td>
+<td style="text-align: right;">0.2361953</td>
 <td style="text-align: left;">FALSE</td>
-<td style="text-align: right;">68.49436</td>
-<td style="text-align: right;">69.49436</td>
-<td style="text-align: right;">68.49436</td>
+<td style="text-align: right;">80.06421</td>
+<td style="text-align: right;">81.06421</td>
+<td style="text-align: right;">80.06421</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">0.6020962</td>
-<td style="text-align: right;">68.27389</td>
-<td style="text-align: right;">-4.9295771</td>
+<td style="text-align: right;">0.2839872</td>
+<td style="text-align: right;">75.67171</td>
+<td style="text-align: right;">3.9280879</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">63.22467</td>
-<td style="text-align: right;">64.22467</td>
-<td style="text-align: right;">64.22467</td>
+<td style="text-align: right;">76.97894</td>
+<td style="text-align: right;">77.97894</td>
+<td style="text-align: right;">77.97894</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">-0.3604265</td>
-<td style="text-align: right;">58.65782</td>
-<td style="text-align: right;">5.6788380</td>
+<td style="text-align: right;">0.4139994</td>
+<td style="text-align: right;">70.20375</td>
+<td style="text-align: right;">-5.7673515</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">66.86922</td>
-<td style="text-align: right;">67.86922</td>
-<td style="text-align: right;">67.86922</td>
+<td style="text-align: right;">63.54667</td>
+<td style="text-align: right;">64.54667</td>
+<td style="text-align: right;">64.54667</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">-0.0249590</td>
-<td style="text-align: right;">74.55914</td>
-<td style="text-align: right;">-1.5227105</td>
+<td style="text-align: right;">0.2337442</td>
+<td style="text-align: right;">70.70327</td>
+<td style="text-align: right;">4.4485731</td>
 <td style="text-align: left;">TRUE</td>
-<td style="text-align: right;">70.66931</td>
-<td style="text-align: right;">71.66931</td>
-<td style="text-align: right;">71.66931</td>
+<td style="text-align: right;">73.99550</td>
+<td style="text-align: right;">74.99550</td>
+<td style="text-align: right;">74.99550</td>
 <td style="text-align: right;">0.5</td>
 </tr>
 </tbody>
@@ -2569,17 +2569,17 @@ text-align: justify}
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">2.471264</td>
-<td style="text-align: right;">0.1119850</td>
-<td style="text-align: right;">1.540774</td>
+<td style="text-align: right;">3.766694</td>
+<td style="text-align: right;">0.0221835</td>
+<td style="text-align: right;">1.620421</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">1</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">1.990881</td>
-<td style="text-align: right;">0.0788492</td>
-<td style="text-align: right;">1.126977</td>
+<td style="text-align: right;">3.641909</td>
+<td style="text-align: right;">0.0017021</td>
+<td style="text-align: right;">1.144697</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0.2</td>
 <td style="text-align: right;">1</td>
@@ -2639,7 +2639,7 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/result_histogram_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<h3 id="computing-bias-and-type-m">Computing bias and type M</h3>
+<h3 id="computing-the-bias-and-exaggeration-ratio">Computing the bias and exaggeration ratio</h3>
 <p>We want to compare <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]\)</span> and <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]\)</span>. The first term represents the bias and the second term represents the type M error. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">

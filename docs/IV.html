@@ -87,34 +87,34 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>Unbiased but Inflated Causal Effects: Simulations IV</title>
+  <title>Unconfounded but Inflated Causal Effects: Simulations IV</title>
   
-  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-01-24"/>
-  <meta property="article:created" itemprop="dateCreated" content="2022-01-24"/>
+  <meta property="article:published" itemprop="datePublished" content="2022-02-02"/>
+  <meta property="article:created" itemprop="dateCreated" content="2022-02-02"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Unbiased but Inflated Causal Effects: Simulations IV"/>
+  <meta property="og:title" content="Unconfounded but Inflated Causal Effects: Simulations IV"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   <meta property="og:locale" content="en_US"/>
-  <meta property="og:site_name" content="Unbiased but Inflated Causal Effects"/>
+  <meta property="og:site_name" content="Unconfounded but Inflated Causal Effects"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Unbiased but Inflated Causal Effects: Simulations IV"/>
-  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."/>
+  <meta property="twitter:title" content="Unconfounded but Inflated Causal Effects: Simulations IV"/>
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations IV"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-01-24"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations IV"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-02-02"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2144,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Simulations IV","description":"In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-01-24T00:00:00.000+01:00","citationText":"Bagilet & Zabrocki, 2022"}
+{"title":"Simulations IV","description":"In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-02-02T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2152,7 +2152,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <header class="header header--fixed" role="banner">
 <nav class="distill-site-nav distill-site-header">
 <div class="nav-left">
-<a href="index.html" class="title">Unbiased but Inflated Causal Effects</a>
+<a href="index.html" class="title">Unconfounded but Inflated Causal Effects</a>
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
@@ -2169,7 +2169,7 @@ Simulations
 <a href="IV.html">IV</a>
 <a href="Matching.html">Matching</a>
 <a href="DID.html">DiD / Event study</a>
-<a href="panoptic-issues.html">Panoptic issues</a>
+<a href="crosscutting-issues.html">Crosscutting issues</a>
 </div>
 </div>
 <a href="addressing_issues.html">Solutions</a>
@@ -2188,7 +2188,7 @@ Simulations
 <h1>Simulations IV</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error.</p>
+<p>In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes.</p>
 </div>
 
 <div class="d-byline">
@@ -2196,7 +2196,7 @@ Simulations
   
 ,   Léo Zabrocki <a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a>
   
-<br/>2022-01-24
+<br/>2022-02-02
 </div>
 
 <div class="d-article">
@@ -2230,12 +2230,12 @@ text-align: justify}
 
 </div>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
-<p>In the case of the IV, the confounding/type M trade-off is mediated by the ‘strength’ of the instrument considered. When the instrument does not explain a lot of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but the power can low, potentially leading to high rates of type M error.</p>
+<p>In the case of the IV, the confounding/type M trade-off is mediated by the ‘strength’ of the instrument considered. When the instrument only explains a limited portion of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but power can low, potentially leading to high rates of type M error.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
-<p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration.</p>
+<p>To illustrate this loss in power, we could consider a large variety of settings, distribution of the parameters or parameter values. We narrow this down to an example setting, considering only one setting and one set of parameter values. We examine an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration.</p>
 <p>A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610">have been highlighted</a> in this instance but we abstract from them and simulate no exclusion restriction violations here.</p>
 <h3 id="modeling-choices">Modeling choices</h3>
-<p>For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:</p>
+<p>For simplicity, we consider several assumptions. This illustreation is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:</p>
 <ul>
 <li>We abstract from the panel dimension in this analysis and consider only one time period. This is could be considered as looking at the outcomes of a unique election.</li>
 <li>We only consider the impact of rain on the day of the election.</li>
@@ -2244,7 +2244,7 @@ text-align: justify}
 </ul>
 <p>The DGP can be represented using the following Directed Acyclic Graph (DAG):</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/DAG_IV.png" width="70%" style="display: block; margin: auto;" /></p>
+<p><img src="images/DAGs/DAGs.001.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 <p>The DGP for the vote share of let’s say the republican party in location <span class="math inline">\(i\)</span>, <span class="math inline">\(Share_i\)</span>, is defined as follows:</p>
 <p><span class="math display">\[Share_{i} = \alpha + \beta Turnout_{i} + \delta u_{i} + e^{(S)}_{i}\]</span></p>
@@ -2313,18 +2313,31 @@ text-align: justify}
 <p>We consider that:</p>
 <ul>
 <li>turnout and vote share are expressed in percent</li>
-<li>Fujiwara et al. find that “The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points” and Gomez et al. (and thus Cooperman) find “a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout” which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout.</li>
-<li>For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1</li>
-<li>We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect</li>
+<li>Fujiwara et al. find that “The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points” and Gomez et al. (and thus Cooperman) find “a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout” which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout. For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1.3</li>
 <li>We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
 <ul>
 <li>A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is <span class="math inline">\(shape \times scale\)</span> and the variance <span class="math inline">\(shape \times scale^{2}\)</span>. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.</li>
-<li>We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14) and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (<em>eg</em> the last presidential election)</li>
+<li><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1816649">Fowler (2013)</a> for an extremely large shock in voter turnout, compulsory voting, finds “that the policy increased voter turnout by 24 percentage points which in turn increased the vote shares and seat shares of the Labor Party by 7 to 10 percentage points.” This correspond to a decrease in Republican vote share of approximately 0.3-0.4 when turnout increases by 1% (considering that his result is causal). We thus define the magnitude of the treatment effect <span class="math inline">\(\\beta\)</span> to be of this order of magnitude, even though it might be much smaller as the shock was particularly large. As underlined by Fowler, there is no consensus in the literature on the magnitude of the effect of turnout on vote share.</li>
+<li>We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14). The mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (<em>eg</em> the last presidential election)</li>
+<li>We set the standard deviation of the omitted variable bias to be of the order of magnitude of the error terms</li>
 </ul></li>
 </ul>
 <p>We thus consider the following parameters:</p>
 <div class="layout-chunk" data-layout="l-body">
 <table>
+<colgroup>
+<col style="width: 3%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 7%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 15%" />
+<col style="width: 11%" />
+<col style="width: 13%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th style="text-align: right;">N</th>
@@ -2336,6 +2349,8 @@ text-align: justify}
 <th style="text-align: right;">alpha</th>
 <th style="text-align: right;">gamma</th>
 <th style="text-align: right;">treatment_effect</th>
+<th style="text-align: right;">iv_strength</th>
+<th style="text-align: right;">ovb_intensity</th>
 </tr>
 </thead>
 <tbody>
@@ -2343,11 +2358,13 @@ text-align: justify}
 <td style="text-align: right;">500</td>
 <td style="text-align: left;">gamma</td>
 <td style="text-align: left;">0.13, 18.00</td>
-<td style="text-align: right;">2</td>
-<td style="text-align: right;">9</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">8</td>
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">112</td>
+<td style="text-align: right;">72</td>
 <td style="text-align: right;">58</td>
+<td style="text-align: right;">-0.3</td>
+<td style="text-align: right;">-0.5</td>
 <td style="text-align: right;">-1</td>
 </tr>
 </tbody>
@@ -2370,93 +2387,93 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.0000356</td>
-<td style="text-align: right;">0.1778264</td>
-<td style="text-align: right;">2.468880</td>
-<td style="text-align: right;">9.484628</td>
-<td style="text-align: right;">67.66244</td>
-<td style="text-align: right;">46.62862</td>
+<td style="text-align: right;">6.7771225</td>
+<td style="text-align: right;">-4.147714</td>
+<td style="text-align: right;">-4.6133280</td>
+<td style="text-align: right;">-2.5135066</td>
+<td style="text-align: right;">47.95022</td>
+<td style="text-align: right;">57.14932</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.0020568</td>
-<td style="text-align: right;">5.4261525</td>
-<td style="text-align: right;">2.633470</td>
-<td style="text-align: right;">-1.502734</td>
-<td style="text-align: right;">61.92239</td>
-<td style="text-align: right;">47.28493</td>
+<td style="text-align: right;">0.0000000</td>
+<td style="text-align: right;">10.485447</td>
+<td style="text-align: right;">-5.9769537</td>
+<td style="text-align: right;">4.3790471</td>
+<td style="text-align: right;">72.86449</td>
+<td style="text-align: right;">33.67825</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.0111119</td>
-<td style="text-align: right;">-4.5789390</td>
-<td style="text-align: right;">3.041930</td>
-<td style="text-align: right;">-3.183787</td>
-<td style="text-align: right;">50.23172</td>
-<td style="text-align: right;">69.38915</td>
+<td style="text-align: right;">0.1124958</td>
+<td style="text-align: right;">1.031289</td>
+<td style="text-align: right;">-1.7092145</td>
+<td style="text-align: right;">-5.4382494</td>
+<td style="text-align: right;">53.53679</td>
+<td style="text-align: right;">53.19846</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">11.3806220</td>
-<td style="text-align: right;">2.1706406</td>
-<td style="text-align: right;">3.338365</td>
-<td style="text-align: right;">3.755300</td>
-<td style="text-align: right;">58.23563</td>
-<td style="text-align: right;">54.93210</td>
+<td style="text-align: right;">0.1591304</td>
+<td style="text-align: right;">8.790945</td>
+<td style="text-align: right;">-8.0025135</td>
+<td style="text-align: right;">-15.7371158</td>
+<td style="text-align: right;">50.97426</td>
+<td style="text-align: right;">39.91426</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.0033441</td>
-<td style="text-align: right;">0.2817406</td>
-<td style="text-align: right;">-2.092464</td>
-<td style="text-align: right;">9.164472</td>
-<td style="text-align: right;">67.44454</td>
-<td style="text-align: right;">42.18125</td>
+<td style="text-align: right;">4.9919642</td>
+<td style="text-align: right;">15.773760</td>
+<td style="text-align: right;">-0.2328604</td>
+<td style="text-align: right;">-0.1207728</td>
+<td style="text-align: right;">71.15700</td>
+<td style="text-align: right;">34.64628</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">0.0000001</td>
-<td style="text-align: right;">1.0723378</td>
-<td style="text-align: right;">-9.724307</td>
-<td style="text-align: right;">7.522362</td>
-<td style="text-align: right;">66.59470</td>
-<td style="text-align: right;">34.60866</td>
+<td style="text-align: right;">0.9388180</td>
+<td style="text-align: right;">-8.183870</td>
+<td style="text-align: right;">1.5176186</td>
+<td style="text-align: right;">6.0073143</td>
+<td style="text-align: right;">55.35404</td>
+<td style="text-align: right;">65.09528</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">5.6924024</td>
-<td style="text-align: right;">-0.1687575</td>
-<td style="text-align: right;">1.717059</td>
-<td style="text-align: right;">15.021074</td>
-<td style="text-align: right;">70.00611</td>
-<td style="text-align: right;">43.87970</td>
+<td style="text-align: right;">7.2001364</td>
+<td style="text-align: right;">-4.688143</td>
+<td style="text-align: right;">9.8491618</td>
+<td style="text-align: right;">-2.4478540</td>
+<td style="text-align: right;">47.26393</td>
+<td style="text-align: right;">72.35812</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">0.6968785</td>
-<td style="text-align: right;">2.3940394</td>
-<td style="text-align: right;">1.094538</td>
-<td style="text-align: right;">15.637214</td>
-<td style="text-align: right;">75.68281</td>
-<td style="text-align: right;">35.01768</td>
+<td style="text-align: right;">0.0000325</td>
+<td style="text-align: right;">2.452860</td>
+<td style="text-align: right;">-4.1686846</td>
+<td style="text-align: right;">8.0239508</td>
+<td style="text-align: right;">68.47679</td>
+<td style="text-align: right;">44.83542</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">9</td>
-<td style="text-align: right;">0.0023225</td>
-<td style="text-align: right;">-0.6255069</td>
-<td style="text-align: right;">6.719902</td>
-<td style="text-align: right;">-1.578709</td>
-<td style="text-align: right;">55.79462</td>
-<td style="text-align: right;">63.55079</td>
+<td style="text-align: right;">0.0000000</td>
+<td style="text-align: right;">-8.494982</td>
+<td style="text-align: right;">-11.4417191</td>
+<td style="text-align: right;">8.9410128</td>
+<td style="text-align: right;">58.44603</td>
+<td style="text-align: right;">51.51945</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">10</td>
-<td style="text-align: right;">0.0072424</td>
-<td style="text-align: right;">-1.1992162</td>
-<td style="text-align: right;">-2.275293</td>
-<td style="text-align: right;">-2.560434</td>
-<td style="text-align: right;">54.23673</td>
-<td style="text-align: right;">56.68719</td>
+<td style="text-align: right;">0.0000111</td>
+<td style="text-align: right;">-6.864345</td>
+<td style="text-align: right;">-13.0400741</td>
+<td style="text-align: right;">-10.6950945</td>
+<td style="text-align: right;">40.44056</td>
+<td style="text-align: right;">53.69210</td>
 </tr>
 </tbody>
 </table>
@@ -2480,15 +2497,15 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Mean</td>
-<td style="text-align: right;">55.08780</td>
-<td style="text-align: right;">56.71861</td>
-<td style="text-align: right;">2.342058</td>
+<td style="text-align: right;">55.04788</td>
+<td style="text-align: right;">56.72839</td>
+<td style="text-align: right;">2.288668</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Standard Deviation</td>
-<td style="text-align: right;">14.35317</td>
-<td style="text-align: right;">10.69820</td>
-<td style="text-align: right;">6.483874</td>
+<td style="text-align: right;">13.39264</td>
+<td style="text-align: right;">13.21612</td>
+<td style="text-align: right;">6.239649</td>
 </tr>
 </tbody>
 </table>
@@ -2686,17 +2703,16 @@ text-align: justify}
 </div>
 <p>We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.</p>
 <div class="layout-chunk" data-layout="l-body">
-<pre><code>314.912 sec elapsed</code></pre>
-<p><img src="images/sim_simple-1.png" width="85%" style="display: block; margin: auto;" /></p>
+
 </div>
 <p>The results and the overall illustration are comparable with the political economy example.</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/bined_fstat_simple-1.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/bined_fstat_simple-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/bined_fstat_simple-2.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/fstat_bias_simple_graph-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
 <!--/radix_placeholder_article_footer-->
 </div>

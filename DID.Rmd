@@ -493,7 +493,7 @@ summary_sim_DID %>%
 
 
 
-```{r sim_p_treat, echo=FALSE, message=FALSE}
+```{r sim_p_treat, echo=FALSE, message=FALSE, eval=FALSE}
 fixed_param <- baseline_param_DID #%>% rbind(...)
 vect_N_i <- c(100)
 vect_N_t <- c(10)

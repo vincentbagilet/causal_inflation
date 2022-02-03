@@ -1,6 +1,6 @@
 ---
 title: "Simulations IV"
-description: "In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may create type M error."
+description: "In this document, we run a simulation exercise to illustrate how using an Instrumental Variable (IV) strategy to avoid confounders may lead to a loss in power and inflated effect sizes."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/
@@ -53,17 +53,17 @@ set_mediocre_all(pal = "coty")
 
 ## Summary and intuition
 
-In the case of the IV, the confounding/type M trade-off is  mediated by the 'strength' of the instrument considered. When the instrument does not explain a lot of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but the power can low, potentially leading to high rates of type M error. 
+In the case of the IV, the confounding/type M trade-off is  mediated by the 'strength' of the instrument considered. When the instrument only explains a limited portion of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but power can low, potentially leading to high rates of type M error. 
 
 ## An illustrative example
 
-For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could consider  a large variety of distribution parameter for the variables. We narrow this down to an example setting, considering an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration. 
+To illustrate this loss in power, we could consider a large variety of settings, distribution of the parameters or parameter values. We narrow this down to an example setting, considering only one setting and one set of parameter values. We examine an analysis of the impact of voter turnout on election results, instrumenting voter turnout with rainfall on the day of the election. Our point should stand in more general settings and the choice of values is mostly for illustration. 
 
 A threat of confounders often arises when analyzing the link between voter turnout and election results. To estimate such an effect causally, one can consider exogeneous shocks to voter turnout such as rainfall. Some potential exclusion restriction problems [have been highlighted](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3715610) in this instance but we abstract from them and simulate no exclusion restriction violations here.
 
 ### Modeling choices
 
-For simplicity, we consider several assumptions. These assumptions is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
+For simplicity, we consider several assumptions. This illustreation is not representative of the existing literature but the objective is only to calibrate our simulation with somehow realistic parameter values. Again, this illustration is very simplistic. The high level assumptions are:
 
 - We abstract from the panel dimension in this analysis and consider only one time period. This is could be considered as looking at the outcomes of a unique election.
 - We only consider the impact of rain on the day of the election.
@@ -161,12 +161,12 @@ who replicates a work by
 We consider that:
 
 - turnout and vote share are expressed in percent 
-- Fujiwara et al. find that "The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points" and Gomez et al. (and thus Cooperman) find "a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout" which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout.
-- For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1
-- We set the standard deviation of the omitted variable bias to be of the order of magnitude of the treatment effect
+- Fujiwara et al. find that "The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points" and Gomez et al. (and thus Cooperman) find "a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout" which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout. For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1.3
 - We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
   - A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is $shape \times scale$ and the variance $shape \times scale^{2}$. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.
-  - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14) and mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
+  - [Fowler (2013)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1816649) for an extremely large shock in voter turnout, compulsory voting, finds "that the policy increased voter turnout by 24 percentage points which in turn increased the vote shares and seat shares of the Labor Party by 7 to 10 percentage points." This correspond to a decrease in Republican vote share of approximately 0.3-0.4 when turnout increases by 1% (considering that his result is causal). We thus define the magnitude of the treatment effect $\\beta$ to be of this order of magnitude, even though it might be much smaller as the shock was particularly large. As underlined by Fowler, there is no consensus in the literature on the magnitude of the effect of turnout on vote share.
+  - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14). The mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
+  - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the error terms
 
 We thus consider the following parameters:
 
@@ -177,12 +177,14 @@ baseline_param_IV <- tibble(
   # param_rain = 0.4,
   type_rain = "gamma",
   param_rain = list(c(0.13, 18)),
-  sigma_u = 2,
-  sigma_es = 9,
+  sigma_u = 8,
+  sigma_es = 8,
   sigma_et = 10,
-  alpha = 112,
+  alpha = 72,
   gamma = 58,
-  treatment_effect = -1
+  treatment_effect = -0.3,
+  iv_strength = -0.5, 
+  ovb_intensity = -1
 )
 
 baseline_param_IV %>% kable()
@@ -192,7 +194,7 @@ Here is an example of data created with our data generating process:
 
 ```{r example_data_IV, echo=FALSE}
 baseline_param_IV %>% 
-  mutate(N = 10, iv_strength = -0.5, ovb_intensity = -1) %>% 
+  mutate(N = 10) %>% 
   pmap_dfr(generate_data_IV) %>% #use pmap to pass the set of parameters
   kable()
 ```
@@ -203,7 +205,7 @@ We just quickly explore the distribution of the data for a baseline set of param
 
 ```{r explore_data_IV, echo=FALSE}
 ex_data <- baseline_param_IV %>% 
-  mutate(N = 10000, iv_strength = -0.5, ovb_intensity = -1) %>% 
+  mutate(N = 10000) %>% 
   pmap_dfr(generate_data_IV) 
 
 ex_data %>% 
@@ -347,12 +349,13 @@ We will run the simulations for different sets of parameters by mapping our `com
 
 ```{r set_param_IV, echo=FALSE}
 fixed_parameters <- baseline_param_IV #%>% rbind(...)
-vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
+vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.8, 0.1))
 # vect_iv_strength <- c(0.1)
 vect_ovb_intensity <- c(-1)
 n_iter <- 1000
 
 param_IV <- fixed_parameters %>% 
+  select(-iv_strength, -ovb_intensity) %>% 
   crossing(vect_iv_strength, vect_ovb_intensity) %>% 
   rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
   crossing(rep_id = 1:n_iter) %>% 
@@ -380,12 +383,12 @@ First, we quickly explore the results.
 sim_IV <- readRDS(here("Outputs/sim_IV.RDS"))
 
 sim_IV %>% 
-  filter(between(estimate, -2, 0)) %>%
+  filter(between(estimate, -1.5, 0.5)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
-  geom_vline(xintercept = -1) +
+  geom_vline(xintercept = unique(sim_IV$true_effect)) +
   geom_density() +
   facet_wrap(~ iv_strength) +
   labs(
@@ -399,7 +402,7 @@ sim_IV %>%
   )
 
 sim_IV %>%
-  filter(between(estimate, -3, 1)) %>%
+  filter(between(estimate, -2.5, 1.5)) %>%
   filter(model == "IV") %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
   ggplot() +
@@ -410,6 +413,7 @@ sim_IV %>%
     color = as.factor(iv_strength)),
     alpha = 0
   ) +
+  geom_vline(xintercept = unique(sim_IV$true_effect)) +
   labs(
     title = "Distribution of the estimates of the treatment effect",
     subtitle = "Comparison across IV strengths",
@@ -417,7 +421,8 @@ sim_IV %>%
     fill = "IV strength",
     x = "Estimate of the treatment effect",
     y = "Density",
-    caption = "For readibility, extreme estimates are filtered out"
+    caption = "For readibility, extreme estimates are filtered out
+    The vertical line represents the true effect"
   )
 
 data_one_sim_IV <- sim_IV %>% 
@@ -428,7 +433,7 @@ data_one_sim_IV <- sim_IV %>%
 
 data_one_sim_IV %>% 
   ggplot(aes(x = estimate, fill = significant)) +
-  geom_vline(xintercept = -1) +
+  geom_vline(xintercept = unique(sim_IV$true_effect)) +
   geom_histogram() +
   facet_wrap(~ model) +
   labs(
@@ -442,7 +447,8 @@ data_one_sim_IV %>%
     x = "Estimate of the treatment effect",
     y = "Count",
     fill = "",
-    caption = "The sample is restricted to estimates relatively close to the true value"
+    caption = "The sample is restricted to estimates relatively close to the true value
+    The vertical line represents the true effect"
   )
 ```
 
@@ -452,12 +458,12 @@ We notice that the OLS is always biased and that the IV is never biased. However
 ```{r distrib_for_presentation, eval=TRUE, include=FALSE}
 #Graph only for presentations, not compiled in the main .Rmd
 sim_IV %>% 
-  # filter(between(estimate, 0.5, 1.7)) %>%
+  filter(between(estimate, -1.3, 0.5)) %>%
   filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength == 0.4) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
-  geom_vline(xintercept = -1) +
+  geom_vline(xintercept = unique(sim_IV$true_effect)) +
   geom_density() +
   # facet_wrap(~ iv_strength) +
   labs(
@@ -675,8 +681,8 @@ sim_IV %>%
   ungroup() %>% 
   ggplot(aes(x = bin_fstat, y = bias_signif)) +
   geom_line(linetype = "dashed") +
-  geom_vline(xintercept = 10) +
-  xlim(c(0, 50)) +
+  geom_vline(xintercept = 10, linetype ="solid") +
+  xlim(c(0, 40)) +
   labs(
     x = "Binned F-statistic", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
@@ -684,11 +690,11 @@ sim_IV %>%
     title = "Evolution of bias with binned F-statistic",
     subtitle = "For statistically significant estimates",
     caption = "This graph does not acurately represent 
-    what wwe are interested in"
+    what we are interested in"
   ) 
 ```
 
-```{r binned_fstat_facet, echo=FALSE, fig.asp=0.8}
+```{r binned_fstat_facet, echo=FALSE, fig.asp=0.8, include=FALSE}
 sim_IV %>% 
   filter(model == "IV") %>%
   mutate(
@@ -749,7 +755,7 @@ simple_param_IV %>% kable()
 
 We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.
 
-```{r sim_simple, echo=FALSE}
+```{r sim_simple, echo=FALSE, eval=FALSE}
 fixed_parameters <- simple_param_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
 # vect_iv_strength <- c(0.1)
@@ -766,9 +772,13 @@ tic()
 sim_IV_simple <- pmap_dfr(param_IV_simple, compute_sim_IV)
 beep()
 toc()
+# saveRDS(sim_IV_simple, here("Outputs/sim_IV_simple.RDS"))
+```
 
-saveRDS(sim_IV_simple, here("Outputs/sim_IV_simple.RDS"))
-# sim_IV_simple <- readRDS(here("Outputs/sim_IV_simple.RDS"))
+The results and the overall illustration are comparable with the political economy example.
+
+```{r bined_fstat_simple, echo=FALSE, fig.asp=0.8}
+sim_IV_simple <- readRDS(here("Outputs/sim_IV_simple.RDS"))
 
 sim_IV_simple %>% 
   summarise_simulations() %>% 
@@ -787,11 +797,7 @@ sim_IV_simple %>%
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"
   ) 
-```
 
-The results and the overall illustration are comparable with the political economy example.
-
-```{r bined_fstat_simple, echo=FALSE, fig.asp=0.8}
 sim_IV_simple %>% 
   filter(model == "IV") %>%
   mutate(
