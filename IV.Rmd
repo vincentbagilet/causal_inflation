@@ -172,7 +172,7 @@ We thus consider the following parameters:
 
 ```{r simple_param_IV, echo=FALSE}
 baseline_param_IV <- tibble(
-  N = 500,
+  N = 1000,
   # type_rain = "bernoulli",
   # param_rain = 0.4,
   type_rain = "gamma",
