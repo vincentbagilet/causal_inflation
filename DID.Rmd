@@ -493,7 +493,7 @@ summary_sim_DID %>%
 
 
 
-```{r sim_p_treat, echo=FALSE, message=FALSE, eval=FALSE}
+```{r sim_p_treat, echo=FALSE, message=FALSE}
 fixed_param <- baseline_param_DID #%>% rbind(...)
 vect_N_i <- c(100)
 vect_N_t <- c(10)
@@ -508,13 +508,13 @@ param_DID_p_treat <- fixed_param %>%
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
 
-tic()
-sim_DID_p_treat <- pmap_dfr(param_DID_p_treat, compute_sim_DID)
-beep()
-toc()
+# tic()
+# sim_DID_p_treat <- pmap_dfr(param_DID_p_treat, compute_sim_DID)
+# beep()
+# toc()
 
 # saveRDS(sim_DID_p_treat, here("Outputs/sim_DID_p_treat.RDS"))
-# sim_DID_p_treat <- readRDS(here("Outputs/sim_DID_p_treat.RDS"))
+sim_DID_p_treat <- readRDS(here("Outputs/sim_DID_p_treat.RDS"))
 
 sim_DID_p_treat %>% 
   filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
@@ -524,13 +524,14 @@ sim_DID_p_treat %>%
 
 sim_DID_p_treat %>% 
   summarise_sim_DID() %>% 
-  ggplot(aes(x = p_treat, y = bias_signif)) + 
+  mutate(n_treated = p_treat*N_i*N_t) %>% 
+  ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
   geom_line(size = 0.8) +
   labs(
-    x = "Proportion of units treated", 
+    x = "Number of treated observations", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
-    title = "Evolution of bias with the proportion of units treated",
+    title = "Evolution of bias with the number of treated observations",
     subtitle = "For statistically significant estimates, 100 individuals on 10 periods"
   ) 
 ```

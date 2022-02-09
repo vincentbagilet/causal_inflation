@@ -87,7 +87,8 @@ retro_camerer %>%
     title = "Distribution of the exaggeration ratio in the original studies",
     subtitle = "If the true effect was equal to the replicated one",
     x = "Exaggeration ratio (log scale)",
-    y = "Number of studies"
+    y = "Number of studies",
+    caption = "Each dot represents one study"
   ) + 
   scale_x_log10() +
   scale_y_continuous(NULL, breaks = NULL) 
@@ -99,7 +100,8 @@ retro_camerer %>%
     title = "Distribution of the power in the original studies",
     subtitle = "If the true effect was equal to the replicated one",
     x = "Power (%)",
-    y = "Number of studies"
+    y = "Number of studies",
+    caption = "Each dot represents one study"
   ) +
   scale_y_continuous(NULL, breaks = NULL) 
 # 
