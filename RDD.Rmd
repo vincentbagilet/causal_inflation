@@ -82,7 +82,8 @@ dagify(Final ~ U + T + Qual,
   geom_dag_edges(edge_colour = mediocrethemes::colors_table$base[6]) +
   geom_dag_text(
     colour = mediocrethemes::colors_table$base[6], 
-    size = 6
+    size = 6,
+    family = "Lora"
   ) +
   theme_void()
 ```
@@ -422,9 +423,9 @@ sim_rdd %>%
 ```
 
 
-### Computing the bias and exaggeration ratio
+### Computing bias and exaggeration ratio
 
-We want to compare $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]$ and $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]$. The first term represents the bias and the second term represents the type M error. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]$ and $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]$. The first term represents the bias and the second term represents the exaggeration ratio. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
 ```{r summarise_RDD}
 summarise_simulations <- function(data) {

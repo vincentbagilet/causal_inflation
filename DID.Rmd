@@ -90,8 +90,8 @@ We consider an AR(1) process along each dimension. Thus, birthweight is defined 
 
 To simplify, we consider the following additional assumptions:
 
-- The treatment is constant in time and homogeneous across individuals
-- A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. we draw these zip codes at random. Note that the value of the zip code identifiers do not matter here. So we could assume that the non-treated individuals are those with the larger zip codes identifiers for instance,
+- The treatment is constant in time and homogeneous across zip codes
+- A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. we draw these zip codes at random. Note that the value of the zip code identifiers do not matter here. So we could assume that the non-treated zip codes are those with the larger zip codes identifiers for instance,
 - The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyse the non staggered version.
 
 More precisely, we set: 
@@ -103,7 +103,8 @@ More precisely, we set:
 - $\epsilon_{zt} \sim \mathcal{N}(0, \sigma_{\epsilon}^{2})$ some noise,
 - $T_{zt}$ represent the treatment allocation, it is equal to 1 if zip code $z$ is treated at time $t$ and 0 otherwise,
 - $w_{z,t} = \alpha + \beta T_{z, t} + \zeta_z + \tau_t + \epsilon_{z,t}$ where $\alpha$ is a constant,
-- $\beta$ is represents the magnitude of the treatment. 
+- $\beta$ is represents the magnitude of the treatment,
+- We define `staggered` as a logical variable.
 
 We also create a bunch of variables that can be useful:
 
@@ -116,48 +117,32 @@ We also create a bunch of variables that can be useful:
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
-```{r DGP}
-generate_data_DID <- function(N_i,
+```{r DGP_DID}
+generate_data_DID <- function(N_z,
                               N_t,
                               sigma_e,
                               p_treat,
                               staggered,
-                              het_indiv,
-                              het_time,
                               alpha,
                               beta,
-                              mu_indiv_fe = 0, 
-                              sigma_indiv_fe = 0,
+                              mu_zip_fe = 0, 
+                              sigma_zip_fe = 0,
                               mu_time_fe = 0, 
-                              sigma_time_fe = 0,
-                              mu_x = 0, 
-                              sigma_x = 0,
-                              gamma = 0
+                              sigma_time_fe = 0
                              ) {
-
-  if (!is.logical(staggered)) {stop("staggered must be logical")} 
-  if (!(het_indiv %in% c("large_first", "random", "homogeneous"))) {
-    stop('het_indiv must be either "large_first", "random" or "homogeneous"')
-  } 
-  if (!(het_time %in% c("constant", "linear"))) {
-    stop('het_time must be either "constant" or "linear"')
-  } 
   
-  data <- tibble(indiv = 1:N_i) %>%
-    mutate(in_treatment = (indiv %in% sample(1:N_i, floor(N_i*p_treat)))) %>% 
+  if (!is.logical(staggered)) {stop("staggered must be logical")} 
+  
+  data <- tibble(zip = 1:N_z) %>%
+    mutate(in_treatment = (zip %in% sample(1:N_z, floor(N_z*p_treat)))) %>% 
     crossing(t = 1:N_t) %>%
-    group_by(indiv) %>%
+    group_by(zip) %>%
     mutate(
-      indiv_fe = rnorm(1, mu_indiv_fe, sigma_indiv_fe),
+      zip_fe = rnorm(1, mu_zip_fe, sigma_zip_fe),
       t_event = ifelse(staggered, sample(2:(N_t - 1), 1), floor(N_t/2)), 
-        #I use 2:(N_t-1) to have a pre and post period
+        #We use 2:(N_t-1) to aalways have a pre and post period
       t_event = ifelse(in_treatment, t_event, NA),
-      beta_i = case_when(
-        het_indiv == "large_first" ~ N_t-t_event,
-        het_indiv == "random" ~ runif(1, beta*0.5, beta*1.5), 
-        het_indiv == "homogeneous" ~ beta
-      ),
-      beta_i = ifelse(is.na(t_event), 0, beta_i)
+      beta = ifelse(is.na(t_event), 0, beta)
     ) %>%
     ungroup() %>%
     group_by(t) %>%
@@ -166,134 +151,73 @@ generate_data_DID <- function(N_i,
     mutate(
       post = (t > t_event),
       treated = in_treatment & post, 
-      beta_i = ifelse(
-        het_time == "linear" & post & !is.na(t_event),
-        beta_i*(t - t_event), 
-        beta_i
-      ),
       t_centered = t - t_event,
-      x = rnorm(nrow(.), mu_x, sigma_x),
       e = rnorm(nrow(.), 0, sigma_e),
-      y0 = alpha + gamma * x + indiv_fe + time_fe + e,
-      y1 = y0 + beta_i,
-      y = treated*y1 + (1 - treated)*y0
+      birthweight0 = alpha + zip_fe + time_fe + e,
+      birthweight1 = birthweight0 + beta,
+      birthweight = treated*birthweight1 + (1 - treated)*birthweight0
     )
   
   return(data)
 }
 ```
 
-I set baseline values for the parameters as very standard. These values are arbitrary.
+We set baseline values for the parameters as very standard. These values are arbitrary.
 
-```{r baseline_param}
+```{r baseline_param_DID, echo=FALSE}
 baseline_param_DID <- tibble(
-  N_i = 20,
+  N_z = 20,
   N_t = 50,
   sigma_e = 1,
   p_treat = 0.5,
   staggered = FALSE,
-  het_indiv = "homogeneous",
-  het_time = "constant",
   alpha = 1,
   beta = 1,
-  mu_indiv_fe = 1, 
-  sigma_indiv_fe = 1,
+  mu_zip_fe = 1, 
+  sigma_zip_fe = 1,
   mu_time_fe = 4, 
   sigma_time_fe = 4
 )
+
+baseline_param_RDD %>% kable()
 ```
 
-Here is an example of data created with the data generating process and baseline parameter values, for 2 individuals and 8 time periods:
+Here is an example of data created with the data generating process and baseline parameter values, for 2 zip codes and 8 time periods:
 
-```{r example_data, echo=FALSE}
+```{r example_data_DID, echo=FALSE}
 baseline_param_DID %>% 
-  mutate(N_i = 2, N_t = 8) %>%
+  mutate(N_z = 2, N_t = 8) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
-  # select(indiv, t, y, in_treatment, post, treated, t_centered, e) %>% 
   kable()
 ```
 
-Let's now have a look at different types of treatment and treatment allocations. First, let's look at treatment allocation mechanisms. The allocation can either be staggered or not, the treatment homogeneous across individual or not and cconstant or not in time.
+Treatment allocations, in the staggered and non staggered case are as follows:
 
 ```{r treatment_allocation_DID, echo=FALSE}
 labs_graph_staggered <- labs(
-    title = "Treatment assignment across time and individuals",
+    title = "Treatment assignment across time and zip codes",
     x = "Time index", 
-    y = "Individual id", 
+    y = "Zip code id", 
     fill = "Treated"
   )
 
 baseline_param_DID %>% 
-  mutate(staggered = FALSE) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
-  ggplot(aes(x = t, y = factor(indiv), fill = factor(treated))) + 
+  ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) + 
   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
   coord_fixed() +
   labs_graph_staggered + 
   labs(subtitle = "Non staggered")
 
-# baseline_param_DID %>% 
-#   mutate(staggered = TRUE) %>%
-#   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
-#   ggplot(aes(x = t, y = factor(indiv), fill = factor(treated))) + 
-#   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
-#   coord_fixed() +
-#   labs_graph_staggered + 
-#   labs(subtitle = "Staggered")
+baseline_param_DID %>%
+  mutate(staggered = TRUE) %>%
+  pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
+  ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) +
+  geom_tile(color = "white", lwd = 0.3, linetype = 1) +
+  coord_fixed() +
+  labs_graph_staggered +
+  labs(subtitle = "Staggered")
 ```
-
-<!-- Now, let's vary treatment effect size across individuals, considering a staggered adoption. -->
-
-<!-- ```{r treatment_effect_DID, echo=FALSE} -->
-<!-- labs_graph_size <- labs( -->
-<!--     title = "Treatment effect size across time and individuals", -->
-<!--     x = "Time index",  -->
-<!--     y = "Individual id",  -->
-<!--     fill = "Treatment effect size" -->
-<!--   ) -->
-
-<!-- baseline_param_DID %>%  -->
-<!--   mutate(het_indiv = "homogeneous", het_time = "constant") %>% -->
-<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
-<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
-<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
-<!--   coord_fixed() + -->
-<!--   labs_graph_size +  -->
-<!--   labs(subtitle = "Homogeneous treatment effect across individuals, constant in time") -->
-
-<!-- baseline_param_DID %>%  -->
-<!--   mutate(het_indiv = "random", het_time = "constant") %>% -->
-<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
-<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
-<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
-<!--   coord_fixed() + -->
-<!--   labs_graph_size +  -->
-<!--   labs(subtitle = "Random treatment effect size across individuals, constant in time") -->
-
-<!-- baseline_param_DID %>%  -->
-<!--   mutate(het_indiv = "large_first", het_time = "constant") %>% -->
-<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
-<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) +  -->
-<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
-<!--   coord_fixed() + -->
-<!--   labs_graph_size +  -->
-<!--   labs(subtitle = "First treated have larger treatment effect, constant in time") -->
-<!-- ``` -->
-
-<!-- A last thing we can vary is that we can make individual effects increase linearly in time. -->
-
-<!-- ```{r treatment_time_DID, echo=FALSE} -->
-<!-- baseline_param_DID %>%  -->
-<!--   mutate(het_indiv = "homogeneous", het_time = "linear") %>% -->
-<!--   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters -->
-<!--   ggplot(aes(x = t, y = factor(indiv), fill = round(treated*beta_i, 2))) + #treated*beta_i -->
-<!--   geom_tile(color = "white", lwd = 0.3, linetype = 1) + -->
-<!--   coord_fixed() + -->
-<!--   labs_graph_size + -->
-<!--   labs(subtitle = "Treatment effect increasing linearly in time") -->
-<!-- ``` -->
-
-<!-- One can now play with this function to generate their own data and run their own analyses. In the following sections, I try to run my own analyses. -->
 
 ### Estimation
 
@@ -303,7 +227,7 @@ After generating the data, we can run an estimation.
 estimate_DID <- function(data) {
   reg <- data %>% 
     mutate(
-      indiv = as.factor(indiv),
+      zip = as.factor(zip),
       t = as.factor(t),
       treated = as.numeric(treated),
       in_treatment = as.numeric(in_treatment),
@@ -311,7 +235,7 @@ estimate_DID <- function(data) {
     ) %>% 
     feols(
       data = ., 
-      fml = y ~ treated | indiv + t
+      fml = birthweight ~ treated | zip + t
     ) %>% 
     broom::tidy() %>% 
     rename(p_value = p.value, se = std.error) %>% 
@@ -333,57 +257,49 @@ baseline_param_DID %>%
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_DID` and `estimate_DID`. To do so we create the function `compute_sim_DID`. This simple function takes as input the various parameters. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect, the IV strength and the intensity of the OVB considered (ovb_intensity). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results. 
 
 ```{r compute_true_effect_DID}
 compute_true_effect_DID <- function(data) {
   data %>% 
     filter(treated) %>% 
-    summarise(true_effect = mean(y1 - y0)) %>% 
+    summarise(true_effect = mean(birthweight1 - birthweight0)) %>% 
     .$true_effect
 }  
 ```
 
+We can now run a simulation, combining `generate_data_DID` and `estimate_DID`. To do so we create the function `compute_sim_DID`. This simple function takes as input the various parameters. It returns a table with the estimate of the treatment, its p-value and standard error, the true effect, the proportion of treated units and whether the treatment was staggered or not. Note that for now, we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+
 ```{r compute_sim_DID}
-compute_sim_DID <- function(N_i,
+compute_sim_DID <- function(N_z,
                                     N_t,
                                     sigma_e,
                                     p_treat,
                                     staggered,
-                                    het_indiv,
-                                    het_time,
                                     alpha,
                                     beta,
-                                    mu_indiv_fe = 0,
-                                    sigma_indiv_fe = 0,
+                                    mu_zip_fe = 0,
+                                    sigma_zip_fe = 0,
                                     mu_time_fe = 0,
-                                    sigma_time_fe = 0,
-                                    mu_x = 0,
-                                    sigma_x = 0,
-                                    gamma = 0) {
+                                    sigma_time_fe = 0) {
   data <- generate_data_DID(
-    N_i = N_i,
+    N_z = N_z,
     N_t = N_t,
     sigma_e = sigma_e,
     p_treat = p_treat,
     staggered = staggered,
-    het_indiv = het_indiv,
-    het_time = het_time,
     alpha = alpha,
     beta = beta,
-    mu_indiv_fe = mu_indiv_fe,
-    sigma_indiv_fe = sigma_indiv_fe,
+    mu_zip_fe = mu_zip_fe,
+    sigma_zip_fe = sigma_zip_fe,
     mu_time_fe = mu_time_fe,
-    sigma_time_fe = sigma_time_fe,
-    mu_x = mu_x,
-    sigma_x = sigma_x,
-    gamma = gamma
+    sigma_time_fe = sigma_time_fe
   ) 
   
   data %>%
     estimate_DID() %>% 
     mutate(
-      N_i = N_i,
+      N_z = N_z,
       N_t = N_t,
       p_treat = p_treat,
       true_effect = compute_true_effect_DID(data)
@@ -401,22 +317,19 @@ baseline_param_DID %>%
 
 ### All simulations
 
-We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
+We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `N_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_DID, echo=FALSE}
-fixed_param <- baseline_param_DID #%>% rbind(...)
-vect_N_i <- c(4, 25, 50)
+vect_N_z <- c(4, 25, 50)
 vect_N_t <- c(4, 25, 50)
-# vect_N_i <- seq(2, 50, 8)
-# vect_N_t <- seq(2, 50, 8)
 vect_p_treat <- c(0.5)
-n_iter <- 200
+N_iter <- 200
 
-param_DID <- fixed_param %>% 
-  select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this
-  crossing(vect_N_i, vect_N_t, vect_p_treat) %>% 
-  rename(N_i = vect_N_i, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
-  crossing(rep_id = 1:n_iter) %>% 
+param_DID <- baseline_param_DID %>% 
+  select(-N_z, -N_t, -p_treat) %>% 
+  crossing(vect_N_z, vect_N_t, vect_p_treat) %>% 
+  rename(N_z = vect_N_z, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
+  crossing(rep_id = 1:N_iter) %>% 
   select(-rep_id)
 ```
 
@@ -428,7 +341,7 @@ sim_DID <- pmap_dfr(param_DID, compute_sim_DID)
 beep()
 toc()
 
-# saveRDS(sim_DID, here("Outputs/sim_DID.RDS"))
+# saveRDS(sim_DID, here("Outputs/sim_DID .RDS"))
 ```
 
 ## Analysis of the results
@@ -442,31 +355,32 @@ sim_DID <- readRDS(here("Outputs/sim_DID.RDS"))
 
 sim_DID %>% 
   mutate(
-    N_i = paste("Number individuals: ", str_pad(N_i, 2)),
+    N_z = paste("Number zip codes: ", str_pad(N_z, 2)),
     N_t = paste("Number periods: ", str_pad(N_t, 2))
   ) %>% 
   ggplot(aes(x = estimate)) +
   geom_vline(xintercept = 1) +
   geom_density() +
-  facet_grid(fct_rev(N_t) ~ N_i) +
+  facet_grid(fct_rev(N_t) ~ N_z) +
   labs(
     title = "Distribution of the estimates of the treatment effect",
-    subtitle = "For different number of individuals and time period",
+    subtitle = "For different number of zip codes and time period",
     x = "Estimate of the treatment effect",
     y = "Density",
     caption = "The vertical line represents the true effect"
   )
 ```
 
-### Computing bias and type M
+### Computing bias and exaaggeration ratio
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{i}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{IV}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}[\beta_0/\widehat{\beta}]$ and $\mathbb{E}[\beta_0/ \widehat{\beta}|signif]$. The first term represents the bias and the second term represents the 
+exaggeration ratio. These terms depend on the true effect size.
 
 ```{r summarise_IV}
 summarise_sim_DID <- function(data) {
   data %>%
     mutate(significant = (p_value <= 0.05)) %>% 
-    group_by(p_treat, N_i, N_t) %>%
+    group_by(p_treat, N_z, N_t) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
       type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
@@ -489,18 +403,18 @@ To analyze our results, we build a unique and simple graph:
 ```{r graph_results_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
   mutate(
-    N_i = as.factor(N_i),
+    N_z = as.factor(N_z),
     N_t = as.factor(N_t)
   ) %>% 
-  ggplot(aes(x = N_i, y = N_t, fill = type_m)) +
+  ggplot(aes(x = N_z, y = N_t, fill = type_m)) +
   geom_tile(color = "white", lwd = 1, linetype = 1) +
   coord_fixed() +
   labs(
     # title = "Type M error for different number of periods and observation",
     title = "The 'balls of yarn' graph",
-    x = "Number of individuals",
+    x = "Number of zip codes",
     y = "Number of time periods",
-    fill = "Type M error"
+    fill = "Exaggeration ratio"
   ) 
 ```
 
@@ -509,18 +423,17 @@ summary_sim_DID %>%
 
 
 ```{r sim_p_treat, echo=FALSE, message=FALSE}
-fixed_param <- baseline_param_DID #%>% rbind(...)
-vect_N_i <- c(100)
+vect_N_z <- c(100)
 vect_N_t <- c(10)
 vect_p_treat <- seq(0.1, 0.5, 0.1)# seq(0.1, 0.9, 0.1)
-n_iter <- 200
+N_iter <- 200
 
-param_DID_p_treat <- fixed_param %>% 
+param_DID_p_treat <- baseline_param_DID %>% 
   mutate(beta = 0.4) %>% 
-  select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this
-  crossing(vect_N_i, vect_N_t, vect_p_treat) %>% 
-  rename(N_i = vect_N_i, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
-  crossing(rep_id = 1:n_iter) %>% 
+  select(-N_z, -N_t, -p_treat) %>% #just quick fix, need to change this
+  crossing(vect_N_z, vect_N_t, vect_p_treat) %>% 
+  rename(N_z = vect_N_z, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
+  crossing(rep_id = 1:N_iter) %>% 
   select(-rep_id)
 
 # tic()
@@ -539,7 +452,7 @@ sim_DID_p_treat %>%
 
 sim_DID_p_treat %>% 
   summarise_sim_DID() %>% 
-  mutate(n_treated = p_treat*N_i*N_t) %>% 
+  mutate(n_treated = p_treat*N_z*N_t) %>% 
   ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
   geom_line(size = 0.8) +
@@ -547,7 +460,7 @@ sim_DID_p_treat %>%
     x = "Number of treated observations", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     title = "Evolution of bias with the number of treated observations",
-    subtitle = "For statistically significant estimates, 100 individuals on 10 periods"
+    subtitle = "For statistically significant estimates, 100 zip codes on 10 periods"
   ) 
 ```
 
