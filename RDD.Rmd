@@ -67,8 +67,24 @@ We assume that the final score of student $i$, $Final_i$, is correlated with the
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
-```{r DAG_RDD, echo=FALSE, out.width='60%'}
-include_graphics(here("images/DAGs/DAGs.002.png"))
+```{r DAG_RDD, echo=FALSE, fig.asp=0.35, out.width='70%'}
+library(ggdag)
+
+dagify(Final ~ U + T + Qual,
+       T ~ Qual,
+       Qual ~ U, 
+       outcome = "Final",
+       latent = "U",
+       coords = list(x = c(Final = 3, T = 2, U = 2, Qual = 1),
+                     y = c(Final = 0, T = 0, U = 1, Qual = 1))) %>% 
+  ggdag() +
+  geom_dag_point(colour = "white", stroke = TRUE) +
+  geom_dag_edges(edge_colour = mediocrethemes::colors_table$base[6]) +
+  geom_dag_text(
+    colour = mediocrethemes::colors_table$base[6], 
+    size = 6
+  ) +
+  theme_void()
 ```
 
 Final test scores are thus defined as follows:
