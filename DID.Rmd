@@ -1,6 +1,6 @@
 ---
 title: "Simulations DID / Event study"
-description: "In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."
+description: "In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/
@@ -52,58 +52,69 @@ set_mediocre_all(pal = "coty", gradient = "left")
 
 ## Summary and intuition
 
-In the case of Event studies and DiD, the OVB/type M trade-off is  mediated by the number of events.
+In the case of event studies, DiD or basically any study using discrete axogeneous shocks, the unconfoundedness / exaggeration trade-off is  mediated by the number of observations treated. In some classic DiD settings, while the number of observations is large, the number of events might be limited. Pinpointing exogenous shocks is never easy and we are sometimes only able to find a limited number of occurrences of this shock or shocks affecting a small portion of the population. More precisely, the number of observations with a non null treatment status might be small. In this instance, the variation available to identify the treatment is limited, possibly leading power to be low and exaggeration issues to arise. 
 
 ## An illustrative example
 
-<!-- For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings.  -->
+For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. More precisely, we simulate and analyze the impacts of air pollution reduction on birthweights. Air pollution might vary with other variables that may also affect birthweight (for instance economic activity). Some of these variables might be unobserved and bias estimates of a simple regression of birthweight on pollution levels. A strategy to avoid such issues is to consider exogenous shocks to air pollution such as plant closures, plant openings, creation of a low emission zone or an urban toll, strikes, etc.
 
-<!-- A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks. -->
+Even if we consider an example setting for clarity, the unconfoundedness / exaggeration trade-off mediated by the number of observations treated should also arise in other settings.
 
 ### Modeling choices
 
-To simplify, I consider the assumptions described below. Of course these assumptions are purely arbitrary and I invite you to play with them. Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0.
+To simplify, we consider the assumptions described below. Of course these assumptions are arbitrary and we invite you to play with them. 
+<!-- Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0. -->
 
-- Each individual has fixed characteristics drawn from a normal distribution,
-- Each time period presents fixed characteristics also drawn from a normal distribution,
-- A unique covariate $x$ drawn from a normal distribution,
-- A proportion $p_{treat}$ of individuals are ever treated over the period. Hence, a proportion of $1-p_{treat}$ individuals are never treated over the period. I draw these individual at random. Note that the value of the individual identifiers do not matter here. So I could assume that the non-treated individuals are those with the larger individual ids for instance,
-- The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period
-- The treatment can vary along two dimensions, time and individual. Details are given below.
+As many studies in the literature, for instance [Currie et al. (2015)](https://www.aeaweb.org/articles?id=10.1257/aer.20121656) and [Lavaine and Neidell (2017)](https://www.journals.uchicago.edu/doi/full/10.1086/691554), to build a panel, we aggregate observations. We look at the evolution of birthweights in zip codes in time, for instance months. 
 
-More precisely, I set: 
+For clarity in the explanations, let's assume that the exogenous shock considered is a permanent plant closure and that this reduces air pollution level. If the reader prefers, they can think of it as any permanent exogenous change in air pollution levels. For now, we will only estimate a reduced form. We are therefore not interested in modeling the effect of the plant closure on pollution levels. We consider that the plant closure leads to some air pollution reduction and want to estimate the effect of this closure on birthweight. We plan to add pollution in the future in order to compare the performance of the reduced form and a straight regression of birthweight on pollution. Yet, generating pollution is rather complex and we therefore only consider the reduced form for now.
 
-- $N_i$ the number of individual
-- $N_t$ the number of periods
-- $\lambda_i \sim \mathcal{N}(\mu_{IFE}, \sigma_{IFE}^{2})$ the fixed effect for individual $i$
-- $\eta_t \sim \mathcal{N}(\mu_{TFE}, \sigma_{TFE}^{2})$ the fixed effect for time period $t$
-- $x_{it} \sim \mathcal{N}(\mu_{x}, \sigma_{x}^{2})$
-- $e_{it} \sim \mathcal{N}(0, \sigma_{e}^{2})$ some noise
-- $T_{it}$ represent the treatment allocation, it is equal to one if individual $i$ is treated at time $t$ and 0 otherwise,
-- $y_{it} = \alpha + \beta_{it} T_{it} + \gamma x_{it} + \lambda_i + \eta_t + e_{it}$ where $\alpha$ and $\gamma$ are some constants.
-- $\beta_{it}$ is represents the magnitude of the treatment effect and is linked to the input parameter `beta`. 
+For each time period, a zip code is either treated (plant closed) or not treated. Over the whole period, some zip codes experience a plant closure, others do not either because they do not have a plant that affect their air pollution levels or because their plant did not close. 
 
-  - Across individuals, the treatment can either be:
-  
-    - homogeneous: `het_indiv == homogeneous`, for each individual, the treatment is equal to `beta`, 
-    - random: `het_indiv == random`, for each individual, the treatment is drawn from  $\mathcal{U}(0.5\beta, 1.5\beta)$,
-    - larger for those that are treated first: `het_indiv == large_first`, for each individual, the treatment is equal to $N_t - \beta$.
-  
-  - Across time, the effect of the treatment can either be 
-    
-    - constant: `het_time == constant`,
-    - increasing linearly in time: `het_time == linear`.
+We consider that the average birthweight in zip code $z$ at time period $t$, $w_{zt}$, depends on a zip code fixed effect $\zeta_z$, a time fixed effect $\tau_t$ and the treatment status $T_i$, *ie* whether a plant closed in this period or not. For now, we do not simulate omitted variable biases as we consider that the shocks are truly exogenous. Thus, birthweight is defined as follows:
 
-I also create a bunch of variables that can be useful:
+$$w_{z,t} = \alpha + \beta T_{z, t} + \zeta_z + \tau_t + \epsilon_{z,t}$$
+<!-- 
+is correlated with the average birthweight in this zip code in other periods and in nearby zip codes and also depends the treatment status $T_i$, *ie* whether a plant closed in this period or not. For now, we do not simulate omitted variable biases as we consider that the shocks are truly exogenous.
 
-- $InTreatment_i$ equal to 1 if individual $i$ ever gets treated,
-- $t^{event}_i$ equal to the date at which individual $i$ gets treated,
-- $t^{centered}_i$ representing the distance in terms of period to the beginning of the treatment for individual $i$,
-- $Post_{it}$ equal to 1 if the period $t$ is after the treatment has begun for individual $i$. This variable is only useful for non-staggered treatment allocation,
+We consider an AR(1) process along each dimension. Thus, birthweight is defined as follows: -->
+
+<!-- $$Birthweight_{z,t} = \alpha + \beta T_{z, t} + \tau Birthweight_{z, (t-1)} + \zeta Birthweight_{(z-1), t} + \epsilon_{z,t}$$ -->
+
+<!-- The DGP can be represented using the following Directed Acyclic Graph (DAG):  -->
+
+<!-- ```{r DAG_RDD, echo=FALSE, out.width='60%'} -->
+<!-- include_graphics(here("images/DAGs/DAGs.004.png")) -->
+<!-- ``` -->
+
+
+To simplify, we consider the following additional assumptions:
+
+- The treatment is constant in time and homogeneous across individuals
+- A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. we draw these zip codes at random. Note that the value of the zip code identifiers do not matter here. So we could assume that the non-treated individuals are those with the larger zip codes identifiers for instance,
+- The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyse the non staggered version.
+
+More precisely, we set: 
+
+- $N_z$ the number of zip codes,
+- $N_t$ the number of periods (months),
+- $\zeta_z \sim \mathcal{N}(\mu_{\zeta}, \sigma_{\zeta}^{2})$ the fixed effect for zip code $z$,
+- $\tau_t \sim \mathcal{N}(\mu_{\tau}, \sigma_{\tau}^{2})$ the fixed effect for time period $t$,
+- $\epsilon_{zt} \sim \mathcal{N}(0, \sigma_{\epsilon}^{2})$ some noise,
+- $T_{zt}$ represent the treatment allocation, it is equal to 1 if zip code $z$ is treated at time $t$ and 0 otherwise,
+- $w_{z,t} = \alpha + \beta T_{z, t} + \zeta_z + \tau_t + \epsilon_{z,t}$ where $\alpha$ is a constant,
+- $\beta$ is represents the magnitude of the treatment. 
+
+We also create a bunch of variables that can be useful:
+
+- $InTreatment_z$ equal to 1 if zip code $z$ ever gets treated,
+- $t^{event}_z$ equal to the date at which zip code $z$ gets treated, especially usefull in the staggered setting,
+- $t^{centered}_z$ representing the distance in terms of periods to the beginning of the treatment for zip code $z$,
+- $Post_{zt}$ equal to 1 if the period $t$ is after the treatment has begun for zip code $z$. This variable is only useful for non-staggered treatment allocation cas.
 
 ### Data generation
 
-I write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
+We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
 ```{r DGP}
 generate_data_DID <- function(N_i,

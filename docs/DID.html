@@ -87,34 +87,34 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 
 
   <!--radix_placeholder_meta_tags-->
-  <title>Causal Inflation: Simulations DID / Event study</title>
+  <title>Unconfounded but Inflated Causal Estimates: Simulations DID / Event study</title>
   
-  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
+  <meta property="description" itemprop="description" content="In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   
   <!--  https://schema.org/Article -->
-  <meta property="article:published" itemprop="datePublished" content="2022-02-14"/>
-  <meta property="article:created" itemprop="dateCreated" content="2022-02-14"/>
+  <meta property="article:published" itemprop="datePublished" content="2022-02-15"/>
+  <meta property="article:created" itemprop="dateCreated" content="2022-02-15"/>
   <meta name="article:author" content="Vincent Bagilet"/>
   <meta name="article:author" content="Léo Zabrocki"/>
   
   <!--  https://developers.facebook.com/docs/sharing/webmasters#markup -->
-  <meta property="og:title" content="Causal Inflation: Simulations DID / Event study"/>
+  <meta property="og:title" content="Unconfounded but Inflated Causal Estimates: Simulations DID / Event study"/>
   <meta property="og:type" content="article"/>
-  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
+  <meta property="og:description" content="In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   <meta property="og:locale" content="en_US"/>
-  <meta property="og:site_name" content="Causal Inflation"/>
+  <meta property="og:site_name" content="Unconfounded but Inflated Causal Estimates"/>
   
   <!--  https://dev.twitter.com/cards/types/summary -->
   <meta property="twitter:card" content="summary"/>
-  <meta property="twitter:title" content="Causal Inflation: Simulations DID / Event study"/>
-  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."/>
+  <meta property="twitter:title" content="Unconfounded but Inflated Causal Estimates: Simulations DID / Event study"/>
+  <meta property="twitter:description" content="In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes."/>
   
   <!--/radix_placeholder_meta_tags-->
   <!--radix_placeholder_rmarkdown_metadata-->
   
   <script type="text/json" id="radix-rmarkdown-metadata">
-  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations DID / Event study"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-02-14"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
+  {"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["title","description","author","date","output","editor_options"]}},"value":[{"type":"character","attributes":{},"value":["Simulations DID / Event study"]},{"type":"character","attributes":{},"value":["In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes."]},{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Vincent Bagilet"]},{"type":"character","attributes":{},"value":["https://vincentbagilet.github.io/"]},{"type":"character","attributes":{},"value":["Columbia University"]},{"type":"character","attributes":{},"value":["https://www.columbia.edu/"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","url","affiliation","affiliation_url"]}},"value":[{"type":"character","attributes":{},"value":["Léo Zabrocki"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]},{"type":"character","attributes":{},"value":["Paris School of Economics"]},{"type":"character","attributes":{},"value":["https://www.parisschoolofeconomics.eu/en/"]}]}]},{"type":"character","attributes":{},"value":["2022-02-15"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["distill::distill_article"]}},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["toc"]}},"value":[{"type":"logical","attributes":{},"value":[true]}]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["chunk_output_type"]}},"value":[{"type":"character","attributes":{},"value":["console"]}]}]}
   </script>
   <!--/radix_placeholder_rmarkdown_metadata-->
   <!--radix_placeholder_navigation_in_header-->
@@ -2144,7 +2144,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <!--radix_placeholder_front_matter-->
 
 <script id="distill-front-matter" type="text/json">
-{"title":"Simulations DID / Event study","description":"In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-02-14T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2022"}
+{"title":"Simulations DID / Event study","description":"In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes.","authors":[{"author":"Vincent Bagilet","authorURL":"https://vincentbagilet.github.io/","affiliation":"Columbia University","affiliationURL":"https://www.columbia.edu/","orcidID":""},{"author":"Léo Zabrocki","authorURL":"https://www.parisschoolofeconomics.eu/en/","affiliation":"Paris School of Economics","affiliationURL":"https://www.parisschoolofeconomics.eu/en/","orcidID":""}],"publishedDate":"2022-02-15T00:00:00.000-05:00","citationText":"Bagilet & Zabrocki, 2022"}
 </script>
 
 <!--/radix_placeholder_front_matter-->
@@ -2152,7 +2152,7 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <header class="header header--fixed" role="banner">
 <nav class="distill-site-nav distill-site-header">
 <div class="nav-left">
-<a href="index.html" class="title">Causal Inflation</a>
+<a href="index.html" class="title">Unconfounded but Inflated Causal Estimates</a>
 </div>
 <div class="nav-right">
 <a href="index.html">Home</a>
@@ -2188,7 +2188,7 @@ Simulations
 <h1>Simulations DID / Event study</h1>
 <!--radix_placeholder_categories-->
 <!--/radix_placeholder_categories-->
-<p>In this document, we run a simulation exercise to illustrate the loss in power and resulting type M error when the number of events in a Difference In Differences design decreases.</p>
+<p>In this document, we run a simulation exercise to illustrate how using a Difference-in-Differences (DiD) or event study approach to avoid confounders may lead to a loss in power and inflated effect sizes.</p>
 </div>
 
 <div class="d-byline">
@@ -2196,7 +2196,7 @@ Simulations
   
 ,   Léo Zabrocki <a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a> (Paris School of Economics)<a href="https://www.parisschoolofeconomics.eu/en/" class="uri">https://www.parisschoolofeconomics.eu/en/</a>
   
-<br/>2022-02-14
+<br/>2022-02-15
 </div>
 
 <div class="d-article">
@@ -2226,51 +2226,52 @@ body {
 text-align: justify}
 </style>
 <h2 id="summary-and-intuition">Summary and intuition</h2>
-<p>In the case of Event studies and DiD, the OVB/type M trade-off is mediated by the number of events.</p>
+<p>In the case of event studies, DiD or basically any study using discrete axogeneous shocks, the unconfoundedness / exaggeration trade-off is mediated by the number of observations treated. In some classic DiD settings, while the number of observations is large, the number of events might be limited. Pinpointing exogenous shocks is never easy and we are sometimes only able to find a limited number of occurrences of this shock or shocks affecting a small portion of the population. More precisely, the number of observations with a non null treatment status might be small. In this instance, the variation available to identify the treatment is limited, possibly leading power to be low and exaggeration issues to arise.</p>
 <h2 id="an-illustrative-example">An illustrative example</h2>
-<!-- For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. Our point should stand in more general settings.  -->
-<!-- A threat of confounders often arises when analyzing the health effects of air pollution. To estimate such an effect causally, one can consider exogeneous shocks to air pollution. In the present analysis, we consider the example of plant closures as exogeneous shocks. -->
+<p>For readability and to illustrate this loss in power, we consider an example setting. For this illustration we could use a large variety of Data Genereting Processes (DGP), both in terms of distribution of the variables and of relations between them. We narrow this down to an example setting, considering an analysis of health impacts of air pollution. More precisely, we simulate and analyze the impacts of air pollution reduction on birthweights. Air pollution might vary with other variables that may also affect birthweight (for instance economic activity). Some of these variables might be unobserved and bias estimates of a simple regression of birthweight on pollution levels. A strategy to avoid such issues is to consider exogenous shocks to air pollution such as plant closures, plant openings, creation of a low emission zone or an urban toll, strikes, etc.</p>
+<p>Even if we consider an example setting for clarity, the unconfoundedness / exaggeration trade-off mediated by the number of observations treated should also arise in other settings.</p>
 <h3 id="modeling-choices">Modeling choices</h3>
-<p>To simplify, I consider the assumptions described below. Of course these assumptions are purely arbitrary and I invite you to play with them. Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0.</p>
+<p>To simplify, we consider the assumptions described below. Of course these assumptions are arbitrary and we invite you to play with them. <!-- Note that, fixed effects and the covariate are not necessary to the analysis. I only add them to make the analysis more realistic if necessary but I set their baseline values to 0. --></p>
+<p>As many studies in the literature, for instance <a href="https://www.aeaweb.org/articles?id=10.1257/aer.20121656">Currie et al. (2015)</a> and <a href="https://www.journals.uchicago.edu/doi/full/10.1086/691554">Lavaine and Neidell (2017)</a>, to build a panel, we aggregate observations. We look at the evolution of birthweights in zip codes in time, for instance months.</p>
+<p>For clarity in the explanations, let’s assume that the exogenous shock considered is a permanent plant closure and that this reduces air pollution level. If the reader prefers, they can think of it as any permanent exogenous change in air pollution levels. For now, we will only estimate a reduced form. We are therefore not interested in modeling the effect of the plant closure on pollution levels. We consider that the plant closure leads to some air pollution reduction and want to estimate the effect of this closure on birthweight. We plan to add pollution in the future in order to compare the performance of the reduced form and a straight regression of birthweight on pollution. Yet, generating pollution is rather complex and we therefore only consider the reduced form for now.</p>
+<p>For each time period, a zip code is either treated (plant closed) or not treated. Over the whole period, some zip codes experience a plant closure, others do not either because they do not have a plant that affect their air pollution levels or because their plant did not close.</p>
+<p>We consider that the average birthweight in zip code <span class="math inline">\(z\)</span> at time period <span class="math inline">\(t\)</span>, <span class="math inline">\(w_{zt}\)</span>, depends on a zip code fixed effect <span class="math inline">\(\lambda_z\)</span>, a time fixed effect <span class="math inline">\(\eta_t\)</span> and the treatment status <span class="math inline">\(T_i\)</span>, <em>ie</em> whether a plant closed in this period or not. For now, we do not simulate omitted variable biases as we consider that the shocks are truly exogenous. Thus, birthweight is defined as follows: –&gt;</p>
+<p><span class="math display">\[w_{z,t} = \alpha + \beta T_{z, t} + \zeta_z + \tau_t + \epsilon_{z,t}\]</span> <!-- 
+is correlated with the average birthweight in this zip code in other periods and in nearby zip codes and also depends the treatment status $T_i$, *ie* whether a plant closed in this period or not. For now, we do not simulate omitted variable biases as we consider that the shocks are truly exogenous.
+
+We consider an AR(1) process along each dimension. Thus, birthweight is defined as follows: --></p>
+<!-- $$Birthweight_{z,t} = \alpha + \beta T_{z, t} + \tau Birthweight_{z, (t-1)} + \zeta Birthweight_{(z-1), t} + \epsilon_{z,t}$$ -->
+<!-- The DGP can be represented using the following Directed Acyclic Graph (DAG):  -->
+<!-- ```{r DAG_RDD, echo=FALSE, out.width='60%'} -->
+<!-- include_graphics(here("images/DAGs/DAGs.004.png")) -->
+<!-- ``` -->
+<p>To simplify, we consider the following additional assumptions:</p>
 <ul>
 <li>Each individual has fixed characteristics drawn from a normal distribution,</li>
+<li>The other dimension is temporal.</li>
 <li>Each time period presents fixed characteristics also drawn from a normal distribution,</li>
 <li>A unique covariate <span class="math inline">\(x\)</span> drawn from a normal distribution,</li>
 <li>A proportion <span class="math inline">\(p_{treat}\)</span> of individuals are ever treated over the period. Hence, a proportion of <span class="math inline">\(1-p_{treat}\)</span> individuals are never treated over the period. I draw these individual at random. Note that the value of the individual identifiers do not matter here. So I could assume that the non-treated individuals are those with the larger individual ids for instance,</li>
 <li>The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period</li>
-<li>The treatment can vary along two dimensions, time and individual. Details are given below.</li>
+<li>The treatment is homogeneous in time and for individuals</li>
 </ul>
-<p>More precisely, I set:</p>
+<p>More precisely, we set:</p>
 <ul>
-<li><p><span class="math inline">\(N_i\)</span> the number of individual</p></li>
-<li><p><span class="math inline">\(N_t\)</span> the number of periods</p></li>
-<li><p><span class="math inline">\(\lambda_i \sim \mathcal{N}(\mu_{IFE}, \sigma_{IFE}^{2})\)</span> the fixed effect for individual <span class="math inline">\(i\)</span></p></li>
-<li><p><span class="math inline">\(\eta_t \sim \mathcal{N}(\mu_{TFE}, \sigma_{TFE}^{2})\)</span> the fixed effect for time period <span class="math inline">\(t\)</span></p></li>
-<li><p><span class="math inline">\(x_{it} \sim \mathcal{N}(\mu_{x}, \sigma_{x}^{2})\)</span></p></li>
-<li><p><span class="math inline">\(e_{it} \sim \mathcal{N}(0, \sigma_{e}^{2})\)</span> some noise</p></li>
-<li><p><span class="math inline">\(T_{it}\)</span> represent the treatment allocation, it is equal to one if individual <span class="math inline">\(i\)</span> is treated at time <span class="math inline">\(t\)</span> and 0 otherwise,</p></li>
-<li><p><span class="math inline">\(y_{it} = \alpha + \beta_{it} T_{it} + \gamma x_{it} + \lambda_i + \eta_t + e_{it}\)</span> where <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\gamma\)</span> are some constants.</p></li>
-<li><p><span class="math inline">\(\beta_{it}\)</span> is represents the magnitude of the treatment effect and is linked to the input parameter <code>beta</code>.</p>
-<ul>
-<li><p>Across individuals, the treatment can either be:</p>
-<ul>
-<li>homogeneous: <code>het_indiv == homogeneous</code>, for each individual, the treatment is equal to <code>beta</code>,</li>
-<li>random: <code>het_indiv == random</code>, for each individual, the treatment is drawn from <span class="math inline">\(\mathcal{U}(0.5\beta, 1.5\beta)\)</span>,</li>
-<li>larger for those that are treated first: <code>het_indiv == large_first</code>, for each individual, the treatment is equal to <span class="math inline">\(N_t - \beta\)</span>.</li>
-</ul></li>
-<li><p>Across time, the effect of the treatment can either be</p>
-<ul>
-<li>constant: <code>het_time == constant</code>,</li>
-<li>increasing linearly in time: <code>het_time == linear</code>.</li>
-</ul></li>
-</ul></li>
+<li><span class="math inline">\(N_z\)</span> the number of zip codes</li>
+<li><span class="math inline">\(N_t\)</span> the number of periods (months)</li>
+<li><span class="math inline">\(\zeta_z \sim \mathcal{N}(\mu_{\zeta}, \sigma_{\zeta}^{2})\)</span> the fixed effect for zip code <span class="math inline">\(z\)</span></li>
+<li><span class="math inline">\(\tau_t \sim \mathcal{N}(\mu_{\tau}, \sigma_{\tau}^{2})\)</span> the fixed effect for time period <span class="math inline">\(t\)</span></li>
+<li><span class="math inline">\(\epsilon_{zt} \sim \mathcal{N}(0, \sigma_{\epsilon}^{2})\)</span> some noise</li>
+<li><span class="math inline">\(T_{zt}\)</span> represent the treatment allocation, it is equal to one if zip code <span class="math inline">\(z\)</span> is treated at time <span class="math inline">\(t\)</span> and 0 otherwise,</li>
+<li><span class="math inline">\(w_{z,t} = \alpha + \beta T_{z, t} + \zeta_z + \tau_t + \epsilon_{z,t}\)</span> where <span class="math inline">\(\alpha\)</span> is a constant.</li>
+<li><span class="math inline">\(\beta_{zt}\)</span> is represents the magnitude of the treatment.</li>
 </ul>
-<p>I also create a bunch of variables that can be useful:</p>
+<p>We also create a bunch of variables that can be useful:</p>
 <ul>
-<li><span class="math inline">\(InTreatment_i\)</span> equal to 1 if individual <span class="math inline">\(i\)</span> ever gets treated,</li>
-<li><span class="math inline">\(t^{event}_i\)</span> equal to the date at which individual <span class="math inline">\(i\)</span> gets treated,</li>
-<li><span class="math inline">\(t^{centered}_i\)</span> representing the distance in terms of period to the beginning of the treatment for individual <span class="math inline">\(i\)</span>,</li>
-<li><span class="math inline">\(Post_{it}\)</span> equal to 1 if the period <span class="math inline">\(t\)</span> is after the treatment has begun for individual <span class="math inline">\(i\)</span>. This variable is only useful for non-staggered treatment allocation,</li>
+<li><span class="math inline">\(InTreatment_z\)</span> equal to 1 if zip code <span class="math inline">\(z\)</span> ever gets treated,</li>
+<li><span class="math inline">\(t^{event}_z\)</span> equal to the date at which individual <span class="math inline">\(z\)</span> gets treated,</li>
+<li><span class="math inline">\(t^{centered}_z\)</span> representing the distance in terms of periods to the beginning of the treatment for zip code <span class="math inline">\(z\)</span>,</li>
+<li><span class="math inline">\(Post_{zt}\)</span> equal to 1 if the period <span class="math inline">\(t\)</span> is after the treatment has begun for zip code <span class="math inline">\(z\)</span>. This variable is only useful for non-staggered treatment allocation,</li>
 </ul>
 <h3 id="data-generation">Data generation</h3>
 <p>I write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis.</p>
@@ -2380,7 +2381,7 @@ text-align: justify}
 <col style="width: 8%" />
 <col style="width: 2%" />
 <col style="width: 8%" />
-<col style="width: 8%" />
+<col style="width: 7%" />
 <col style="width: 7%" />
 <col style="width: 7%" />
 </colgroup>
@@ -2408,273 +2409,273 @@ text-align: justify}
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.0634749</td>
+<td style="text-align: right;">2.5015671</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-3</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.1727223</td>
-<td style="text-align: right;">4.5726048</td>
-<td style="text-align: right;">5.5726048</td>
-<td style="text-align: right;">4.5726048</td>
+<td style="text-align: right;">-0.8966968</td>
+<td style="text-align: right;">4.645824</td>
+<td style="text-align: right;">5.645824</td>
+<td style="text-align: right;">4.645824</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">2.4260500</td>
+<td style="text-align: right;">7.8124827</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-2</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.6752935</td>
-<td style="text-align: right;">3.4326087</td>
-<td style="text-align: right;">4.4326087</td>
-<td style="text-align: right;">3.4326087</td>
+<td style="text-align: right;">1.4849328</td>
+<td style="text-align: right;">12.338370</td>
+<td style="text-align: right;">13.338370</td>
+<td style="text-align: right;">12.338370</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">0.8030413</td>
+<td style="text-align: right;">-0.2345746</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">-1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.1843429</td>
-<td style="text-align: right;">2.3005507</td>
-<td style="text-align: right;">3.3005507</td>
-<td style="text-align: right;">2.3005507</td>
+<td style="text-align: right;">-1.1877593</td>
+<td style="text-align: right;">1.618620</td>
+<td style="text-align: right;">2.618620</td>
+<td style="text-align: right;">1.618620</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.3307261</td>
+<td style="text-align: right;">5.1032550</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">0</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.3511869</td>
-<td style="text-align: right;">6.3637652</td>
-<td style="text-align: right;">7.3637652</td>
-<td style="text-align: right;">6.3637652</td>
+<td style="text-align: right;">-0.3326197</td>
+<td style="text-align: right;">7.811590</td>
+<td style="text-align: right;">8.811590</td>
+<td style="text-align: right;">7.811590</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">-1.9150460</td>
+<td style="text-align: right;">2.3436865</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.4441508</td>
-<td style="text-align: right;">1.2109571</td>
-<td style="text-align: right;">2.2109571</td>
-<td style="text-align: right;">2.2109571</td>
+<td style="text-align: right;">-0.7821961</td>
+<td style="text-align: right;">4.602445</td>
+<td style="text-align: right;">5.602445</td>
+<td style="text-align: right;">5.602445</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">3.4954036</td>
+<td style="text-align: right;">4.8682520</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-2.1864659</td>
-<td style="text-align: right;">2.9907899</td>
-<td style="text-align: right;">3.9907899</td>
-<td style="text-align: right;">3.9907899</td>
+<td style="text-align: right;">1.0030091</td>
+<td style="text-align: right;">8.912215</td>
+<td style="text-align: right;">9.912215</td>
+<td style="text-align: right;">9.912215</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1.3972742</td>
+<td style="text-align: right;">4.0798685</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">3</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-1.2248638</td>
-<td style="text-align: right;">1.8542626</td>
-<td style="text-align: right;">2.8542626</td>
-<td style="text-align: right;">2.8542626</td>
+<td style="text-align: right;">-0.6749480</td>
+<td style="text-align: right;">6.445875</td>
+<td style="text-align: right;">7.445875</td>
+<td style="text-align: right;">7.445875</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">1</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">0.6818523</td>
+<td style="text-align: right;">2.040954</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">-2.3894899</td>
+<td style="text-align: right;">7.2938837</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">4</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.0436751</td>
-<td style="text-align: right;">-0.7513128</td>
-<td style="text-align: right;">0.2486872</td>
-<td style="text-align: right;">0.2486872</td>
+<td style="text-align: right;">1.7798814</td>
+<td style="text-align: right;">12.114719</td>
+<td style="text-align: right;">13.114719</td>
+<td style="text-align: right;">13.114719</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">1</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3.0634749</td>
+<td style="text-align: right;">2.5015671</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.1722015</td>
-<td style="text-align: right;">5.6780907</td>
-<td style="text-align: right;">5.6780907</td>
-<td style="text-align: right;">5.6780907</td>
+<td style="text-align: right;">-0.0017654</td>
+<td style="text-align: right;">5.400588</td>
+<td style="text-align: right;">5.400588</td>
+<td style="text-align: right;">5.400588</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">2</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">2.4260500</td>
+<td style="text-align: right;">7.8124827</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-1.3407099</td>
-<td style="text-align: right;">3.8721574</td>
-<td style="text-align: right;">3.8721574</td>
-<td style="text-align: right;">3.8721574</td>
+<td style="text-align: right;">-0.6824235</td>
+<td style="text-align: right;">10.030845</td>
+<td style="text-align: right;">10.030845</td>
+<td style="text-align: right;">10.030845</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">3</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.8030413</td>
+<td style="text-align: right;">-0.2345746</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.2573436</td>
-<td style="text-align: right;">3.8472022</td>
-<td style="text-align: right;">3.8472022</td>
-<td style="text-align: right;">3.8472022</td>
+<td style="text-align: right;">2.1199242</td>
+<td style="text-align: right;">4.786136</td>
+<td style="text-align: right;">4.786136</td>
+<td style="text-align: right;">4.786136</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">4</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3.3307261</td>
+<td style="text-align: right;">5.1032550</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-2.2175191</td>
-<td style="text-align: right;">3.9000243</td>
-<td style="text-align: right;">3.9000243</td>
-<td style="text-align: right;">3.9000243</td>
+<td style="text-align: right;">-1.2082807</td>
+<td style="text-align: right;">6.795760</td>
+<td style="text-align: right;">6.795760</td>
+<td style="text-align: right;">6.795760</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">5</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-1.9150460</td>
+<td style="text-align: right;">2.3436865</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.7611984</td>
-<td style="text-align: right;">2.6329697</td>
-<td style="text-align: right;">2.6329697</td>
-<td style="text-align: right;">2.6329697</td>
+<td style="text-align: right;">-1.0789045</td>
+<td style="text-align: right;">4.165568</td>
+<td style="text-align: right;">4.165568</td>
+<td style="text-align: right;">4.165568</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">6</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">3.4954036</td>
+<td style="text-align: right;">4.8682520</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.4619817</td>
-<td style="text-align: right;">5.8202392</td>
-<td style="text-align: right;">5.8202392</td>
-<td style="text-align: right;">5.8202392</td>
+<td style="text-align: right;">-0.2812817</td>
+<td style="text-align: right;">7.487756</td>
+<td style="text-align: right;">7.487756</td>
+<td style="text-align: right;">7.487756</td>
 </tr>
 <tr class="odd">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">7</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">1.3972742</td>
+<td style="text-align: right;">4.0798685</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-0.1352449</td>
-<td style="text-align: right;">4.0488466</td>
-<td style="text-align: right;">4.0488466</td>
-<td style="text-align: right;">4.0488466</td>
+<td style="text-align: right;">-2.5331020</td>
+<td style="text-align: right;">4.447552</td>
+<td style="text-align: right;">4.447552</td>
+<td style="text-align: right;">4.447552</td>
 </tr>
 <tr class="even">
 <td style="text-align: right;">2</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">8</td>
-<td style="text-align: right;">1.7868173</td>
+<td style="text-align: right;">1.900786</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">-2.3894899</td>
+<td style="text-align: right;">7.2938837</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">FALSE</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">0</td>
-<td style="text-align: right;">0.8912407</td>
-<td style="text-align: right;">1.2885681</td>
-<td style="text-align: right;">1.2885681</td>
-<td style="text-align: right;">1.2885681</td>
+<td style="text-align: right;">2.0406821</td>
+<td style="text-align: right;">12.235352</td>
+<td style="text-align: right;">12.235352</td>
+<td style="text-align: right;">12.235352</td>
 </tr>
 </tbody>
 </table>
@@ -2777,9 +2778,9 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">treated</td>
-<td style="text-align: right;">0.9004687</td>
-<td style="text-align: right;">0.0958439</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.958737</td>
+<td style="text-align: right;">0.1196205</td>
+<td style="text-align: right;">2e-07</td>
 </tr>
 </tbody>
 </table>
@@ -2864,9 +2865,9 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">treated</td>
-<td style="text-align: right;">0.8447404</td>
-<td style="text-align: right;">0.0974579</td>
-<td style="text-align: right;">0</td>
+<td style="text-align: right;">1.143338</td>
+<td style="text-align: right;">0.1432058</td>
+<td style="text-align: right;">2e-07</td>
 <td style="text-align: right;">20</td>
 <td style="text-align: right;">50</td>
 <td style="text-align: right;">0.5</td>

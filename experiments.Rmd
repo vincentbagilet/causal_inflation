@@ -52,7 +52,7 @@ set.seed(3)
 set_mediocre_all(pal = "coty")
 ```
 
-## Laboratory experiments
+<!-- ## Laboratory experiments -->
 
 To illustrate the consequences of low power, we analyze the results from [Camerer et al (2016)](https://www.science.org/doi/10.1126/science.aaf0918) through the prism of statistical power. The authors of this paper replicated laboratory experiments in economics.
 
@@ -75,7 +75,7 @@ retro_camerer <- rep_camerer %>%
   as_tibble()
 ```
 
-### Analyzing all studies
+## Analyzing all studies
 
 We quickly plot and analyze the results obtained, *ie* the distribution of the exaggeration ratio and power.
 
@@ -175,7 +175,7 @@ retro_camerer %>%
   )
 ```
 
-### Focus on one particular study
+## Focus on one particular study
 
 Here, we focus on one particular study in order to illustrate in more details the problem at play. We want to simulate what could have yielded replication of the initial study if the true effect was equal to the replication estimate.
 
