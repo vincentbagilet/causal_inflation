@@ -184,7 +184,11 @@ baseline_param_DID <- tibble(
   het_indiv = "homogeneous",
   het_time = "constant",
   alpha = 1,
-  beta = 1
+  beta = 1,
+  mu_indiv_fe = 1, 
+  sigma_indiv_fe = 1,
+  mu_time_fe = 4, 
+  sigma_time_fe = 4
 )
 ```
 
@@ -395,7 +399,7 @@ vect_N_t <- c(4, 25, 50)
 # vect_N_i <- seq(2, 50, 8)
 # vect_N_t <- seq(2, 50, 8)
 vect_p_treat <- c(0.5)
-n_iter <- 1000
+n_iter <- 200
 
 param_DID <- fixed_param %>% 
   select(-N_i, -N_t, -p_treat) %>% #just quick fix, need to change this

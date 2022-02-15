@@ -508,7 +508,7 @@ summary_sim_IV <- summarise_simulations(sim_IV)
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results_IV, echo=FALSE, fig.asp=0.7}
+```{r main_graph_IV, echo=FALSE, fig.asp=0.7}
 summary_sim_IV %>% 
   # filter(model %in% c("OLS", "IV")) %>% 
   mutate(
@@ -530,6 +530,23 @@ summary_sim_IV %>%
 #   pivot_longer(c(bias_signif, bias_all), names_to = "bias_type", values_to = "bias") %>% 
 #   ggplot(aes(x = iv_strength, y = bias, color = bias_type)) + 
 #   geom_line(size = 0.8) 
+```
+
+```{r main_graph_IV_paper, dpi=600}
+summary_sim_IV %>% 
+  filter(model %in% c("OLS", "IV")) %>%
+  ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
+  geom_line(size = 0.8) +
+  labs(
+    x = "IV strength", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    color = "Model",
+    # title = "Evolution of bias with intensity of the IV",
+    # caption = "Only statistically significant estimates"
+  ) +
+  theme_mediocre(base_family = "Lora") 
+  # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
+  # scale_mediocre_d(pal = "blackandwhite")
 ```
 
 Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. For now, we consider the median because for very low IV strength, we get very extreme values. We need to investigate this further.
@@ -568,6 +585,7 @@ sim_IV %>%
   # filter(abs(bias) < 10) %>% 
   ggplot(aes(x = fstat, y = bias, color = significant)) +
   geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1) + 
   labs(
     title = "Bias as a function of the F-statistic in the simulations",
     subtitle = "By significance and only for F-stat above 10",

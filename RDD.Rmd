@@ -144,9 +144,9 @@ baseline_param_RDD <- tibble(
   sigma_e = 4,
   alpha = 20,
   beta = 1,
-  gamma = 0.7,
+  gamma = 0,
   q_c = 0.5,
-  delta = 1
+  delta = 20
 )
 
 baseline_param_RDD %>% kable()
@@ -314,7 +314,8 @@ simple_param_RDD <- tibble(
   vect_bw = 0.1
 )
 
-fixed_param_RDD <- simple_param_RDD #%>% rbind(...)
+fixed_param_RDD <- baseline_param_RDD %>% #%>% rbind(...)
+  mutate(vect_bw = 0.1)
 # vect_bw <- seq(0.05, 0.4, 0.05)
 vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
 vect_delta <- c(3)
