@@ -92,7 +92,7 @@ To simplify, we consider the following additional assumptions:
 
 - The treatment is constant in time and homogeneous across zip codes
 - A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. we draw these zip codes at random. Note that the value of the zip code identifiers do not matter here. So we could assume that the non-treated zip codes are those with the larger zip codes identifiers for instance,
-- The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyse the non staggered version.
+- The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyze the non staggered version.
 
 More precisely, we set: 
 
@@ -111,9 +111,11 @@ We also create a bunch of variables that can be useful:
 - $InTreatment_z$ equal to 1 if zip code $z$ ever gets treated,
 - $t^{event}_z$ equal to the date at which zip code $z$ gets treated, especially usefull in the staggered setting,
 - $t^{centered}_z$ representing the distance in terms of periods to the beginning of the treatment for zip code $z$,
-- $Post_{zt}$ equal to 1 if the period $t$ is after the treatment has begun for zip code $z$. This variable is only useful for non-staggered treatment allocation cas.
+- $Post_{zt}$ equal to 1 if the period $t$ is after the treatment has begun for zip code $z$. This variable is only useful for non-staggered treatment allocation case.
 
 ### Data generation
+
+#### Generating function
 
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
@@ -162,21 +164,31 @@ generate_data_DID <- function(N_z,
 }
 ```
 
-We set baseline values for the parameters as very standard. These values are arbitrary.
+#### Baseline parameters' values
+
+We set baseline values for the parameters to emulate a somehow realistic observational study`.
+
+We get "inspiration" for the values of parameters from [Lavaine and Neidell (2017)](https://www.journals.uchicago.edu/doi/full/10.1086/691554).
+
+We consider that:
+- We consider a large number of zip codes and time periods,
+- Birthweight is expressed in grams. In Lavaine and Neidell's sample made of babies born in France, the average birthweight is 3228g (sd = 353). We choose `alpha` and `sigma_e` to yield a similar distribution. These values of course depend on the values of the other parameters
+- A usual treatment effect size in published studies is a change of about 1 to 3% in birthweight. We consider a 2% effect size. Thus, we set $\beta = 3228 \times 0.02 \simeq 65$
+- We set time and individual fixed effects to be of half of the order of magnitude of the treatment effect and with a standard deviation roughly equal to their mean (somehow arbitrary choice).
 
 ```{r baseline_param_DID, echo=FALSE}
 baseline_param_DID <- tibble(
-  N_z = 20,
-  N_t = 50,
-  sigma_e = 1,
+  N_z = 500,
+  N_t = 40,
+  sigma_e = 350,
   p_treat = 0.5,
   staggered = FALSE,
-  alpha = 1,
-  beta = 1,
-  mu_zip_fe = 1, 
-  sigma_zip_fe = 1,
-  mu_time_fe = 4, 
-  sigma_time_fe = 4
+  alpha = 3163,
+  beta = 65,
+  mu_zip_fe = 33, 
+  sigma_zip_fe = 33,
+  mu_time_fe = 33, 
+  sigma_time_fe = 33
 )
 
 baseline_param_RDD %>% kable()
@@ -191,6 +203,28 @@ baseline_param_DID %>%
   kable()
 ```
 
+We check the standard deviation and means of the parameters:
+
+```{r check_sd_mean_DID, echo=FALSE}
+ex_data <- baseline_param_DID %>% 
+  pmap_dfr(generate_data_DID) 
+
+ex_data_mean <- ex_data %>% 
+  summarise(across(.cols = c(birthweight0), mean)) %>% 
+  mutate(Statistic = "Mean") %>% 
+  select(Statistic, everything())
+
+ex_data_sd <- ex_data %>% 
+  summarise(across(.cols = c(birthweight0), sd)) %>% 
+  mutate(Statistic = "Standard Deviation") %>% 
+  select(Statistic, everything())
+
+ex_data_mean %>% 
+  rbind(ex_data_sd) %>% 
+  kable()
+```
+
+
 Treatment allocations, in the staggered and non staggered case are as follows:
 
 ```{r treatment_allocation_DID, echo=FALSE}
@@ -202,6 +236,7 @@ labs_graph_staggered <- labs(
   )
 
 baseline_param_DID %>% 
+  mutate(N_z = 20, N_t = 50) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
   ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) + 
   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
@@ -210,6 +245,7 @@ baseline_param_DID %>%
   labs(subtitle = "Non staggered")
 
 baseline_param_DID %>%
+  mutate(N_z = 20, N_t = 50) %>%
   mutate(staggered = TRUE) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
   ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) +
@@ -272,16 +308,16 @@ We can now run a simulation, combining `generate_data_DID` and `estimate_DID`. T
 
 ```{r compute_sim_DID}
 compute_sim_DID <- function(N_z,
-                                    N_t,
-                                    sigma_e,
-                                    p_treat,
-                                    staggered,
-                                    alpha,
-                                    beta,
-                                    mu_zip_fe = 0,
-                                    sigma_zip_fe = 0,
-                                    mu_time_fe = 0,
-                                    sigma_time_fe = 0) {
+                            N_t,
+                            sigma_e,
+                            p_treat,
+                            staggered,
+                            alpha,
+                            beta,
+                            mu_zip_fe = 0,
+                            sigma_zip_fe = 0,
+                            mu_time_fe = 0,
+                            sigma_time_fe = 0) {
   data <- generate_data_DID(
     N_z = N_z,
     N_t = N_t,
@@ -320,15 +356,13 @@ baseline_param_DID %>%
 We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `N_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_DID, echo=FALSE}
-vect_N_z <- c(4, 25, 50)
-vect_N_t <- c(4, 25, 50)
-vect_p_treat <- c(0.5)
-N_iter <- 200
+vect_p_treat <- c(seq(0.02, 0.08, 0.02), seq(0.1, 0.5, 0.1))
+N_iter <- 100
 
 param_DID <- baseline_param_DID %>% 
-  select(-N_z, -N_t, -p_treat) %>% 
-  crossing(vect_N_z, vect_N_t, vect_p_treat) %>% 
-  rename(N_z = vect_N_z, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
+  select(-p_treat) %>% 
+  crossing(vect_p_treat) %>% 
+  rename(p_treat = vect_p_treat) %>% 
   crossing(rep_id = 1:N_iter) %>% 
   select(-rep_id)
 ```
@@ -341,7 +375,7 @@ sim_DID <- pmap_dfr(param_DID, compute_sim_DID)
 beep()
 toc()
 
-# saveRDS(sim_DID, here("Outputs/sim_DID .RDS"))
+# saveRDS(sim_DID, here("Outputs/sim_DID.RDS"))
 ```
 
 ## Analysis of the results
@@ -400,58 +434,8 @@ summary_sim_DID <- summarise_sim_DID(sim_DID)
 
 To analyze our results, we build a unique and simple graph:
 
-```{r graph_results_DID, echo=FALSE, fig.asp=0.7}
+```{r main_graph_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
-  mutate(
-    N_z = as.factor(N_z),
-    N_t = as.factor(N_t)
-  ) %>% 
-  ggplot(aes(x = N_z, y = N_t, fill = type_m)) +
-  geom_tile(color = "white", lwd = 1, linetype = 1) +
-  coord_fixed() +
-  labs(
-    # title = "Type M error for different number of periods and observation",
-    title = "The 'balls of yarn' graph",
-    x = "Number of zip codes",
-    y = "Number of time periods",
-    fill = "Exaggeration ratio"
-  ) 
-```
-
-## Varying the proportion of treated
-
-
-
-```{r sim_p_treat, echo=FALSE, message=FALSE}
-vect_N_z <- c(100)
-vect_N_t <- c(10)
-vect_p_treat <- seq(0.1, 0.5, 0.1)# seq(0.1, 0.9, 0.1)
-N_iter <- 200
-
-param_DID_p_treat <- baseline_param_DID %>% 
-  mutate(beta = 0.4) %>% 
-  select(-N_z, -N_t, -p_treat) %>% #just quick fix, need to change this
-  crossing(vect_N_z, vect_N_t, vect_p_treat) %>% 
-  rename(N_z = vect_N_z, N_t = vect_N_t, p_treat = vect_p_treat) %>% 
-  crossing(rep_id = 1:N_iter) %>% 
-  select(-rep_id)
-
-# tic()
-# sim_DID_p_treat <- pmap_dfr(param_DID_p_treat, compute_sim_DID)
-# beep()
-# toc()
-
-# saveRDS(sim_DID_p_treat, here("Outputs/sim_DID_p_treat.RDS"))
-sim_DID_p_treat <- readRDS(here("Outputs/sim_DID_p_treat.RDS"))
-
-sim_DID_p_treat %>% 
-  filter(p_treat %in% sample(vect_p_treat, 4)) %>% 
-  ggplot(aes(x = estimate)) +
-  geom_density() +
-  facet_wrap(~ p_treat)
-
-sim_DID_p_treat %>% 
-  summarise_sim_DID() %>% 
   mutate(n_treated = p_treat*N_z*N_t) %>% 
   ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
@@ -460,7 +444,31 @@ sim_DID_p_treat %>%
     x = "Number of treated observations", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     title = "Evolution of bias with the number of treated observations",
-    subtitle = "For statistically significant estimates, 100 zip codes on 10 periods"
+    subtitle = paste("For statistically significant estimates, ",
+                     unique(summary_sim_DID$N_z),
+                     " zip codes ",
+                     unique(summary_sim_DID$N_t),
+                     " periods")
   ) 
 ```
+
+
+<!-- ```{r graph_results_DID, echo=FALSE, fig.asp=0.7} -->
+<!-- summary_sim_DID %>%  -->
+<!--   mutate( -->
+<!--     N_z = as.factor(N_z), -->
+<!--     N_t = as.factor(N_t) -->
+<!--   ) %>%  -->
+<!--   ggplot(aes(x = N_z, y = N_t, fill = type_m)) + -->
+<!--   geom_tile(color = "white", lwd = 1, linetype = 1) + -->
+<!--   coord_fixed() + -->
+<!--   labs( -->
+<!--     # title = "Type M error for different number of periods and observation", -->
+<!--     title = "The 'balls of yarn' graph", -->
+<!--     x = "Number of zip codes", -->
+<!--     y = "Number of time periods", -->
+<!--     fill = "Exaggeration ratio" -->
+<!--   )  -->
+<!-- ``` -->
+
 
