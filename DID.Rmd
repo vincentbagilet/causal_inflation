@@ -47,12 +47,27 @@ library(tictoc)
 library(here)
 library(beepr)
 
-set_mediocre_all(pal = "coty", gradient = "left")
+set_mediocre_all(pal = "coty")
+set.seed(12)
 ```
 
 ## Summary and intuition
 
-In the case of event studies, DiD or basically any study using discrete axogeneous shocks, the unconfoundedness / exaggeration trade-off is  mediated by the number of observations treated. In some classic DiD settings, while the number of observations is large, the number of events might be limited. Pinpointing exogenous shocks is never easy and we are sometimes only able to find a limited number of occurrences of this shock or shocks affecting a small portion of the population. More precisely, the number of observations with a non null treatment status might be small. In this instance, the variation available to identify the treatment is limited, possibly leading power to be low and exaggeration issues to arise. 
+In the case of event studies, DiD or basically any study using discrete exogenous shocks, the unconfoundedness / exaggeration trade-off is  mediated by the number of observations treated. In some classic DiD settings, while the number of observations is large, the number of events might be limited. Pinpointing exogenous shocks is never easy and we are sometimes only able to find a limited number of occurrences of this shock or shocks affecting a small portion of the population. More precisely, the number of observations with a non null treatment status might be small. In this instance, the variation available to identify the treatment is limited, possibly leading power to be low and exaggeration issues to arise. 
+
+The number of treated observations can be decomposed into two parts: the total number of observations times the proportion of observations in the treated group. Of course, if one reduces the total sample size, precision and thus power will decrease. Now, we all remember that power is maximized when the proportion of treated observations is equal to the proportion of untreated ones. If we consider a fixed number of observations, decreasing the proportion of treated observations below 0.5 will decrease precision and power. 
+
+The simple formula of the standard error of the difference of the averages of the outcome variable in the treated and control group illustrates this. Of course this does not represent the actual standard error of the DiD estimate but it represents something similar and can be useful to get an intuition for this trade-off. The formula is the following:
+
+$$se_{\bar{y_T} - \bar{y_c}} = \sqrt{\dfrac{\sigma_T^2}{n_T} + \dfrac{\sigma_C^2}{n_C}}$$
+where $n_T$ and $n_C$ are the number of observation in the treated group and the control group respectively and $\sigma_T$ and $\sigma_C$ the standard deviations of the outcome in the treated group and the control group respectively. In many cases, we can assume that $\sigma_T = \sigma_C = \sigma$. Under this assumption we have: 
+
+$$se_{\bar{y_T} - \bar{y_c}} = \dfrac{\sigma}{\sqrt{n}} \times \sqrt{\dfrac{1}{p_T(1-p_T)}}$$
+where $n$ is the total number of observations and $p_T$ the proportion of treated observations. 
+
+From this simple formula it is obvious that the standard error of interest increases when $n$ decreases and that, for $n$ constant, it is minimized when the proportion of treated is 0.5. If there are less treated than control, one may think of decreasing the number of observations in the control group to get to $p_T = 0.5$. Yet, this will also reduce $n$ and the first equation makes clear that only reducing $n_C$ will increase the standard error of interest. 
+ 
+The unbalance between the number of treated and controls is more general than only event studies and DiD but is particularly salient in this case.
 
 ## An illustrative example
 
@@ -142,10 +157,10 @@ generate_data_DID <- function(N_z,
     group_by(zip) %>%
     mutate(
       zip_fe = rnorm(1, mu_zip_fe, sigma_zip_fe),
+      # x = rnorm(1, 0, 350),
       t_event = ifelse(staggered, sample(2:(N_t - 1), 1), floor(N_t/2)), 
         #We use 2:(N_t-1) to aalways have a pre and post period
-      t_event = ifelse(in_treatment, t_event, NA),
-      beta = ifelse(is.na(t_event), 0, beta)
+      t_event = ifelse(!in_treatment & staggered, NA, t_event)
     ) %>%
     ungroup() %>%
     group_by(t) %>%
@@ -156,7 +171,7 @@ generate_data_DID <- function(N_z,
       treated = in_treatment & post, 
       t_centered = t - t_event,
       e = rnorm(nrow(.), 0, sigma_e),
-      birthweight0 = alpha + zip_fe + time_fe + e,
+      birthweight0 = alpha + zip_fe + time_fe + e, #+ 1*x
       birthweight1 = birthweight0 + beta,
       birthweight = treated*birthweight1 + (1 - treated)*birthweight0
     )
@@ -176,14 +191,14 @@ We consider that:
 - Birthweight is expressed in grams. In Lavaine and Neidell's sample made of babies born in France, the average birthweight is 3228g (sd = 353). We choose `alpha` and `sigma_e` to yield a similar distribution. These values of course depend on the values of the other parameters
 - A usual treatment effect size in published studies is a change of about 1 to 3% in birthweight. We consider a 2% effect size. Thus, we set $\beta = 3228 \times 0.02 \simeq 65$
 - We set time and individual fixed effects to be of half of the order of magnitude of the treatment effect and with a standard deviation roughly equal to their mean (somehow arbitrary choice),
-- In these type of analyses, plant closures do not happen often and therefore the proportion of treated observations is limited. As a baseline, we can assume that 2% of the plants close over the period. Translating it in terms of closures, in the two years of the study (24 months), out of the 1000 plants, 20 closed. This does not seem like a particularly large number as such closures are rare. 
+- In these type of analyses, plant closures do not happen often and therefore the proportion of treated observations is limited. As a baseline, we can assume that 5% of the plants close over the period. Translating it in terms of closures, in the two years of the study (24 months), out of the 1000 plants, 50 closed. This does not seem like a particularly large number as such closures are rare. 
 
 ```{r baseline_param_DID, echo=FALSE}
 baseline_param_DID <- tibble(
-  N_z = 1000,
+  N_z = 5000,
   N_t = 24,
-  sigma_e = 350,
-  p_treat = 0.02,
+  sigma_e = 350, #65,
+  p_treat = 0.05,
   staggered = FALSE,
   alpha = 3163,
   beta = 65,
@@ -196,12 +211,13 @@ baseline_param_DID <- tibble(
 baseline_param_DID %>% kable()
 ```
 
-Here is an example of data created with the data generating process and baseline parameter values, for 2 zip codes and 8 time periods:
+Here is an example of data created with the data generating process and baseline parameter values, for 2 zip codes and 8 time periods and not displaying `t_event`, `ìn_treatment`, `post` and `t_centered`:
 
 ```{r example_data_DID, echo=FALSE}
 baseline_param_DID %>% 
-  mutate(N_z = 2, N_t = 8) %>%
+  mutate(N_z = 2, N_t = 8, p_treat = 0.5) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
+  select(zip, t, treated, starts_with("birthweight"), e, ends_with("fe")) %>% 
   kable()
 ```
 
@@ -224,8 +240,11 @@ ex_data_sd <- ex_data %>%
 ex_data_mean %>% 
   rbind(ex_data_sd) %>% 
   kable()
-```
 
+# ex_data %>% 
+#   count(treated) %>% 
+#   kable()
+```
 
 Treatment allocations in the staggered and non staggered case, when the proportion of treated is 30%, are as follows:
 
@@ -234,13 +253,14 @@ labs_graph_staggered <- labs(
     title = "Treatment assignment across time and zip codes",
     x = "Time index", 
     y = "Zip code id", 
-    fill = "Treated"
+    fill = "Treatment status"
   )
 
 baseline_param_DID %>% 
   mutate(N_z = 20, N_t = 50, p_treat = 0.3) %>%
-  pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
-  ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) + 
+  pmap_dfr(generate_data_DID) %>% 
+  mutate(treated = ifelse(treated, "Treated", "Not treated")) %>% 
+  ggplot(aes(x = t, y = factor(zip), fill = fct_rev(treated))) + 
   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
   coord_fixed() +
   labs_graph_staggered + 
@@ -249,13 +269,76 @@ baseline_param_DID %>%
 baseline_param_DID %>%
   mutate(N_z = 20, N_t = 50, p_treat = 0.3) %>%
   mutate(staggered = TRUE) %>%
-  pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
-  ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) +
+  pmap_dfr(generate_data_DID) %>% 
+  mutate(treated = ifelse(treated, "Treated", "Not treated")) %>% 
+  ggplot(aes(x = t, y = factor(zip), fill = fct_rev(treated))) +
   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
   coord_fixed() +
   labs_graph_staggered +
   labs(subtitle = "Staggered")
 ```
+
+#### Quick data exploration
+
+We quickly explore a data set generated with our function. First, we look at the distribution of potential outcomes.
+
+```{r eda_distrib_outcome,echo=FALSE}
+ex_data %>% 
+  pivot_longer(
+    cols = c(birthweight0, birthweight1),
+    names_to = "potential_outcome",
+    values_to = "potential_birthweight"
+  ) %>% 
+  mutate(potential_outcome = factor(str_remove(potential_outcome, "birthweight"))) %>% 
+  ggplot(aes(x = potential_birthweight, fill = potential_outcome, color = potential_outcome)) +
+  geom_density() +
+  labs(
+    x = "Birthweight (in g)",
+    y = "Density",
+    color = "Potential Outcome",
+    fill = "Potential Outcome",
+    title = "Distribution of potential birthweight"
+  )
+```
+
+Then, we compare the average birthweight before and after the treatment, in the control and treatment group.
+
+```{r eda_comparison_treatment,echo=FALSE}
+ex_data %>%
+  mutate(
+    before_after = ifelse(post, "After", "Before"),
+    in_treatment = ifelse(in_treatment, "Treatment", "Control")
+  ) %>% 
+  ggplot(aes(x = fct_rev(before_after), color = in_treatment, y = birthweight)) +
+  stat_summary(geom = "pointrange", fun.data = "mean_se") +
+  labs(
+    x = "Before or after the treatment",
+    y = "Average birthweight (in g)",
+    color = "Treatment group",
+    title = "Comparison of average birthweight",
+    subtitle = "Before and after the treatment, depending on treatement status"
+  )
+```
+
+<!-- ```{r eda_evolution_outcome,echo=FALSE} -->
+<!-- ex_data %>% -->
+<!--   group_by(in_treatment, t) %>%  -->
+<!--   summarize( -->
+<!--     mean_birthweight = mean(birthweight), -->
+<!--     se_birthweight = sd(birthweight) / sqrt(n()), -->
+<!--     CI_up = mean_birthweight + (1.96 * se_birthweight), -->
+<!--     CI_low = mean_birthweight + (-1.96 * se_birthweight), -->
+<!--     .groups = "drop" -->
+<!--   ) %>%  -->
+<!--   ggplot(aes(x = t, y = mean_birthweight, color = in_treatment)) + -->
+<!--   geom_ribbon( -->
+<!--     aes(ymin = CI_low, ymax = CI_up, fill = in_treatment),  -->
+<!--     alpha = 0.2,  -->
+<!--     color = FALSE -->
+<!--   ) + -->
+<!--   geom_line() + -->
+<!--   ylim(c(2000, 4000))  -->
+<!-- ``` -->
 
 ### Estimation
 
@@ -358,7 +441,7 @@ baseline_param_DID %>%
 We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `N_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_DID, echo=FALSE}
-vect_p_treat <- c(seq(0.002, 0.01, 0.002), seq(0.01, 0.05, 0.01))
+vect_p_treat <- c(0.001, seq(0.002, 0.01, 0.002), c(0.01, 0.02, 0.03))
 N_iter <- 100
 
 param_DID <- baseline_param_DID %>% 
@@ -390,17 +473,20 @@ First, we quickly explore the results.
 sim_DID <- readRDS(here("Outputs/sim_DID.RDS"))
 
 sim_DID %>% 
+  filter(p_treat %in% sample(vect_p_treat, 4)) %>%  
   mutate(
+    n_treat = p_treat*N_z*N_t,
+    # n_treat_name = fct_order(paste("Nb treated:", n_treat),
     N_z = paste("Number zip codes: ", str_pad(N_z, 2)),
     N_t = paste("Number periods: ", str_pad(N_t, 2))
   ) %>% 
   ggplot(aes(x = estimate)) +
   geom_vline(xintercept = unique(sim_DID$true_effect)) +
   geom_density() +
-  facet_grid(~ p_treat) +
+  facet_grid(~ n_treat) +
   labs(
     title = "Distribution of the estimates of the treatment effect",
-    subtitle = "For different number of zip codes and time period",
+    subtitle = "For different number of treated observations",
     x = "Estimate of the treatment effect",
     y = "Density",
     caption = "The vertical line represents the true effect"
@@ -425,7 +511,8 @@ summarise_sim_DID <- function(data) {
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
-    ungroup()
+    ungroup() %>% 
+    mutate(n_treated = p_treat*N_z*N_t)
 } 
 
 summary_sim_DID <- summarise_sim_DID(sim_DID)
@@ -438,7 +525,7 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
-  mutate(n_treated = p_treat*N_z*N_t) %>% 
+  filter(n_treated < 4000) %>% 
   ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
   geom_line(size = 0.8) +
@@ -446,12 +533,28 @@ summary_sim_DID %>%
     x = "Number of treated observations", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     title = "Evolution of bias with the number of treated observations",
-    subtitle = paste("For statistically significant estimates, ",
-                     unique(summary_sim_DID$N_z),
-                     " zip codes ",
-                     unique(summary_sim_DID$N_t),
-                     " periods")
+    subtitle = "For statistically significant estimates",
+    caption = paste("Fixed sample size:",
+                    unique(summary_sim_DID$N_z)*unique(summary_sim_DID$N_t),
+                    "observations \n")
   ) 
+```
+
+```{r main_graph_DID_paper, dpi=600, echo=FALSE, eval=FALSE, include=FALSE}
+summary_sim_DID %>% 
+  filter(n_treated < 4000) %>% 
+  ggplot(aes(x = n_treated, y = bias_signif)) + 
+  # geom_point() +
+  geom_line(size = 0.8) +
+  labs(
+    x = "Number of treated observations", 
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    caption = paste("Fixed sample size:",
+                    unique(summary_sim_DID$N_z)*unique(summary_sim_DID$N_t),
+                    "observations \n")
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) +
+  theme_mediocre(base_family = "Lora") 
 ```
 
 
