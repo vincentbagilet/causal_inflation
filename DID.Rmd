@@ -91,7 +91,8 @@ We consider an AR(1) process along each dimension. Thus, birthweight is defined 
 To simplify, we consider the following additional assumptions:
 
 - The treatment is constant in time and homogeneous across zip codes
-- A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. we draw these zip codes at random. Note that the value of the zip code identifiers do not matter here. So we could assume that the non-treated zip codes are those with the larger zip codes identifiers for instance,
+- A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. We draw these zip codes at random. Note that drawing at random is not necessary here. Without loss of generality, we could assume that the non-treated zip codes are those with the larger zip codes identifiers for instance,
+- We assume that, among treated zip codes, on average half of the observations are treated. This choice is arbitrary but we choose that such that the treatment happens on average in middle of the of the time period,
 - The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyze the non staggered version.
 
 More precisely, we set: 
@@ -127,10 +128,10 @@ generate_data_DID <- function(N_z,
                               staggered,
                               alpha,
                               beta,
-                              mu_zip_fe = 0, 
-                              sigma_zip_fe = 0,
-                              mu_time_fe = 0, 
-                              sigma_time_fe = 0
+                              mu_zip_fe, 
+                              sigma_zip_fe,
+                              mu_time_fe, 
+                              sigma_time_fe
                              ) {
   
   if (!is.logical(staggered)) {stop("staggered must be logical")} 
@@ -171,17 +172,18 @@ We set baseline values for the parameters to emulate a somehow realistic observa
 We get "inspiration" for the values of parameters from [Lavaine and Neidell (2017)](https://www.journals.uchicago.edu/doi/full/10.1086/691554).
 
 We consider that:
-- We consider a large number of zip codes and time periods,
+- We consider a large number of zip codes (1000 zip codes) and time periods (24 months),
 - Birthweight is expressed in grams. In Lavaine and Neidell's sample made of babies born in France, the average birthweight is 3228g (sd = 353). We choose `alpha` and `sigma_e` to yield a similar distribution. These values of course depend on the values of the other parameters
 - A usual treatment effect size in published studies is a change of about 1 to 3% in birthweight. We consider a 2% effect size. Thus, we set $\beta = 3228 \times 0.02 \simeq 65$
-- We set time and individual fixed effects to be of half of the order of magnitude of the treatment effect and with a standard deviation roughly equal to their mean (somehow arbitrary choice).
+- We set time and individual fixed effects to be of half of the order of magnitude of the treatment effect and with a standard deviation roughly equal to their mean (somehow arbitrary choice),
+- In these type of analyses, plant closures do not happen often and therefore the proportion of treated observations is limited. As a baseline, we can assume that 2% of the plants close over the period. Translating it in terms of closures, in the two years of the study (24 months), out of the 1000 plants, 20 closed. This does not seem like a particularly large number as such closures are rare. 
 
 ```{r baseline_param_DID, echo=FALSE}
 baseline_param_DID <- tibble(
-  N_z = 500,
-  N_t = 40,
+  N_z = 1000,
+  N_t = 24,
   sigma_e = 350,
-  p_treat = 0.5,
+  p_treat = 0.02,
   staggered = FALSE,
   alpha = 3163,
   beta = 65,
@@ -191,7 +193,7 @@ baseline_param_DID <- tibble(
   sigma_time_fe = 33
 )
 
-baseline_param_RDD %>% kable()
+baseline_param_DID %>% kable()
 ```
 
 Here is an example of data created with the data generating process and baseline parameter values, for 2 zip codes and 8 time periods:
@@ -225,7 +227,7 @@ ex_data_mean %>%
 ```
 
 
-Treatment allocations, in the staggered and non staggered case are as follows:
+Treatment allocations in the staggered and non staggered case, when the proportion of treated is 30%, are as follows:
 
 ```{r treatment_allocation_DID, echo=FALSE}
 labs_graph_staggered <- labs(
@@ -236,7 +238,7 @@ labs_graph_staggered <- labs(
   )
 
 baseline_param_DID %>% 
-  mutate(N_z = 20, N_t = 50) %>%
+  mutate(N_z = 20, N_t = 50, p_treat = 0.3) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
   ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) + 
   geom_tile(color = "white", lwd = 0.3, linetype = 1) +
@@ -245,7 +247,7 @@ baseline_param_DID %>%
   labs(subtitle = "Non staggered")
 
 baseline_param_DID %>%
-  mutate(N_z = 20, N_t = 50) %>%
+  mutate(N_z = 20, N_t = 50, p_treat = 0.3) %>%
   mutate(staggered = TRUE) %>%
   pmap_dfr(generate_data_DID) %>% #use pmap to pass the set of parameters
   ggplot(aes(x = t, y = factor(zip), fill = factor(treated))) +
@@ -356,7 +358,7 @@ baseline_param_DID %>%
 We will run the simulations for different sets of parameters by mapping our `compute_sim_DID` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_DID`. Note that in this table each set of parameters appears `N_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_DID, echo=FALSE}
-vect_p_treat <- c(seq(0.02, 0.08, 0.02), seq(0.1, 0.5, 0.1))
+vect_p_treat <- c(seq(0.002, 0.01, 0.002), seq(0.01, 0.05, 0.01))
 N_iter <- 100
 
 param_DID <- baseline_param_DID %>% 
@@ -393,9 +395,9 @@ sim_DID %>%
     N_t = paste("Number periods: ", str_pad(N_t, 2))
   ) %>% 
   ggplot(aes(x = estimate)) +
-  geom_vline(xintercept = 1) +
+  geom_vline(xintercept = unique(sim_DID$true_effect)) +
   geom_density() +
-  facet_grid(fct_rev(N_t) ~ N_z) +
+  facet_grid(~ p_treat) +
   labs(
     title = "Distribution of the estimates of the treatment effect",
     subtitle = "For different number of zip codes and time period",
