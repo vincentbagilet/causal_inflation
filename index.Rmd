@@ -1,6 +1,6 @@
 ---
 title: "Unconfounded but Inflated Causal Estimates"
-image: "images/scale.jpg"
+image: "images/balloon.jpg"
 angle: 130
 site: distill::distill_website
 links:

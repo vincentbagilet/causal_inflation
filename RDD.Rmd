@@ -77,10 +77,12 @@ dagify(Final ~ U + T + Qual,
        latent = "U",
        coords = list(x = c(Final = 3, T = 2, U = 2, Qual = 1),
                      y = c(Final = 0, T = 0, U = 1, Qual = 1))) %>% 
-  ggdag() +
-  geom_dag_point(colour = "white", stroke = TRUE) +
+  # ggdag() +
+  ggplot(ggplot2::aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(alpha = 0, stroke = TRUE) +
   geom_dag_edges(edge_colour = mediocrethemes::colors_table$base[6]) +
   geom_dag_text(
+    
     colour = mediocrethemes::colors_table$base[6], 
     size = 6,
     family = "Lora"
