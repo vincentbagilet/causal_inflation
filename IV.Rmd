@@ -53,7 +53,7 @@ set_mediocre_all(pal = "coty")
 
 ## Summary and intuition
 
-In the case of the IV, the confounding/type M trade-off is  mediated by the 'strength' of the instrument considered. When the instrument only explains a limited portion of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but power can low, potentially leading to high rates of type M error. 
+In the case of the IV, the unconfoundedness / exaggeration trade-off is  mediated by the 'strength' of the instrument considered. When the instrument only explains a limited portion of the variation in the explanatory variable, the IV can still be successful in avoiding confounders but power can low, potentially leading to exaggeration issues to arise. 
 
 ## An illustrative example
 
@@ -72,9 +72,31 @@ For simplicity, we consider several assumptions. This illustreation is not repre
 
 The DGP can be represented using the following Directed Acyclic Graph (DAG): 
 
-```{r DAG_RDD, echo=FALSE, out.width='70%'}
-include_graphics(here("images/DAGs/DAGs.001.png"))
+```{r DAG_IV, echo=FALSE, fig.asp=0.25, out.width='70%'}
+library(ggdag)
+
+dagify(Share ~ Turnout + U,
+       Turnout ~ U + Rainfall,
+       outcome = "Share",
+       latent = "U",
+       coords = list(x = c(Share = 3, Turnout = 2, U = 2.5, Rainfall = 1),
+                     y = c(Share = 1, Turnout = 1, U = 0, Rainfall = 1))) %>% 
+  # ggdag() +
+  ggplot(ggplot2::aes(x = x, y = y, xend = xend, yend = yend)) +
+  geom_dag_point(alpha = 0, stroke = TRUE) +
+  geom_dag_edges(edge_colour = mediocrethemes::colors_table$base[6]) +
+  geom_dag_text(
+    
+    colour = mediocrethemes::colors_table$base[6], 
+    size = 3,
+    family = "Lora"
+  ) +
+  theme_void()
 ```
+
+<!-- ```{r DAG_RDD, echo=FALSE, out.width='70%'} -->
+<!-- include_graphics(here("images/DAGs/DAGs.001.png")) -->
+<!-- ``` -->
 
 The DGP for the vote share of let's say the republican party in location $i$, $Share_i$, is defined as follows:
 
@@ -97,7 +119,7 @@ More precisely, we set:
 - $u \sim \mathcal{N}(0, \sigma_{u}^{2})$ the unobserved variable
 - $e^{(S)} \sim \mathcal{N}(0, \sigma_{e_S}^{2})$
 - $e^{(T)} \sim \mathcal{N}(0, \sigma_{e_T}^{2})$
-- We assume that $\delta = -\eta$ for simplicity. There is no actual basis for that and we may change that in the future. The opposite sign is just to get an upward bias, which makes the comparison between OLS and IV easier since the bias and type M go in the same direction.
+- We assume that $\delta = -\eta$ for simplicity. There is no actual basis for that and we may change that in the future. The opposite sign is just to get an upward bias, which makes the comparison between OLS and IV easier since the bias and the exaggeration go in the same direction.
 
 If one abstract from the name of the variable, they can notice that this setting is actually very general.
 
@@ -170,7 +192,7 @@ We consider that:
   - A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is $shape \times scale$ and the variance $shape \times scale^{2}$. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.
   - [Fowler (2013)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1816649) for an extremely large shock in voter turnout, compulsory voting, finds "that the policy increased voter turnout by 24 percentage points which in turn increased the vote shares and seat shares of the Labor Party by 7 to 10 percentage points." This correspond to a decrease in Republican vote share of approximately 0.3-0.4 when turnout increases by 1% (considering that his result is causal). We thus define the magnitude of the treatment effect $\\beta$ to be of this order of magnitude, even though it might be much smaller as the shock was particularly large. As underlined by Fowler, there is no consensus in the literature on the magnitude of the effect of turnout on vote share.
   - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14). The mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
-  - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the error terms
+  - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the error terms. Being conservative, we set its intensity to be twice as large as the treatment effect.
 
 We thus consider the following parameters:
 
@@ -181,14 +203,14 @@ baseline_param_IV <- tibble(
   # param_rain = 0.4,
   type_rain = "gamma",
   param_rain = list(c(0.13, 18)),
-  sigma_u = 8,
-  sigma_es = 8,
-  sigma_et = 10,
-  alpha = 72,
-  gamma = 58,
+  sigma_u = 11,
+  sigma_es = 11,
+  sigma_et = 12,
+  alpha = 73,
+  gamma = 59,
   treatment_effect = -0.3,
   iv_strength = -0.5, 
-  ovb_intensity = -1
+  ovb_intensity = -0.6
 )
 
 baseline_param_IV %>% kable()
@@ -352,16 +374,13 @@ compute_sim_IV <- function(N,
 We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_IV, echo=FALSE}
-fixed_parameters <- baseline_param_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.8, 0.1))
-# vect_iv_strength <- c(0.1)
-vect_ovb_intensity <- c(-1)
 n_iter <- 1000
 
-param_IV <- fixed_parameters %>% 
-  select(-iv_strength, -ovb_intensity) %>% 
-  crossing(vect_iv_strength, vect_ovb_intensity) %>% 
-  rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
+param_IV <- baseline_param_IV %>% 
+  select(-iv_strength) %>% 
+  crossing(vect_iv_strength) %>% 
+  rename(iv_strength = vect_iv_strength) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
 ```
@@ -388,7 +407,7 @@ sim_IV <- readRDS(here("Outputs/sim_IV.RDS"))
 
 sim_IV %>% 
   filter(between(estimate, -1.5, 0.5)) %>%
-  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
@@ -408,7 +427,7 @@ sim_IV %>%
 sim_IV %>%
   filter(between(estimate, -2.5, 1.5)) %>%
   filter(model == "IV") %>%
-  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
+  # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
   ggplot() +
   # geom_density_ridges(aes(
   geom_density(aes(
@@ -432,7 +451,7 @@ sim_IV %>%
 data_one_sim_IV <- sim_IV %>% 
   filter(between(estimate, -3, 1)) %>%
   filter(iv_strength == 0.1) %>% 
-  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) 
 
 data_one_sim_IV %>% 
@@ -463,7 +482,7 @@ We notice that the OLS is always biased and that the IV is never biased. However
 #Graph only for presentations, not compiled in the main .Rmd
 sim_IV %>% 
   filter(between(estimate, -1.3, 0.5)) %>%
-  filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
+  # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   filter(iv_strength == 0.4) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
@@ -483,9 +502,9 @@ sim_IV %>%
 ```
 
 
-### Computing bias and type M
+### Computing bias and exaggeration ratios
 
-We want to compare $\mathbb{E}[\beta_0 - \widehat{\beta_{i}}]$ and $\mathbb{E}[|\beta_0 - \widehat{\beta_{IV}}||signif]$. The first term represents the bias and the second term represents the type M error. This terms depend on the effect size. To enable comparison across simulation and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}[\beta_0/\widehat{\beta_{IV}}]$ and $\mathbb{E}[\beta_0/ \widehat{\beta_{IV}}|\text{signif}]$. The first term represents the bias and the second term represents the exaggeration ratio.
 
 ```{r summarise_IV}
 summarise_simulations <- function(data) {
@@ -494,7 +513,7 @@ summarise_simulations <- function(data) {
     group_by(ovb_intensity, iv_strength, model) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
-      type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -519,9 +538,7 @@ summary_sim_IV %>%
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
   ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
-  # geom_point() +
   geom_line(size = 0.8) +
-  facet_wrap(~ ovb_intensity_name) +
   labs(
     x = "IV strength", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
@@ -536,7 +553,7 @@ summary_sim_IV %>%
 #   geom_line(size = 0.8) 
 ```
 
-```{r main_graph_IV_paper, dpi=600}
+```{r main_graph_IV_paper, dpi=600, include=FALSE}
 summary_sim_IV %>% 
   filter(model %in% c("OLS", "IV")) %>%
   ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
@@ -545,61 +562,42 @@ summary_sim_IV %>%
     x = "IV strength", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Model",
-    # title = "Evolution of bias with intensity of the IV",
-    # caption = "Only statistically significant estimates"
   ) +
   theme_mediocre(base_family = "Lora") 
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
+
+ggsave("main_graph_IV_paper.pdf", path = "images", width = 7.4, height = 4.4)
 ```
 
-Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. For now, we consider the median because for very low IV strength, we get very extreme values. We need to investigate this further.
+We notice that, if the IV strength is low, on average, statistically significant estimates overestimate the true effect. If the IV strength is too low, it might even be the case that the benefit of the IV is overturned by the exaggeration issue. The IV yields an unbiased estimate and enables to get rid of the OVB
+but such statistically significant estimates fall, on average, even further from the true effect.
 
-```{r graph_results_all_IV, echo=FALSE, fig.asp=0.7}
-summary_sim_IV %>% 
-  mutate(
-    ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
-  ) %>%
-  ggplot(aes(x = iv_strength, y = bias_all_median, color = model)) + 
-  # geom_point() +
-  geom_line(size = 0.8) +
-  facet_wrap(~ ovb_intensity_name) +
-  labs(
-    x = "IV strength", 
-    y = expression(paste("Median  ", frac("Estimate", "True Effect"))),
-    color = "Model",
-    title = "Evolution of bias with intensity of the IV",
-    subtitle = "For all estimates"
-  ) +
-  ylim(c(0.9, 1.4))
-```
+Of course, if one considers all estimates, as the IV is unbiased, this issue does not arise. 
+
+<!-- ```{r graph_results_all_IV, echo=FALSE, fig.asp=0.7} -->
+<!-- summary_sim_IV %>%  -->
+<!--   mutate( -->
+<!--     ovb_intensity_name = paste("OVB intensity:", ovb_intensity) -->
+<!--   ) %>% -->
+<!--   ggplot(aes(x = iv_strength, y = bias_all_median, color = model)) +  -->
+<!--   # geom_point() + -->
+<!--   geom_line(size = 0.8) + -->
+<!--   facet_wrap(~ ovb_intensity_name) + -->
+<!--   labs( -->
+<!--     x = "IV strength",  -->
+<!--     y = expression(paste("Median  ", frac("Estimate", "True Effect"))), -->
+<!--     color = "Model", -->
+<!--     title = "Evolution of bias with intensity of the IV", -->
+<!--     subtitle = "For all estimates" -->
+<!--   ) + -->
+<!--   ylim(c(0.9, 1.4)) -->
+<!-- ``` -->
 
 
 ### F-statistic analysis
 
 We then run some exploratory analysis to see the link between type M and F-stat (under construction).
-
-```{r fstat_bias_graph, echo=FALSE, fig.asp=0.7}
-sim_IV %>% 
-  filter(model == "IV") %>% 
-  mutate(significant = (p_value <= 0.05)) %>% 
-  mutate(bias = estimate/true_effect) %>% 
-  filter(fstat > 10) %>%  
-  # .$bias %>% mean(., na.rm = TRUE)
-  # filter(abs(bias) < 10) %>% 
-  ggplot(aes(x = fstat, y = bias, color = significant)) +
-  geom_point(alpha = 0.5) +
-  geom_hline(yintercept = 1) + 
-  labs(
-    title = "Bias as a function of the F-statistic in the simulations",
-    subtitle = "By significance and only for F-stat above 10",
-    x = "F-statistic",
-    y = expression(paste(frac("Estimate", "True Effect"))),
-    color = "Significant"
-  )
-```
-
-We can notice that there is a correlation between what we call IV strength and the F statistic. When looking in more details at the distribution of F-stats, we can notice that, even for some IV strength, there are a a good chunk of significant estimates with F-stats greater thant the standard but arbitrary threshold of 10.
 
 ```{r IV_strength_fstat_graph, echo=FALSE, fig.asp=0.8}
 sim_IV %>% 
@@ -663,9 +661,9 @@ sim_IV %>%
 #   group_by(iv_strength) %>% 
 #   summarise(
 #     mean_fstat = mean(fstat),
-#     type_m = median(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE)
+#     exag_ratio = median(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE)
 #   ) %>% 
-#   ggplot(aes(x = iv_strength, y = mean_fstat, color = type_m)) +
+#   ggplot(aes(x = iv_strength, y = mean_fstat, color = exag_ratio)) +
 #   geom_point() +
 #   # geom_jitter(alpha = 0.5) +
 #   labs(
@@ -678,7 +676,31 @@ sim_IV %>%
 #   ylim(c(0,20))
 ```
 
-We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph:
+Unsurprisingly, there is a clear positive correlation between what we call IV strength and the F-statistic. We then investigate the link between exaggeration ratios and F-statistics.
+
+```{r fstat_bias_graph, echo=FALSE, fig.asp=0.7}
+sim_IV %>% 
+  filter(model == "IV") %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  mutate(bias = estimate/true_effect) %>% 
+  filter(fstat > 10) %>%  
+  # .$bias %>% mean(., na.rm = TRUE)
+  # filter(abs(bias) < 10) %>% 
+  ggplot(aes(x = fstat, y = bias, color = significant)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1) + 
+  labs(
+    title = "Bias as a function of the F-statistic in the simulations",
+    subtitle = "By significance and only for F-stat above 10",
+    x = "F-statistic",
+    y = expression(paste(frac("Estimate", "True Effect"))),
+    color = "Significant"
+  )
+```
+
+We notice that, even when the F-statistic is greater than the usual but arbitrary threshold of 10, statistically significant estimates may, on average overestimate the true effect.
+
+We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph, keeping this limitation in mind:
 
 ```{r binned_fstat, echo=FALSE, fig.asp=0.8}
 sim_IV %>% 
@@ -693,7 +715,7 @@ sim_IV %>%
   group_by(ovb_intensity, bin_fstat) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -704,7 +726,7 @@ sim_IV %>%
   ggplot(aes(x = bin_fstat, y = bias_signif)) +
   geom_line(linetype = "dashed") +
   geom_vline(xintercept = 10, linetype ="solid") +
-  xlim(c(0, 40)) +
+  xlim(c(0, 80)) +
   labs(
     x = "Binned F-statistic", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
@@ -729,7 +751,7 @@ sim_IV %>%
   group_by(ovb_intensity, bin_fstat, iv_strength) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -753,7 +775,7 @@ sim_IV %>%
   ) 
 ```
 
-# A basic example
+# Standard parameter values
 
 For simplicity and for communication purposes, we considered an applied example. However, our results can also hold in general settings. We illustrate this, considering that most of the variables are distributed according to standard normal distributions. We keep the same DAG as it is the classic IV DAG. We also keep the same variable names but one should abstract from their meaning as they do not represent the same measure any longer.
 
@@ -761,7 +783,7 @@ We define the following parameters:
 
 ```{r set_param_IV_simple,echo=FALSE}
 simple_param_IV <- tibble(
-  N = 250,
+  N = 500,
   type_rain = "normal",
   param_rain = 1,
   sigma_u = 1,
@@ -769,7 +791,8 @@ simple_param_IV <- tibble(
   sigma_et = 1,
   alpha = 0,
   gamma = 0,
-  treatment_effect = -0.1
+  treatment_effect = -1,
+  ovb_intensity = -0.5
 )
 
 simple_param_IV %>% kable()
@@ -778,15 +801,12 @@ simple_param_IV %>% kable()
 We then run the whole analysis as before, with an OVB intensity of 0.4 so that it is not extremely large.
 
 ```{r sim_simple, echo=FALSE, eval=FALSE}
-fixed_parameters <- simple_param_IV #%>% rbind(...)
 vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.6, 0.1))
-# vect_iv_strength <- c(0.1)
-vect_ovb_intensity <- c(-0.4)
 n_iter <- 1000
 
-param_IV_simple <- fixed_parameters %>% 
-  crossing(vect_iv_strength, vect_ovb_intensity) %>% 
-  rename(iv_strength = vect_iv_strength, ovb_intensity = vect_ovb_intensity) %>% 
+param_IV_simple <- simple_param_IV %>% 
+  crossing(vect_iv_strength) %>% 
+  rename(iv_strength = vect_iv_strength) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
 
@@ -832,7 +852,7 @@ sim_IV_simple %>%
   group_by(ovb_intensity, bin_fstat) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),

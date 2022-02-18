@@ -105,7 +105,7 @@ We consider an AR(1) process along each dimension. Thus, birthweight is defined 
 
 To simplify, we consider the following additional assumptions:
 
-- The treatment is constant in time and homogeneous across zip codes
+- The treatment is constant in time and homogeneous across zip codes. In this case, the two ways fixed effect estimation should yield a correct estimate of the ATET (as discussed in [de Chaisemartin and d'Haultfoeuille (2022)](https://www.nber.org/papers/w29691) for instance)
 - A proportion $p_{treat}$ of zip codes are ever treated over the period. Hence, a proportion of $1-p_{treat}$ zip codes are never treated over the period. We draw these zip codes at random. Note that drawing at random is not necessary here. Without loss of generality, we could assume that the non-treated zip codes are those with the larger zip codes identifiers for instance,
 - We assume that, among treated zip codes, on average half of the observations are treated. This choice is arbitrary but we choose that such that the treatment happens on average in middle of the of the time period,
 - The implementation of the treatment can be staggered or not. If it is not staggered, the treatment date is set to be in the middle of the period. For now we only analyze the non staggered version.
@@ -125,7 +125,7 @@ More precisely, we set:
 We also create a bunch of variables that can be useful:
 
 - $InTreatment_z$ equal to 1 if zip code $z$ ever gets treated,
-- $t^{event}_z$ equal to the date at which zip code $z$ gets treated, especially usefull in the staggered setting,
+- $t^{event}_z$ equal to the date at which zip code $z$ gets treated, especially useful in the staggered setting,
 - $t^{centered}_z$ representing the distance in terms of periods to the beginning of the treatment for zip code $z$,
 - $Post_{zt}$ equal to 1 if the period $t$ is after the treatment has begun for zip code $z$. This variable is only useful for non-staggered treatment allocation case.
 
@@ -505,7 +505,7 @@ summarise_sim_DID <- function(data) {
     group_by(p_treat, N_z, N_t) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
-      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      exag_ratio = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -525,7 +525,7 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
-  filter(n_treated < 4000) %>% 
+  filter(n_treated < 3000) %>% 
   ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
   geom_line(size = 0.8) +
@@ -540,9 +540,9 @@ summary_sim_DID %>%
   ) 
 ```
 
-```{r main_graph_DID_paper, dpi=600, echo=FALSE, eval=FALSE, include=FALSE}
+```{r main_graph_DID_paper, dpi=600, include=FALSE}
 summary_sim_DID %>% 
-  filter(n_treated < 4000) %>% 
+  filter(n_treated < 3000) %>% 
   ggplot(aes(x = n_treated, y = bias_signif)) + 
   # geom_point() +
   geom_line(size = 0.8) +
@@ -555,6 +555,8 @@ summary_sim_DID %>%
   ) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) +
   theme_mediocre(base_family = "Lora") 
+
+ggsave("main_graph_DID_paper.pdf", path = "images", width = 7.4, height = 4.4)
 ```
 
 
@@ -564,7 +566,7 @@ summary_sim_DID %>%
 <!--     N_z = as.factor(N_z), -->
 <!--     N_t = as.factor(N_t) -->
 <!--   ) %>%  -->
-<!--   ggplot(aes(x = N_z, y = N_t, fill = type_m)) + -->
+<!--   ggplot(aes(x = N_z, y = N_t, fill = exag_ratio)) + -->
 <!--   geom_tile(color = "white", lwd = 1, linetype = 1) + -->
 <!--   coord_fixed() + -->
 <!--   labs( -->

@@ -51,7 +51,7 @@ set_mediocre_all(pal = "coty")
 
 ## Summary and intuition
 
-In the case of the RDD, the trade-offbetween avoiding confounding and inflated effect sizes due to low power issues is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of confounding is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing the exaggeration ratio.
+In the case of the RDD, the trade-off between avoiding confounding and inflated effect sizes due to low power issues is mediated by the size of the bandwidth considered in the analysis. The underlying idea is that the smaller the bandwidth, the more comparable units are and therefore the smaller the risk of confounding is. Yet, with a smaller bandwidth, sample size and thus power decrease, increasing the exaggeration ratio.
 
 ## An illustrative example
 
