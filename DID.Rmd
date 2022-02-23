@@ -505,8 +505,8 @@ summarise_sim_DID <- function(data) {
     group_by(p_treat, N_z, N_t) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
-      exag_ratio = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
-      bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      exag_ratio = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
       .groups	= "drop"
@@ -519,14 +519,14 @@ summary_sim_DID <- summarise_sim_DID(sim_DID)
 # saveRDS(summary_sim_DID, here("Outputs/summary_sim_DID.RDS"))
 ```
 
-### Graph
+### Main graph
 
 To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_DID, echo=FALSE, fig.asp=0.7}
 summary_sim_DID %>% 
   filter(n_treated < 3000) %>% 
-  ggplot(aes(x = n_treated, y = bias_signif)) + 
+  ggplot(aes(x = n_treated, y = exag_ratio)) + 
   # geom_point() +
   geom_line(size = 0.8) +
   labs(
@@ -543,7 +543,7 @@ summary_sim_DID %>%
 ```{r main_graph_DID_paper, dpi=600, include=FALSE}
 summary_sim_DID %>% 
   filter(n_treated < 3000) %>% 
-  ggplot(aes(x = n_treated, y = bias_signif)) + 
+  ggplot(aes(x = n_treated, y = exag_ratio)) + 
   # geom_point() +
   geom_line(size = 0.8) +
   labs(
@@ -551,7 +551,8 @@ summary_sim_DID %>%
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     caption = paste("Fixed sample size:",
                     unique(summary_sim_DID$N_z)*unique(summary_sim_DID$N_t),
-                    "observations \n")
+                    "observations \n",
+                    "Only statistically significant estimates")
   ) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) +
   theme_mediocre(base_family = "Lora") 

@@ -190,27 +190,28 @@ We consider that:
 - Fujiwara et al. find that "The trends specifications suggest that 1 millimeter of rainfall decreases turnout by 0.05–0.07 percentage points" and Gomez et al. (and thus Cooperman) find "a county that receives one inch of rainfall on election day is likely to have approximately 1 percentage point lower voter turnout" which is equivalent to a 1mm increase in rainfall is associated with about a 0.04 percentage points decrease in voter turnout. For simplicity in interpretation, when rainfall is not a dummy, it is expressed in centimeters. So, we will consider iv_strength in the range -0.1 and -1.3
 - We calibrate the distribution parameters to fit a mix if information from table 1 from both Fujiwara et al. and Cooperman (converting the rainfall into centimeters):
   - A gamma distribution represents well the distribution of rainfall. Gamma distribution can have two parameters a shape and a scale. The mean is $shape \times scale$ and the variance $shape \times scale^{2}$. The parameters of the distribution of rainfall are comparable in both papers (mean 2.4 and standard deviation 6.6). We solve the system of mean and variance for shape and scale and get 0.13 and 18.
-  - [Fowler (2013)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1816649) for an extremely large shock in voter turnout, compulsory voting, finds "that the policy increased voter turnout by 24 percentage points which in turn increased the vote shares and seat shares of the Labor Party by 7 to 10 percentage points." This correspond to a decrease in Republican vote share of approximately 0.3-0.4 when turnout increases by 1% (considering that his result is causal). We thus define the magnitude of the treatment effect $\\beta$ to be of this order of magnitude, even though it might be much smaller as the shock was particularly large. As underlined by Fowler, there is no consensus in the literature on the magnitude of the effect of turnout on vote share.
+  - The magnitude of the effect of turnout on vote share is subject to intense debate in the literature (cf [Shaw and Petrocik (2020)](https://oxford.universitypressscholarship.com/view/10.1093/oso/9780190089450.001.0001/oso-9780190089450) for instance). As underlined by Shaw and Petrocik and in [Fowler (2013)](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1816649), some studies find large effects, others no effects or small effects. Fowler (2013) falls into the large effects category as [described by the author himself](https://www.cambridge.org/core/journals/political-science-research-and-methods/article/regular-voters-marginal-voters-and-the-electoral-effects-of-turnout/F835F3CAE47B7ACB5D49AAE5B97FBD79). The study, for an extremely large shock in voter turnout, compulsory voting, finds "that the policy increased voter turnout by 24 percentage points which in turn increased the vote shares and seat shares of the Labor Party by 7 to 10 percentage points." This correspond to a decrease in Republican vote share of approximately 0.3-0.4 when turnout increases by 1% (considering that his result is causal). These results being large, we consider effects that are smaller but of a similar magnitude: we simulate that when turnout increases by 1%, Republican vote share decreases by 0.1. This enable to test whether the design would be good enough to detect an effect that is not particularly large.
   - We set the intercepts and standard deviations of the errors to produce turnouts and vote shares consistent with the papers. Voter turnout parameters are roughly similar in both papers (mean 58 sd 14). The mean and standard deviation of Republican vote share are given in Fujiwara et al. (mean 55.3 and sd 14.2). We may actually take values from a recent election (*eg* the last presidential election)
   - We set the standard deviation of the omitted variable bias to be of the order of magnitude of the error terms. Being conservative, we set its intensity to be twice as large as the treatment effect.
+  - We consider 10000 observations. This corresponds to data as the US county level as used in [Hansford and Gomez (2010)](https://www.cambridge.org/core/journals/american-political-science-review/article/estimating-the-electoral-effects-of-voter-turnout/8A880C28E79BE770A5CA1A9BB6CF933C) for instance but here for 3 presidential elections. We could have chosen a larger sample size but this sample size is already particularly large and makes it easier to illustrate our point. 
 
 We thus consider the following parameters:
 
 ```{r simple_param_IV, echo=FALSE}
 baseline_param_IV <- tibble(
-  N = 1000,
+  N = 10000,
   # type_rain = "bernoulli",
   # param_rain = 0.4,
   type_rain = "gamma",
   param_rain = list(c(0.13, 18)),
-  sigma_u = 11,
-  sigma_es = 11,
-  sigma_et = 12,
-  alpha = 73,
+  sigma_u = 14,
+  sigma_es = 14,
+  sigma_et = 13,
+  alpha = 60,
   gamma = 59,
-  treatment_effect = -0.3,
+  treatment_effect = -0.1,
   iv_strength = -0.5, 
-  ovb_intensity = -0.6
+  ovb_intensity = -0.2
 )
 
 baseline_param_IV %>% kable()
@@ -406,9 +407,9 @@ First, we quickly explore the results.
 sim_IV <- readRDS(here("Outputs/sim_IV.RDS"))
 
 sim_IV %>% 
-  filter(between(estimate, -1.5, 0.5)) %>%
+  filter(between(estimate, -1.3, 0.5)) %>%
   # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
-  filter(iv_strength %in% c(0.1, 0.2, 0.4, 0.6)) %>% 
+  filter(iv_strength %in% c(0.1, 0.4, 0.6)) %>% 
   mutate(iv_strength = str_c("IV strength: ", iv_strength)) %>% 
   ggplot(aes(x = estimate, fill = model, color = model)) +
   geom_vline(xintercept = unique(sim_IV$true_effect)) +
@@ -425,7 +426,7 @@ sim_IV %>%
   )
 
 sim_IV %>%
-  filter(between(estimate, -2.5, 1.5)) %>%
+  filter(between(estimate, -1.2, 1)) %>%
   filter(model == "IV") %>%
   # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>%
   ggplot() +
@@ -450,7 +451,7 @@ sim_IV %>%
 
 data_one_sim_IV <- sim_IV %>% 
   filter(between(estimate, -3, 1)) %>%
-  filter(iv_strength == 0.1) %>% 
+  filter(iv_strength == 0.3) %>% 
   # filter(ovb_intensity == sample(vect_ovb_intensity, 1)) %>% 
   mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) 
 
@@ -463,9 +464,7 @@ data_one_sim_IV %>%
     title = "Distribution of the estimates of the treatment effect conditional on significativity",
     subtitle = paste(
       "For different models (IV strength =", 
-      unique(data_one_sim_IV$iv_strength), 
-      "and OVB intensity = ", 
-      unique(data_one_sim_IV$ovb_intensity), ")"
+      unique(data_one_sim_IV$iv_strength), ")"
     ),
     x = "Estimate of the treatment effect",
     y = "Count",
@@ -513,7 +512,7 @@ summarise_simulations <- function(data) {
     group_by(ovb_intensity, iv_strength, model) %>%
     summarise(
       power = mean(significant, na.rm = TRUE)*100, 
-      exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
       bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
       bias_all = mean(estimate/true_effect, na.rm = TRUE),
       bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -545,7 +544,8 @@ summary_sim_IV %>%
     color = "Model",
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"
-  ) 
+  ) +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 7))
 
 # summary_sim_IV %>% 
 #   pivot_longer(c(bias_signif, bias_all), names_to = "bias_type", values_to = "bias") %>% 
@@ -562,8 +562,10 @@ summary_sim_IV %>%
     x = "IV strength", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Model",
+    caption = "Only for statistically significant estimates"
   ) +
-  theme_mediocre(base_family = "Lora") 
+  theme_mediocre(base_family = "Lora") +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 7))
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
 
@@ -661,9 +663,9 @@ sim_IV %>%
 #   group_by(iv_strength) %>% 
 #   summarise(
 #     mean_fstat = mean(fstat),
-#     exag_ratio = median(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE)
+#     type_m = median(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE)
 #   ) %>% 
-#   ggplot(aes(x = iv_strength, y = mean_fstat, color = exag_ratio)) +
+#   ggplot(aes(x = iv_strength, y = mean_fstat, color = type_m)) +
 #   geom_point() +
 #   # geom_jitter(alpha = 0.5) +
 #   labs(
@@ -698,6 +700,27 @@ sim_IV %>%
   )
 ```
 
+```{r fstat_bias_graph_paper, dpi=600, include=FALSE}
+sim_IV %>% 
+  filter(model == "IV") %>% 
+  mutate(significant = (p_value <= 0.05)) %>% 
+  mutate(bias = estimate/true_effect) %>% 
+  filter(fstat > 10) %>%  
+  ggplot(aes(x = fstat, y = bias, color = significant)) +
+  geom_point(alpha = 0.5) +
+  geom_hline(yintercept = 1) + 
+  labs(
+    x = "F-statistic",
+    y = expression(paste(frac("Estimate", "True Effect"))),
+    color = "Significant"
+  ) +
+  theme_mediocre(base_family = "Lora") 
+  # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
+  # scale_mediocre_d(pal = "blackandwhite")
+
+ggsave("fstat_bias_graph_paper.pdf", path = "images", width = 7.4, height = 4.4)
+```
+
 We notice that, even when the F-statistic is greater than the usual but arbitrary threshold of 10, statistically significant estimates may, on average overestimate the true effect.
 
 We cannot compute directly the bias of interest against the F-statistic because the F-statistic is not a parameter of the simulations and we do not control them, only the IV strength. To overcome this, we compute the median power by binned F-statistic. However, this is not correct as we end up comparing and pulling together simulations with different parameter values. We still display the graph, keeping this limitation in mind:
@@ -715,7 +738,7 @@ sim_IV %>%
   group_by(ovb_intensity, bin_fstat) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    type_m = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -751,7 +774,7 @@ sim_IV %>%
   group_by(ovb_intensity, bin_fstat, iv_strength) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),
@@ -852,7 +875,7 @@ sim_IV_simple %>%
   group_by(ovb_intensity, bin_fstat) %>%
   summarise(
     power = mean(significant, na.rm = TRUE)*100, 
-    exag_ratio = mean(ifelse(significant, abs(estimate - true_effect), NA), na.rm = TRUE),
+    type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
     bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
     bias_all = mean(estimate/true_effect, na.rm = TRUE),
     bias_all_median = median(estimate/true_effect, na.rm = TRUE),

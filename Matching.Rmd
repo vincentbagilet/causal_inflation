@@ -373,7 +373,7 @@ summarise_sim_matching <- function(data) {
     summarise(
       proportion_matched = mean(proportion_matched),
       power = mean(significant, na.rm = TRUE)*100, 
-      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      exag_ratio = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
       bias_all = mean(abs(estimate/true_effect), na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
@@ -389,18 +389,36 @@ summary_sim_matching <- summarise_sim_matching(sim_matching)
 
 ```{r graph_results_matching, echo = FALSE}
 summary_sim_matching %>% 
-  pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
+  pivot_longer(cols = c(exag_ratio, bias_all), names_to = "measure") %>% 
   mutate(
-    measure = ifelse(measure == "type_m", "Significant", "All")) %>% 
+    measure = ifelse(measure == "exag_ratio", "Significant", "All")) %>% 
   ggplot(aes(x = caliper, y = value, color = measure)) + 
-  # geom_point() +
   geom_line(size = 0.8) +
-  # facet_wrap(~ delta_name) +
   labs(
     x = "Caliper", 
     y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
     color = "Estimates",
     title = "Evolution of the Inflation of Estimates with the Caliper") 
+```
+
+```{r main_graph_matching_paper, dpi=600, include=FALSE}
+summary_sim_matching %>% 
+  pivot_longer(cols = c(exag_ratio, bias_all), names_to = "measure") %>% 
+  mutate(
+    measure = ifelse(measure == "exag_ratio", "Significant", "All")) %>% 
+  ggplot(aes(x = caliper, y = value, color = measure)) + 
+  geom_line(size = 0.8) +
+  labs(
+    x = "Caliper", 
+    y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
+    color = "Estimates"
+    # title = "Evolution of the Inflation of Estimates with the Caliper"
+  ) +
+  theme_mediocre(base_family = "Lora")
+  # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
+  # scale_mediocre_d(pal = "blackandwhite")
+
+ggsave("main_graph_matching_paper.pdf", path = "images", width = 7.4, height = 4.4)
 ```
 
 The blue line indicates the inflation of all estimates, regardless of their statistical significance. As the value of the caliper increases, estimates are more biased: this is due to the fact that we are comparing units that are less similar. The yellow line represents the inflation of statistically significant estimates at the 5% level. We clearly see with this line the danger of editorial policies biased toward small $p$-values: with low values of the caliper, statistically significant estimates are inflated!
