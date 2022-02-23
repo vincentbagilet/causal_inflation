@@ -703,8 +703,10 @@ sim_IV %>%
 ```{r fstat_bias_graph_paper, dpi=600, include=FALSE}
 sim_IV %>% 
   filter(model == "IV") %>% 
-  mutate(significant = (p_value <= 0.05)) %>% 
-  mutate(bias = estimate/true_effect) %>% 
+  mutate(
+    significant = ifelse(p_value <= 0.05, "Significant", "Non Significant"),
+    bias = estimate/true_effect,
+  ) %>% 
   filter(fstat > 10) %>%  
   ggplot(aes(x = fstat, y = bias, color = significant)) +
   geom_point(alpha = 0.5) +
@@ -712,7 +714,7 @@ sim_IV %>%
   labs(
     x = "F-statistic",
     y = expression(paste(frac("Estimate", "True Effect"))),
-    color = "Significant"
+    color = "Estimate"
   ) +
   theme_mediocre(base_family = "Lora") 
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +

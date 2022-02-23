@@ -232,9 +232,9 @@ outcome_regression <- function(data) {
 
 We then simulate 1000 datasets of 300 units and run the regression model:
 
-```{r sim_outcome_reg}
+```{r sim_outcome_reg, eval=FALSE}
 # first simulate simulation id
-data_simulations <- tibble(sim_id = 1:1000) %>%
+data_sim_ex <- tibble(sim_id = 1:1000) %>%
   # then simulate data
   mutate(data = map(
     sim_id,
@@ -245,18 +245,22 @@ data_simulations <- tibble(sim_id = 1:1000) %>%
   mutate(results = map(data, ~ outcome_regression(.)))
 
 # unnest the results
-data_simulations <- data_simulations %>%
+data_sim_ex <- data_sim_ex %>%
   select(-data) %>%
   unnest(results)
+
+# saveRDS(data_sim_ex, here("Outputs/data_sim_ex.RDS"))
 ```
 
 We plot the distribution of estimates:
 
 ```{r graph_outcome_reg}
-data_simulations %>%
+data_sim_ex <- readRDS(here("Outputs/data_sim_ex.RDS"))
+
+data_sim_ex %>%
   ggplot(., aes(x = estimate)) +
   geom_density(colour = NA) +
-  geom_vline(xintercept = mean(data_simulations$estimate)) +
+  geom_vline(xintercept = mean(data_sim_ex$estimate)) +
   annotate("text", x = 540, y = 0.009, label = "Mean of Estimates") + 
   annotate("text", x = 125, y = 0.009, label = "True ATT") + 
   geom_vline(xintercept = 100, colour = "#EAA95C") +
@@ -341,22 +345,22 @@ The function returns the estimate for the ATT, the associated $p$-value and 95% 
 We implement Monte-Carlo 300 simulations for different values of the caliper (it currently takes 24 minutes to run on a laptop computer):
 
 ```{r run_sim_matching, eval=FALSE}
-data_simulations <- tibble(sim_id = 1:300) %>%
+sim_matching <- tibble(sim_id = 1:1000) %>%
   # then simulate data
   mutate(data = map(
     sim_id,
     ~ pmap_dfr(baseline_param_match, generate_data_matching)
   )) %>%
   # generate caliper
-  crossing(caliper = seq(0.01, 1, 0.01)) %>%
+  crossing(caliper = c(0.01, seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))) %>%
   # finally run the matching analysis
   mutate(results = map2(data, caliper, ~ ps_function(.x, .y)))
 
-data_simulations <- data_simulations %>%
+sim_matching <- sim_matching %>%
   select(-data) %>%
   unnest(results)
 
-# saveRDS(data_simulations, here("Outputs/sim_matching.RDS"))
+# saveRDS(sim_matching, here("Outputs/sim_matching.RDS"))
 ```
 
 Once the simulations have been run, we compute the summary statistics using the `summarise_simulations()` function. We denote $\tau$ the true value of the causal estimand and $\widehat{\tau}$ its estimate. To illastrue the consequences of a loss of statistical power with lower values of the caliper, we compare $\mathbb{E}\left[\left|\frac{\widehat{tau}}{\tau}\right|\right]$ and $\mathbb{E}\left[\left|\frac{\widehat{\tau}}{\tau}\right| | signif \right]$. The first term represents the bias and the second term represents the type M error. 
@@ -373,8 +377,9 @@ summarise_sim_matching <- function(data) {
     summarise(
       proportion_matched = mean(proportion_matched),
       power = mean(significant, na.rm = TRUE)*100, 
-      exag_ratio = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
-      bias_all = mean(abs(estimate/true_effect), na.rm = TRUE),
+      type_m = mean(ifelse(significant, abs(estimate/true_effect), NA), na.rm = TRUE),
+      bias_signif = mean(ifelse(significant, estimate/true_effect, NA), na.rm = TRUE),
+      bias_all = mean(estimate/true_effect, na.rm = TRUE),
       .groups	= "drop"
     ) %>% 
     ungroup()
@@ -389,28 +394,28 @@ summary_sim_matching <- summarise_sim_matching(sim_matching)
 
 ```{r graph_results_matching, echo = FALSE}
 summary_sim_matching %>% 
-  pivot_longer(cols = c(exag_ratio, bias_all), names_to = "measure") %>% 
+  pivot_longer(cols = c(bias_signif, bias_all), names_to = "measure") %>% 
   mutate(
-    measure = ifelse(measure == "exag_ratio", "Significant", "All")) %>% 
+    measure = ifelse(measure == "bias_signif", "Significant", "All")) %>% 
   ggplot(aes(x = caliper, y = value, color = measure)) + 
   geom_line(size = 0.8) +
   labs(
     x = "Caliper", 
-    y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Estimates",
     title = "Evolution of the Inflation of Estimates with the Caliper") 
 ```
 
 ```{r main_graph_matching_paper, dpi=600, include=FALSE}
 summary_sim_matching %>% 
-  pivot_longer(cols = c(exag_ratio, bias_all), names_to = "measure") %>% 
+  pivot_longer(cols = c(bias_signif, bias_all), names_to = "measure") %>% 
   mutate(
-    measure = ifelse(measure == "exag_ratio", "Significant", "All")) %>% 
+    measure = ifelse(measure == "bias_signif", "Significant", "All")) %>% 
   ggplot(aes(x = caliper, y = value, color = measure)) + 
   geom_line(size = 0.8) +
   labs(
     x = "Caliper", 
-    y = expression(paste("Average  ", frac("|Estimate|", "True Effect"))),
+    y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Estimates"
     # title = "Evolution of the Inflation of Estimates with the Caliper"
   ) +
