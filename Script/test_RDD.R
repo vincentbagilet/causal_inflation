@@ -2,24 +2,23 @@
 # library(mediocrethemes)
 # 
 # set_mediocre_all()
-
 n <- 10000
-n_iter <- 200
+n_iter <- 300
 res <- rep(NA, n_iter)
 alpha <- 1
 delta <- 1
 beta <- 1
 gamma <- 1
-bw <- 0.5 #bw as the proportion of observations considered below or above the threshold
+bw <- 0.4 #bw as the proportion of observations considered below or above the threshold
 
 for (i in 1:n_iter) {
   u <- rnorm(n, 0, 1)
-  x <- rnorm(n, 0, 1)  + delta*u^3
+  x <- rnorm(n, 0, 1)  + delta*u
   treated <-  ifelse(x < median(x), 1, 0)
   in_bw <- dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw))
   e <- rnorm(n, 0, 0.5)
   # y <- alpha + rnorm(n, 1, 1)*treated + gamma*x + delta*u + e #non constant effect
-  y <- alpha + beta*treated + gamma*x + delta*u^2 + e
+  y <- alpha + beta*treated + gamma*x + delta*u^3 + e
 
   data_sharp <- tibble(x, y, u, treated, in_bw, e)
 
@@ -31,7 +30,7 @@ for (i in 1:n_iter) {
 res %>%
   qplot() +
   geom_vline(aes(xintercept = mean(res))) +
-  geom_vline(aes(xintercept = 1), linetype = "dashed")
+  geom_vline(aes(xintercept = 1), linetype = "solid")
 
 mean(res) - 1
 

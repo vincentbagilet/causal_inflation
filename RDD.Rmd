@@ -115,12 +115,14 @@ More precisely, we set:
 
 ### Data generation
 
+#### Generating function
+
 We write a simple function that generates the data. It takes as input the values of the different parameters and returns a data frame containing all the variables for this analysis. 
 
 Once the fake data is generated, to make things more realistic we consider our data as if it was actual data. We do not take advantage of our knowledge of the data generating process in the estimation procedure. However, we observe both potential outcomes and the unobserved ability. Note that, in a real world setting, one would generally know the value of the threshold (and thus of $q_c$). Based on that and to simplify the computation of the bandwidth, we store $q_c$.
 
 ```{r DGP_RDD}
-generate_data_rdd <- function(N, 
+generate_data_RDD <- function(N, 
                               sigma_u,
                               mu_h, 
                               sigma_h, 
@@ -136,13 +138,13 @@ generate_data_rdd <- function(N,
       # qual = rnorm(nrow(.), mu_h, sigma_h),
       # u = rnorm(nrow(.), 0.5, sigma_u) + qual + 0.3*qual^3,
       u = rnorm(nrow(.), 0, sigma_u),
-      qual = rnorm(nrow(.), mu_h, sigma_h) + delta*u^2,
+      qual = rnorm(nrow(.), mu_h, sigma_h) + delta*u^3,
       e = rnorm(nrow(.), 0, sigma_e),
       # qual_c = qual - quantile(qual, q_c),
       # treated = qual_c < 0,
       # threshold = quantile(qual, q_c),
       treated = qual < quantile(qual, q_c),
-      final0 = alpha + gamma*qual + delta*u^2 + e,
+      final0 = alpha + gamma*qual + delta*u^3 + e,
       final1 = final0 + beta,
       final = final0 + beta*treated,
       q_c = q_c
@@ -152,35 +154,7 @@ generate_data_rdd <- function(N,
 }
 ```
 
-We set baseline values for the parameters to emulate a somehow realistic observational study in this field. The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_RDD`.
-
-```{r baseline_param_RDD, echo=FALSE}
-baseline_param_RDD <- tibble(
-  N = 1000,
-  sigma_u = 0.5,
-  mu_h = 75,
-  sigma_h = 7,
-  sigma_e = 4,
-  alpha = 20,
-  beta = 1,
-  gamma = 0,
-  q_c = 0.5,
-  delta = 20
-)
-
-baseline_param_RDD %>% kable()
-```
-
-Here is an example of data created with our data generating process:
-
-```{r example_data_RDD, echo=FALSE}
-baseline_param_RDD %>% 
-  mutate(N = 10) %>% 
-  pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
-  kable()
-```
-
-### Defining the bandwidth
+#### Defining the bandwidth
 
 In a RDD, the model is estimated only for observations close enough to the threshold, *ie* in a given bandwidth. We therefore create a function to define this bandwidth by adding a variable to the data set `treated_bw` that is equal to `NA` if the observations is outside of the bandwidth, `TRUE` if the observation falls in the bandwidth and the student is treated and `FALSE`  if the observation falls in the bandwidth and the student is not treated. The bandwidth parameter `bw` represents the proportion of units that are in the bandwidth. If `bw = 0.1`, 10% of the students are in the bandwidth for instance.
 
@@ -201,11 +175,74 @@ define_bw <- function (data, bw) {
 } 
 ```
 
+#### Baseline parameters' values
+
+We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We make the following assumptions:
+
+- We assumes that grades are SAT scores. One can think of the qualifying exam as a state level exam that gives the opportunity to students with lower grades to receive additional lessons. For simplicity, we assume that the **scores have a mean of 1060 and standard error of 200** (based on [statistics provided by the Department of Education](https://nces.ed.gov/programs/digest/d20/tables/dt20_226.40.asp)). Since these scores depend on the unobserved ability, we adjust the values of the parameters to get the appropriate distributions.
+- Typical treatment effect sizes in economics of education are of the order of magnitude of 0.1 sd. [Kraft 2020](https://journals.sagepub.com/doi/abs/10.3102/0013189X20912798?journalCode=edra), reviewing 747 RCTs of education intervention finds that the median effect size is 0.1 sd. Interestingly, he finds that "larger studies with broad achievement measures have systematically smaller effect sizes". This might hint to publication bias as he underlines. In studies with more than 2000 individuals, the median effect is 0.03 sd. The same median effect size is observed in preregistered studies. We therefore consider an **effect size of 0.03 sd**, *ie* $\beta = 6 = 200\times 0.03$.
+- We assume that the unobserved ability has a standard deviation 
+- We consider that the threshold is located at the center of the distribution ($q_c = 0.5$). The bandwidth is symmetric around the cutoff. Considering a cutoff in the middle of the distribution enables us to consider very wide bandwidths, up to including the whole sample in the analysis
+
+The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_RDD`.
+
+```{r baseline_param_RDD, echo=FALSE}
+baseline_param_RDD <- tibble(
+  N = 1000,
+  sigma_u = 3,
+  mu_h = 1050,
+  sigma_h = 170, #sqrt(sd(qual)^2 - sd(u)^2) = sqrt(200^2 - sd(u)^2)
+  sigma_e = 100,
+  alpha = 550,
+  beta = 6,
+  gamma = 0.5,
+  q_c = 0.5,
+  delta = 1
+)
+
+baseline_param_RDD %>% kable()
+# 
+# ```
+# 
+# Here is an example of data created with our data generating process:
+# 
+# ```{r example_data_RDD, echo=FALSE}
+# baseline_param_RDD %>% 
+#   mutate(N = 10) %>% 
+#   pmap_dfr(generate_data_RDD) %>% #use pmap to pass the set of parameters
+#   kable()
+# ```
+# 
+# We check the standard deviation and means of the generated exam scores to make sure that they correspond to w to make:
+# 
+# ```{r check_sd_mean_RDD, echo=FALSE}
+
+ex_data_RDD <- baseline_param_RDD %>% 
+  mutate(N = 10000) %>% 
+  pmap_dfr(generate_data_RDD) 
+
+ex_data_RDD_mean <- ex_data_RDD %>% 
+  summarise(across(.cols = c(qual, final0), mean)) %>% 
+  mutate(Statistic = "Mean") %>% 
+  select(Statistic, everything())
+
+ex_data_RDD_sd <- ex_data_RDD %>% 
+  summarise(across(.cols = c(qual, final0), sd)) %>% 
+  mutate(Statistic = "Standard Deviation") %>% 
+  select(Statistic, everything())
+
+ex_data_RDD_mean %>% 
+  rbind(ex_data_RDD_sd) %>% 
+  kable()
+```
+
+#### Exploring the data generated
+
 The following graph illustrates this process by plotting final test scores against qualification ones depending on the value of `treated_bw`.
 
-```{r graph_bandwidth_RDD, echo=FALSE}
+```{r graph_bandwidth_RDD, echo=FALSE, fig.asp=1}
 baseline_param_RDD %>% 
-  pmap_dfr(generate_data_rdd) %>% #use pmap to pass the set of parameters
+  pmap_dfr(generate_data_RDD) %>% #use pmap to pass the set of parameters
   define_bw(0.5) %>%
   # mutate(
   #   treated_bw_phrase = case_when(
@@ -232,6 +269,74 @@ baseline_param_RDD %>%
   coord_fixed()
 ```
 
+Then, we quickly look at the distributions of the different variables.
+
+```{r}
+ex_data_RDD %>% 
+  pivot_longer(
+    cols = c(final0, final1),
+    names_to = "potential_outcome",
+    values_to = "potential_final"
+  ) %>% 
+  mutate(potential_outcome = factor(str_remove(potential_outcome, "final"))) %>% 
+  ggplot(aes(x = potential_final, fill = potential_outcome, color = potential_outcome)) +
+  geom_density() +
+  labs(
+    x = "Final score",
+    y = "Density",
+    color = "Potential Outcome",
+    fill = "Potential Outcome",
+    title = "Distribution of potential final scores"
+  )
+
+ex_data_RDD %>% 
+  ggplot(aes(x = u, fill = treated, color = treated)) +
+  geom_histogram() + 
+  labs(
+    title = "Distribution of ability",
+    x = "Ability (u)",
+    y = "Density"
+  ) 
+
+ex_data_RDD %>% 
+  ggplot(aes(x = qual, fill = treated, color = treated)) +
+  geom_histogram() + 
+  labs(
+    title = "Distribution of qualifying scores depending on treatment status",
+    x = "Qualifying Score",
+    y = "Density"
+  ) 
+
+ex_data_RDD %>% 
+  ggplot(aes(x = final, fill = treated, color = treated)) +
+  geom_histogram() + 
+  labs(
+    title = "Distribution of final scores",
+    x = "Final Score",
+    y = "Density"
+  ) 
+```
+
+We then look at the relations between the variables:
+
+```{r}
+ex_data_RDD %>% 
+  define_bw(0.5) %>%
+  ggplot(aes(x = final, y = u, color = treated_bw)) + 
+  geom_point()
+
+ex_data_RDD %>% 
+  define_bw(0.5) %>%
+  ggplot(aes(x = qual, y = u, color = treated_bw)) + 
+  geom_point()
+
+ex_data_RDD %>% 
+  define_bw(0.5) %>%
+  ggplot(aes(x = qual, y = final, color = treated_bw)) + 
+  geom_point()
+```
+
+
 ### Estimation
 
 After generating the data, we can run an estimation. 
@@ -239,7 +344,7 @@ After generating the data, we can run an estimation.
 Note that to run power calculations, we need to have access to the true effects. Therefore, before running the estimation, we write a short function to compute the average treatment effect on the treated (ATET). We will add this information to the estimation results. 
 
 ```{r compute_true_effect_RDD}
-compute_true_effect_rdd <- function(data) {
+compute_true_effect_RDD <- function(data) {
   treated_data <- data %>% 
     filter(treated) 
   return(mean(treated_data$final1 - treated_data$final0))
@@ -249,7 +354,7 @@ compute_true_effect_rdd <- function(data) {
 We then run the estimation. To do so, we only consider observations within the bandwidth and regress the final test scores on the treatment, the qualification score and their interaction. Note that we include this interaction term to allow more flexibility and to mimic an realistic estimation. Yet, we know that this interaction term does not appear in the DGP. Including it or not do not change the results. Also note that, of course, we do not include the unobserved ability in this model to create an OVB. 
 
 ```{r estimate_RDD}
-estimate_rdd <- function(data, bw) {
+estimate_RDD <- function(data, bw) {
   data_in_bw <- data %>% 
     define_bw(bw = bw) %>% 
     filter(!is.na(treated_bw))
@@ -263,7 +368,7 @@ estimate_rdd <- function(data, bw) {
     rename(p_value = p.value, se = std.error) %>%
     select(estimate, p_value, se) %>%
     mutate(
-      true_effect = compute_true_effect_rdd(data),
+      true_effect = compute_true_effect_RDD(data),
       bw = bw
     )
   
@@ -273,7 +378,7 @@ estimate_rdd <- function(data, bw) {
 
 ### One simulation
 
-We can now run a simulation, combining `generate_data_rdd` and `estimate_rdd`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
+We can now run a simulation, combining `generate_data_RDD` and `estimate_RDD`. To do so we create the function `compute_sim_RDD`. This simple function takes as input the various parameters along with a vector of bandwidth sizes, `vect_bw`. If we want to run several simulations with different bandwidths, we can reuse the same data, hence why we allow to passing a vector of bandwidths and not only one bandwidth. The function returns a table with the estimate of the treatment, its p-value and standard error, the true effect and the bandwidth and intensity of the OVB considered (delta). Note for now, that we do not store the values of the other parameters for simplicity because we consider them fixed over the study.
 
 ```{r compute_sim_RDD}
 compute_sim_RDD <- function(N,
@@ -288,7 +393,7 @@ compute_sim_RDD <- function(N,
                             q_c,
                             vect_bw) {
   
-  data <- generate_data_rdd(
+  data <- generate_data_RDD(
     N = N,
     sigma_u = sigma_u,
     mu_h = mu_h,
@@ -301,7 +406,7 @@ compute_sim_RDD <- function(N,
     q_c = q_c
   ) 
   
-  map_dfr(vect_bw, estimate_rdd, data = data) %>%
+  map_dfr(vect_bw, estimate_RDD, data = data) %>%
     mutate(delta = delta)
 } 
 ```
@@ -319,30 +424,30 @@ baseline_param_RDD %>%
 We will run the simulations for different sets of parameters by mapping our `compute_sim_RDD` function on each set of parameters. We thus create a table with all the values of the parameters we want to test `param_rdd`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_RDD}
-simple_param_RDD <- tibble(
-  N = 1000,
-  sigma_u = 1,
-  mu_h = 0,
-  sigma_h = 1,
-  sigma_e = 0.5,
-  alpha = 1,
-  beta = 0.7,
-  gamma = 0.7,
-  q_c = 0.5,
-  delta = 3,
-  vect_bw = 0.1
-)
+# simple_param_RDD <- tibble(
+#   N = 1000,
+#   sigma_u = 1,
+#   mu_h = 0,
+#   sigma_h = 1,
+#   sigma_e = 0.5,
+#   alpha = 1,
+#   beta = 0.7,
+#   gamma = 0.7,
+#   q_c = 0.5,
+#   delta = 3,
+#   vect_bw = 0.1
+# )
 
 fixed_param_RDD <- baseline_param_RDD %>% #%>% rbind(...)
   mutate(vect_bw = 0.1)
 # vect_bw <- seq(0.05, 0.4, 0.05)
 vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
-vect_delta <- c(3)
+# vect_delta <- c(3)
 n_iter <- 100
 
 param_rdd <- fixed_param_RDD %>% 
-  select(-delta, -vect_bw) %>% #parameters we modify
-  crossing(delta = vect_delta) %>% 
+  select(-vect_bw) %>% #parameters we modify
+  # crossing(delta = vect_delta) %>% 
   mutate(vect_bw = list(vect_bw)) %>% 
   crossing(rep_id = 1:n_iter) %>% 
   select(-rep_id)
@@ -441,7 +546,7 @@ summarise_simulations <- function(data) {
       .groups	= "drop"
     ) %>% 
     ungroup()
-} 
+}
 
 summary_sim_rdd <- summarise_simulations(sim_rdd)
 # saveRDS(summary_sim_rdd, here("Outputs/summary_sim_rdd.RDS"))

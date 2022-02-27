@@ -260,7 +260,7 @@ ex_data %>%
   xlim(c(0,100))
 ```
 
-We also check the standard deviation and means of the parameters:
+We also check the standard deviation and means of the variables:
 
 ```{r check_sd_mean_IV, echo=FALSE}
 ex_data_mean <- ex_data %>% 
