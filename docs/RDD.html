@@ -2155,9 +2155,9 @@ code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
 <a href="index.html" class="title">Unconfounded but Inflated Causal Estimates</a>
 </div>
 <div class="nav-right">
-<a href="index.html">Home</a>
-<a href="experiments.html">Intuition</a>
+<a href="causal_inflation_paper.pdf">Paper</a>
 <a href="summary.html">Summary</a>
+<a href="experiments.html">Intuition</a>
 <div class="nav-dropdown">
 <button class="nav-dropbtn">
 Simulations
@@ -2214,7 +2214,7 @@ Simulations
 </ul></li>
 <li><a href="#analysis-of-the-results">Analysis of the results</a><ul>
 <li><a href="#quick-exploration">Quick exploration</a></li>
-<li><a href="#computing-bias-and-exaggeration-ratio">Computing bias and exaggeration ratio</a></li>
+<li><a href="#computing-the-bias-and-exaggeration-ratio">Computing the bias and exaggeration ratio</a></li>
 <li><a href="#graph">Graph</a></li>
 </ul></li>
 </ul>
@@ -2237,23 +2237,27 @@ text-align: justify}
 <p><img src="images/DAG_RDD-1.png" width="70%" style="display: block; margin: auto;" /></p>
 </div>
 <p>Final test scores are thus defined as follows:</p>
-<p><span class="math display">\[Final_{i} = \alpha^{f} + \beta T_i + \gamma Qual_{i} +  \delta^f f(U_i) + \epsilon_{i}\]</span> Where <span class="math inline">\(\alpha^f\)</span> is a constant, <span class="math inline">\(f\)</span> a non linear function and <span class="math inline">\(e \sim \mathcal{N}(0, \sigma_{e})\)</span> noise. The parameter of interest is <span class="math inline">\(\beta\)</span>. Translating this into a potential outcomes framework, we have <span class="math inline">\(Final_i(0) = \alpha^f + \gamma Qual_{i} + \delta^f f(U_i) + \epsilon_{i}\)</span> and <span class="math inline">\(Final_i(1) = \alpha^f + \gamma Qual_{i} + \beta + \delta^f f(U_i) + \epsilon_{i}\)</span></p>
+<p><span class="math display">\[Final_{i} = \alpha^{f} + \beta T_i + \gamma Qual_{i} +  \delta^f f(U_i) + \epsilon_{i}\]</span> Where <span class="math inline">\(\alpha^f\)</span> is a constant, <span class="math inline">\(f\)</span> a non linear function and <span class="math inline">\(e \sim \mathcal{N}(0, \sigma_{e})\)</span> noise. The parameter of interest is <span class="math inline">\(\beta\)</span>. Translating this into a potential outcomes framework, we have:</p>
+<ul>
+<li><span class="math inline">\(Final_i(0) = \alpha^f + \gamma Qual_{i} + \delta^f f(U_i) + \epsilon_{i}\)</span></li>
+<li><span class="math inline">\(Final_i(1) = \alpha^f + \gamma Qual_{i} + \beta + \delta^f f(U_i) + \epsilon_{i}\)</span></li>
+</ul>
 <!-- on one of the analyses Jacob and Lefgren (2008): estimating the impact of the retention and summer school programs on third graders' maths scores, one year later. More precisely, we consider the same type of treatment allocation mechanism and outcome variable but greatly simplify their setting. The distribution of our variables is chosen to emulate the two first moments of the distributions they observe. For simplicity, we however assume that the variables are normally distributed.  -->
 <p>To simplify, we consider the following assumptions:</p>
 <ul>
 <li>Full compliance and a sharp treatment allocation such that <span class="math inline">\(T_i = \mathbb{I}[Qual_{i} &lt; C]\)</span>. All students with a qualification score below the threshold are treated and receive additional lessons. None of the students with a qualification score above the threshold are treated.</li>
 <li>The unobserved ability affects qualification and final test scores in a cubic way. A large ability has a strong positive impact on test scores. Similarly a particularly low ability strongly impacts test scores negatively. An average ability does not have much impact on test scores. Such a functional form seems realistic. Note that ability creates an OVB only if it has a non linear impact on test scores.</li>
 <li>We assume constant treatment effects. This assumption is not necessary and our results hold if we consider non-constant treatment effects. We thus may drop this assumption in the future.</li>
-<li>We assume that the unobserved availability affects the qualification and final score in a similar way and therefore with the same intensity <span class="math inline">\(\delta\)</span>.</li>
+<li>We assume that the unobserved availability affects the qualification and final score in a similar way and therefore with the same intensity <span class="math inline">\(\delta\)</span>. However, since the unobserved ability affects the final score through the qualification score, we adjust for that so that the ability has actually the same effect on both test scores. As a consequence, <span class="math inline">\(\delta^f= \delta \times (1 - \gamma)\)</span>.</li>
 </ul>
 <p>More precisely, we set:</p>
 <ul>
 <li><span class="math inline">\(N\)</span> the number of students</li>
 <li><span class="math inline">\(U \sim \mathcal{U}(-b_u, b_u)\)</span> the unobserved ability.</li>
-<li><span class="math inline">\(Qual_i = \alpha^q + \delta U_i^{3}\)</span> where <span class="math inline">\(H \sim \mathcal{N}(\alpha_q, \sigma_q^{2})\)</span>. We center the qualification scores such that treated units are below 0 and non treated ones above.</li>
+<li><span class="math inline">\(Qual_i = \alpha^q + \delta U_i^{3} + e^q_i\)</span> where <span class="math inline">\(e^q \sim \mathcal{N}(0, \sigma_q^{2})\)</span></li>
 <li><span class="math inline">\(T_i = \mathbb{I}[Qual_{i} &lt; q_c]\)</span> where for now and for simplicity, <span class="math inline">\(q_c\)</span> is a fixed grade threshold given as the quantile in the qualification score distribution.</li>
-<li><span class="math inline">\(e \sim \mathcal{N}(0, \sigma_f^2)\)</span></li>
-<li><span class="math inline">\(Final_{i} = \alpha^F + \beta T_i + \gamma Qual_{i} + \delta U_i^{2} + e_{i}\)</span></li>
+<li><span class="math inline">\(e^f \sim \mathcal{N}(0, \sigma_f^2)\)</span></li>
+<li><span class="math inline">\(Final_{i} = \alpha^F + \beta T_i + \gamma Qual_{i} + \delta (1-\gamma) U_i^{3} + e^f_{i}\)</span></li>
 </ul>
 <h3 id="data-generation">Data generation</h3>
 <h4 id="generating-function">Generating function</h4>
@@ -2314,10 +2318,10 @@ text-align: justify}
 <h4 id="baseline-parameters-values">Baseline parameters’ values</h4>
 <p>We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We make the following assumptions:</p>
 <ul>
-<li>We assumes that grades are SAT scores. One can think of the qualifying exam as a state level exam that gives the opportunity to students with lower grades to receive additional lessons. For simplicity, we assume that the <strong>scores have a mean of 1060 and standard error of 200</strong> (based on <a href="https://nces.ed.gov/programs/digest/d20/tables/dt20_226.40.asp">statistics provided by the Department of Education</a>). Since these scores depend on the unobserved ability, we adjust the values of the parameters to get the appropriate distributions.</li>
+<li>We assumes that grades are SAT scores. One can think of the qualifying exam as a state level exam that gives the opportunity to students with lower grades to receive additional lessons. For simplicity, we assume that the <strong>scores have a mean of 1060 and standard error of 200</strong> (based on <a href="https://nces.ed.gov/programs/digest/d20/tables/dt20_226.40.asp">statistics provided by the Department of Education</a>). Since these scores depend on the unobserved ability, we adjust the values of the parameters to get appropriate distributions.</li>
 <li>Typical treatment effect sizes in economics of education are of the order of magnitude of 0.1 sd. <a href="https://journals.sagepub.com/doi/abs/10.3102/0013189X20912798?journalCode=edra">Kraft 2020</a>, reviewing 747 RCTs of education intervention finds that the median effect size is 0.1 sd. Interestingly, he finds that “larger studies with broad achievement measures have systematically smaller effect sizes”. This might hint to publication bias as he underlines. In studies with more than 2000 individuals, the median effect is 0.03 sd. The same median effect size is observed in preregistered studies. We therefore consider an <strong>effect size of 0.03 sd</strong>, <em>ie</em> <span class="math inline">\(\beta = 6 = 200\times 0.03\)</span>.</li>
-<li>We assume that the unobserved ability has a standard deviation</li>
-<li>We consider that the threshold is located at the center of the distribution (<span class="math inline">\(q_c = 0.5\)</span>). The bandwidth is symmetric around the cutoff. Considering a cutoff in the middle of the distribution enables us to consider very wide bandwidths, up to including the whole sample in the analysis</li>
+<li>We assume that the unobserved ability is uniformly distributed between -2.5 and 2.5. We chose this values because it produces the right relationships between the variables.</li>
+<li>We consider that the threshold is located at the center of the distribution (<span class="math inline">\(q_c = 0.5\)</span>). The bandwidth is symmetric around the cutoff. Considering a cutoff in the middle of the distribution enables us to consider very wide bandwidths, up to including the whole sample in the analysis. Based on the functional form chosen for the effect of <span class="math inline">\(U\)</span> on grades (<span class="math inline">\(f: U \mapsto U^3\)</span>), choosing a cutoff in the middle of the distribution enables to have units that are relatively similar in terms of unobserved variable close to the cut-off and different far away from it.</li>
 </ul>
 <p>The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector <code>baseline_param_RDD</code>.</p>
 <div class="layout-chunk" data-layout="l-body">
@@ -2518,13 +2522,13 @@ text-align: justify}
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Mean</td>
-<td style="text-align: right;">1060.5111</td>
-<td style="text-align: right;">1071.1901</td>
+<td style="text-align: right;">1060.2212</td>
+<td style="text-align: right;">1070.1451</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Standard Deviation</td>
-<td style="text-align: right;">205.6935</td>
-<td style="text-align: right;">202.5777</td>
+<td style="text-align: right;">203.9955</td>
+<td style="text-align: right;">201.1346</td>
 </tr>
 </tbody>
 </table>
@@ -2534,13 +2538,13 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/graph_bandwidth_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<p>Then, we quickly look at the distributions of the different variables.</p>
+<p>Then, we quickly look at the distributions of the different variables to check that they have a shape similar to what we expect.</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/explore_distrib_RDD-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_distrib_RDD-2.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_distrib_RDD-3.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_distrib_RDD-4.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/explore_distrib_RDD-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_distrib_RDD-2.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<p>We then look at the relations between the variables:</p>
+<p>We then look at relation between the qualifying score and the unobserved ability. This enables us to understand how where the bias comes form:</p>
 <div class="layout-chunk" data-layout="l-body">
-<p><img src="images/explore_relations_RDD-1.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_relations_RDD-2.png" width="85%" style="display: block; margin: auto;" /><img src="images/explore_relations_RDD-3.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/explore_relations_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <h3 id="estimation">Estimation</h3>
 <p>After generating the data, we can run an estimation.</p>
@@ -2631,17 +2635,17 @@ text-align: justify}
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: right;">4.412760</td>
-<td style="text-align: right;">0.6939302</td>
-<td style="text-align: right;">11.210111</td>
+<td style="text-align: right;">14.104915</td>
+<td style="text-align: right;">0.1926161</td>
+<td style="text-align: right;">10.818637</td>
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.1</td>
 <td style="text-align: right;">30</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">8.641417</td>
-<td style="text-align: right;">0.2654314</td>
-<td style="text-align: right;">7.757401</td>
+<td style="text-align: right;">7.876663</td>
+<td style="text-align: right;">0.2863384</td>
+<td style="text-align: right;">7.385706</td>
 <td style="text-align: right;">6</td>
 <td style="text-align: right;">0.2</td>
 <td style="text-align: right;">30</td>
@@ -2670,7 +2674,7 @@ text-align: justify}
 <span class='va'>fixed_param_RDD</span> <span class='op'>&lt;-</span> <span class='va'>baseline_param_RDD</span> <span class='op'>%&gt;%</span> <span class='co'>#%&gt;% rbind(...)</span>
   <span class='fu'>mutate</span><span class='op'>(</span>vect_bw <span class='op'>=</span> <span class='fl'>0.1</span><span class='op'>)</span>
 <span class='co'># vect_bw &lt;- seq(0.05, 0.4, 0.05)</span>
-<span class='va'>vect_bw</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.05</span>, <span class='fl'>0.4</span>, <span class='fl'>0.05</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.4</span>, <span class='fl'>1</span>, <span class='fl'>0.1</span><span class='op'>)</span><span class='op'>)</span>
+<span class='va'>vect_bw</span> <span class='op'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.1</span>, <span class='fl'>0.4</span>, <span class='fl'>0.05</span><span class='op'>)</span>, <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.4</span>, <span class='fl'>0.9</span>, <span class='fl'>0.1</span><span class='op'>)</span><span class='op'>)</span>
 <span class='co'># vect_delta &lt;- c(3)</span>
 <span class='va'>n_iter</span> <span class='op'>&lt;-</span> <span class='fl'>1000</span>
 
@@ -2705,8 +2709,8 @@ text-align: justify}
 <div class="layout-chunk" data-layout="l-body">
 <p><img src="images/result_histogram_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<h3 id="computing-bias-and-exaggeration-ratio">Computing bias and exaggeration ratio</h3>
-<p>We want to compare <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]\)</span> and <span class="math inline">\(\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]\)</span>. The first term represents the bias and the second term represents the exaggeration ratio. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
+<h3 id="computing-the-bias-and-exaggeration-ratio">Computing the bias and exaggeration ratio</h3>
+<p>We want to compare <span class="math inline">\(\mathbb{E}\left[\frac{\widehat{\beta_{RDD}}}{\beta_0}\right]\)</span> and <span class="math inline">\(\mathbb{E}\left[\frac{\widehat{\beta_{RDD}}}{\beta_0} | \text{signif} \right]\)</span>. The first term represents the bias and the second term represents the exaggeration ratio. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance.</p>
 <div class="layout-chunk" data-layout="l-body">
 <div class="sourceCode">
 <pre class="sourceCode r"><code class="sourceCode r"><span class='va'>summarise_simulations</span> <span class='op'>&lt;-</span> <span class='kw'>function</span><span class='op'>(</span><span class='va'>data</span><span class='op'>)</span> <span class='op'>{</span>
@@ -2743,8 +2747,7 @@ text-align: justify}
     y <span class='op'>=</span> <span class='st'>"Power"</span>,
     title <span class='op'>=</span> <span class='st'>"Evolution of power with bandwith size"</span>,
     caption <span class='op'>=</span> <span class='st'>"Bandwidth size as a proportion of the total number of observations"</span>
-  <span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'><a href='https://rdrr.io/r/graphics/plot.window.html'>xlim</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span><span class='op'>(</span><span class='fl'>0</span>,<span class='fl'>100</span><span class='op'>)</span><span class='op'>)</span>
+  <span class='op'>)</span> 
 </code></pre>
 </div>
 <p><img src="images/graph_results_RDD_power-1.png" width="85%" style="display: block; margin: auto;" /></p>

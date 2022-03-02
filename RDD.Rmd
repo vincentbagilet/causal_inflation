@@ -179,10 +179,10 @@ define_bw <- function (data, bw) {
 
 We set baseline values for the parameters to emulate a somehow realistic observational study in this field. We make the following assumptions:
 
-- We assumes that grades are SAT scores. One can think of the qualifying exam as a state level exam that gives the opportunity to students with lower grades to receive additional lessons. For simplicity, we assume that the **scores have a mean of 1060 and standard error of 200** (based on [statistics provided by the Department of Education](https://nces.ed.gov/programs/digest/d20/tables/dt20_226.40.asp)). Since these scores depend on the unobserved ability, we adjust the values of the parameters to get the appropriate distributions.
+- We assumes that grades are SAT scores. One can think of the qualifying exam as a state level exam that gives the opportunity to students with lower grades to receive additional lessons. For simplicity, we assume that the **scores have a mean of 1060 and standard error of 200** (based on [statistics provided by the Department of Education](https://nces.ed.gov/programs/digest/d20/tables/dt20_226.40.asp)). Since these scores depend on the unobserved ability, we adjust the values of the parameters to get appropriate distributions.
 - Typical treatment effect sizes in economics of education are of the order of magnitude of 0.1 sd. [Kraft 2020](https://journals.sagepub.com/doi/abs/10.3102/0013189X20912798?journalCode=edra), reviewing 747 RCTs of education intervention finds that the median effect size is 0.1 sd. Interestingly, he finds that "larger studies with broad achievement measures have systematically smaller effect sizes". This might hint to publication bias as he underlines. In studies with more than 2000 individuals, the median effect is 0.03 sd. The same median effect size is observed in preregistered studies. We therefore consider an **effect size of 0.03 sd**, *ie* $\beta = 6 = 200\times 0.03$.
-- We assume that the unobserved ability has a standard deviation 
-- We consider that the threshold is located at the center of the distribution ($q_c = 0.5$). The bandwidth is symmetric around the cutoff. Considering a cutoff in the middle of the distribution enables us to consider very wide bandwidths, up to including the whole sample in the analysis
+- We assume that the unobserved ability is uniformly distributed between -2.5 and 2.5. We chose this values because it produces the right relationships between the variables.
+- We consider that the threshold is located at the center of the distribution ($q_c = 0.5$). The bandwidth is symmetric around the cutoff. Considering a cutoff in the middle of the distribution enables us to consider very wide bandwidths, up to including the whole sample in the analysis. Based on the functional form chosen for the effect of $U$ on grades ($f: U \mapsto U^3$), choosing a cutoff in the middle of the distribution enables to have units that are relatively similar in terms of unobserved variable close to the cut-off and different far away from it. 
 
 The set of parameters may produce test score outside of the range 0-100 in some iterations but that does not affect the analysis. We add the parameter value for delta separately as we will vary the value later and will reuse the vector `baseline_param_RDD`.
 
@@ -217,7 +217,7 @@ We check the standard deviation and means of the generated exam scores to make s
 
 ```{r check_sd_mean_RDD, echo=FALSE}
 ex_data_RDD <- baseline_param_RDD %>% 
-  mutate(N = 10000) %>% 
+  mutate(N = 100000) %>% 
   pmap_dfr(generate_data_RDD) 
 
 ex_data_RDD_mean <- ex_data_RDD %>% 
@@ -268,71 +268,51 @@ baseline_param_RDD %>%
   coord_fixed()
 ```
 
-Then, we quickly look at the distributions of the different variables.
+Then, we quickly look at the distributions of the different variables to check that they have a shape similar to what we expect.
 
 ```{r explore_distrib_RDD, echo=FALSE}
 ex_data_RDD %>% 
-  pivot_longer(
-    cols = c(final0, final1),
-    names_to = "potential_outcome",
-    values_to = "potential_final"
-  ) %>% 
-  mutate(potential_outcome = factor(str_remove(potential_outcome, "final"))) %>% 
-  ggplot(aes(x = potential_final, fill = potential_outcome, color = potential_outcome)) +
-  geom_density() +
-  labs(
-    x = "Final score",
-    y = "Density",
-    color = "Potential Outcome",
-    fill = "Potential Outcome",
-    title = "Distribution of potential final scores"
-  )
-
-ex_data_RDD %>% 
-  ggplot(aes(x = u, fill = treated, color = treated)) +
-  geom_histogram() + 
-  labs(
-    title = "Distribution of ability",
-    x = "Ability (u)",
-    y = "Density"
-  ) 
-
-ex_data_RDD %>% 
-  ggplot(aes(x = qual, fill = treated, color = treated)) +
+  mutate(is_treated = ifelse(treated, "Treated", "Non treated")) %>% 
+  ggplot(aes(x = qual, fill = is_treated)) +
   geom_histogram() + 
   labs(
     title = "Distribution of qualifying scores depending on treatment status",
     x = "Qualifying Score",
-    y = "Density"
+    y = "Count",
+    fill = ""
   ) 
 
 ex_data_RDD %>% 
-  ggplot(aes(x = final, fill = treated, color = treated)) +
+  mutate(is_treated = ifelse(treated, "Treated", "Non treated")) %>% 
+  ggplot(aes(x = final, fill = is_treated)) +
   geom_histogram() + 
   labs(
-    title = "Distribution of final scores",
+    title = "Distribution of final scores depending on treatment status",
     x = "Final Score",
-    y = "Density"
+    y = "Count",
+    fill = ""
   ) 
 ```
 
-We then look at the relations between the variables:
+We then look at relation between the qualifying score and the unobserved ability. This enables us to understand how where the bias comes form:
 
 ```{r explore_relations_RDD, echo=FALSE}
 ex_data_RDD %>% 
   define_bw(0.5) %>%
-  ggplot(aes(x = final, y = u, color = treated_bw)) + 
-  geom_point()
-
-ex_data_RDD %>% 
-  define_bw(0.5) %>%
   ggplot(aes(x = qual, y = u, color = treated_bw)) + 
-  geom_point()
-
-ex_data_RDD %>% 
-  define_bw(0.5) %>%
-  ggplot(aes(x = qual, y = final, color = treated_bw)) + 
-  geom_point()
+  geom_point() + 
+  labs(
+    title = "Relationship between unobserved ability and qualifying score",
+    x = "Qualifying score",
+    y = "Unobserved ability",
+    color = ""
+  ) +
+  scale_color_discrete(
+    labels = c(
+      "Non treated and inside bandwidth",
+      "Treated and inside bandwidth",
+      "Outside bandwidth")
+  ) 
 ```
 
 
@@ -529,9 +509,9 @@ sim_rdd %>%
 ```
 
 
-### Computing bias and exaggeration ratio
+### Computing the bias and exaggeration ratio
 
-We want to compare $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right|\right]$ and $\mathbb{E}\left[\left|\frac{\widehat{\beta_{RDD}}}{\beta_0}\right| | signif \right]$. The first term represents the bias and the second term represents the exaggeration ratio. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
+We want to compare $\mathbb{E}\left[\frac{\widehat{\beta_{RDD}}}{\beta_0}\right]$ and $\mathbb{E}\left[\frac{\widehat{\beta_{RDD}}}{\beta_0} | \text{signif} \right]$. The first term represents the bias and the second term represents the exaggeration ratio. This terms depend on the true effect size. To enable comparison across simulations and getting terms independent of effect sizes, we also compute the average of the ratios between the estimate and the true effect, conditional on significance. 
 
 ```{r summarise_RDD}
 summarise_simulations <- function(data) {
@@ -557,7 +537,6 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_RDD, echo=FALSE}
 summary_sim_rdd %>% 
-  filter(bw > 0.05) %>% 
   pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
   mutate(
     measure = ifelse(measure == "type_m", "Significants", "All"),
@@ -617,7 +596,6 @@ summary_sim_rdd %>%
     y = "Power",
     title = "Evolution of power with bandwith size",
     caption = "Bandwidth size as a proportion of the total number of observations"
-  ) +
-  xlim(c(0,100))
+  ) 
 ```
 

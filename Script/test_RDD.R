@@ -106,24 +106,7 @@ mean(res) - 1
 # 
 # print(mean(res) - 1)
 
-### Test generation u
-n <- 5000
 
-test_u <- tibble(id = 1:n) %>% 
-  mutate(
-    u = runif(n, -10, 10),
-    qual = 27*(u^3+4*u) + rnorm(n, 1060, 100)
-    # qual = 40*qual
-  )
-
-test_u$qual %>% sd()
-
-test_u %>% 
-  ggplot() +
-  geom_point(aes(x = u, y = qual))
-
-
-test_u$qual %>% qplot()
 
 
 

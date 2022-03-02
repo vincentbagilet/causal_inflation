@@ -270,7 +270,7 @@ data_sim_ex %>%
   labs(fill = 'Status:')
 ```
 
-With an outcome regression analysis, the average of estimates is equal to `r round(mean(data_simulations$estimate), 0)`! The outcome regression analysis suffers from extrapolation bias.
+With an outcome regression analysis, the average of estimates is equal to `r round(mean(data_sim_ex$estimate), 0)`! The outcome regression analysis suffers from extrapolation bias.
 
 # Matching Procedure
 

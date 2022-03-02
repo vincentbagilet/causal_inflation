@@ -1,6 +1,6 @@
 ---
 title: "Addressing the power issue"
-description: "Under construction. In this document, we discuss and illustrate how one could addresss power issues in their observational studies"
+description: "Under construction. In this document, we discuss and illustrate how to run power calculations."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/

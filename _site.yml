@@ -7,12 +7,12 @@ output_dir: "docs"
 exclude: ["Script", "Misc", "Outputs"]
 navbar:
   right:
-    - text: "Home"
-      href: index.html
-    - text: "Intuition"
-      href: experiments.html
+    - text: "Paper"
+      href: causal_inflation_paper.pdf
     - text: "Summary"
       href: summary.html
+    - text: "Intuition"
+      href: experiments.html
     - text: "Simulations"
       menu:
         - text: "RDD"
