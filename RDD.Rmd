@@ -46,6 +46,7 @@ library(tictoc)
 library(here)
 library(beepr)
 
+set.seed(12)
 set_mediocre_all(pal = "coty")
 ```
 
@@ -92,8 +93,11 @@ dagify(Final ~ U + T + Qual,
 
 Final test scores are thus defined as follows:
 
-$$Final_{i} = \alpha + \beta T_i + \gamma Qual_{i} +  \delta f(U_i) + \epsilon_{i}$$
-Where $\alpha$ is a constant, $f$ a non linear function and $e \sim \mathcal{N}(0, \sigma_{e})$ noise. The parameter of interest is $\beta$. Translating this into a potential outcomes framework, we have $Final_i(0) = \alpha + \gamma Qual_{i} + \delta f(U_i) + \epsilon_{i}$ and $Final_i(1) = \alpha + \gamma Qual_{i} + \beta + \delta f(U_i) + \epsilon_{i}$
+$$Final_{i} = \alpha^{f} + \beta T_i + \gamma Qual_{i} +  \delta^f f(U_i) + \epsilon_{i}$$
+Where $\alpha^f$ is a constant, $f$ a non linear function and $e \sim \mathcal{N}(0, \sigma_{e})$ noise. The parameter of interest is $\beta$. Translating this into a potential outcomes framework, we have:
+
+- $Final_i(0) = \alpha^f + \gamma Qual_{i} + \delta^f f(U_i) + \epsilon_{i}$ 
+- $Final_i(1) = \alpha^f + \gamma Qual_{i} + \beta + \delta^f f(U_i) + \epsilon_{i}$
 
 <!-- on one of the analyses Jacob and Lefgren (2008): estimating the impact of the retention and summer school programs on third graders' maths scores, one year later. More precisely, we consider the same type of treatment allocation mechanism and outcome variable but greatly simplify their setting. The distribution of our variables is chosen to emulate the two first moments of the distributions they observe. For simplicity, we however assume that the variables are normally distributed.  -->
 
@@ -102,16 +106,16 @@ To simplify, we consider the following assumptions:
 - Full compliance and a sharp treatment allocation such that $T_i = \mathbb{I}[Qual_{i} < C]$. All students with a qualification score below the threshold are treated and receive additional lessons. None of the students with a qualification score above the threshold are treated. 
 - The unobserved ability affects qualification and final test scores in a cubic way. A large ability has a strong positive impact on test scores. Similarly a particularly low ability strongly impacts test scores negatively. An average ability does not have much impact on test scores. Such a functional form seems realistic. Note that ability creates an OVB only if it has a non linear impact on test scores.
 - We assume constant treatment effects. This assumption is not necessary and our results hold if we consider non-constant treatment effects. We thus may drop this assumption in the future.
-- We assume that the unobserved availability affects the qualification and final score in a similar way and therefore with the same intensity $\delta$.
+- We assume that the unobserved availability affects the qualification and final score in a similar way and therefore with the same intensity $\delta$. However, since the unobserved ability affects the final score through the qualification score, we adjust for that so that the ability has actually the same effect on both test scores. As a consequence, $\delta^f= \delta \times (1 - \gamma)$.
 
 More precisely, we set: 
 
 - $N$ the number of students
-- $U \sim \mathcal{N}(0, \sigma_u^{2})$ the unobserved ability.
-- $Qual_i = H_i + \delta U_i^{2}$ where $H \sim \mathcal{N}(\mu_h, \sigma_h^{2})$. We center the qualification scores such that treated units are below 0 and non treated ones above.
+- $U \sim \mathcal{U}(-b_u, b_u)$ the unobserved ability.
+- $Qual_i = \alpha^q + \delta U_i^{3} + e^q_i$ where $e^q \sim \mathcal{N}(0, \sigma_q^{2})$
 - $T_i = \mathbb{I}[Qual_{i} < q_c]$ where for now and for simplicity, $q_c$ is a fixed grade threshold given as the quantile in the qualification score distribution.
-- $e \sim \mathcal{N}(0, \sigma_e^2)$
-- $Final_{i} = \alpha  + \beta T_i + \gamma Qual_{i} +  \delta U_i^{2} + e_{i}$
+- $e^f \sim \mathcal{N}(0, \sigma_f^2)$
+- $Final_{i} = \alpha^F  + \beta T_i + \gamma Qual_{i} +  \delta (1-\gamma) U_i^{3} + e^f_{i}$
 
 ### Data generation
 
@@ -123,11 +127,11 @@ Once the fake data is generated, to make things more realistic we consider our d
 
 ```{r DGP_RDD}
 generate_data_RDD <- function(N, 
-                              sigma_u,
-                              mu_h, 
-                              sigma_h, 
-                              sigma_e, 
-                              alpha, 
+                              bound_u,
+                              alpha_q, 
+                              sigma_q, 
+                              sigma_f, 
+                              alpha_f, 
                               beta,
                               gamma,
                               delta,
@@ -135,16 +139,12 @@ generate_data_RDD <- function(N,
   
   data <- tibble(id = 1:N) %>% 
     mutate(
-      # qual = rnorm(nrow(.), mu_h, sigma_h),
-      # u = rnorm(nrow(.), 0.5, sigma_u) + qual + 0.3*qual^3,
-      u = rnorm(nrow(.), 0, sigma_u),
-      qual = rnorm(nrow(.), mu_h, sigma_h) + delta*u^3,
-      e = rnorm(nrow(.), 0, sigma_e),
-      # qual_c = qual - quantile(qual, q_c),
-      # treated = qual_c < 0,
-      # threshold = quantile(qual, q_c),
+      u = runif(nrow(.), -bound_u, bound_u),
+      e_q = rnorm(nrow(.), 0, sigma_q),
+      qual = alpha_q + delta*u^3 + e_q,
+      e_f = rnorm(nrow(.), 0, sigma_f),
       treated = qual < quantile(qual, q_c),
-      final0 = alpha + gamma*qual + delta*u^3 + e,
+      final0 = alpha_f + gamma*qual + delta*(1-gamma)*u^3 + e_f,
       final1 = final0 + beta,
       final = final0 + beta*treated,
       q_c = q_c
@@ -188,35 +188,34 @@ The set of parameters may produce test score outside of the range 0-100 in some 
 
 ```{r baseline_param_RDD, echo=FALSE}
 baseline_param_RDD <- tibble(
-  N = 1000,
-  sigma_u = 3,
-  mu_h = 1050,
-  sigma_h = 170, #sqrt(sd(qual)^2 - sd(u)^2) = sqrt(200^2 - sd(u)^2)
-  sigma_e = 100,
-  alpha = 550,
+  N = 10000,
+  bound_u = 2.5,
+  alpha_q = 1060,
+  sigma_q = 100, #sqrt(sd(qual)^2 - sd(u)^2) = sqrt(200^2 - sd(u)^2)
+  sigma_f = 80,
+  alpha_f = 540,
   beta = 6,
   gamma = 0.5,
   q_c = 0.5,
-  delta = 1
+  delta = 30
 )
 
 baseline_param_RDD %>% kable()
-# 
-# ```
-# 
-# Here is an example of data created with our data generating process:
-# 
-# ```{r example_data_RDD, echo=FALSE}
-# baseline_param_RDD %>% 
-#   mutate(N = 10) %>% 
-#   pmap_dfr(generate_data_RDD) %>% #use pmap to pass the set of parameters
-#   kable()
-# ```
-# 
-# We check the standard deviation and means of the generated exam scores to make sure that they correspond to w to make:
-# 
-# ```{r check_sd_mean_RDD, echo=FALSE}
 
+```
+
+Here is an example of data created with our data generating process:
+
+```{r example_data_RDD, echo=FALSE}
+baseline_param_RDD %>%
+  mutate(N = 10) %>%
+  pmap_dfr(generate_data_RDD) %>% #use pmap to pass the set of parameters
+  kable()
+```
+
+We check the standard deviation and means of the generated exam scores to make sure that they correspond to w to make:
+
+```{r check_sd_mean_RDD, echo=FALSE}
 ex_data_RDD <- baseline_param_RDD %>% 
   mutate(N = 10000) %>% 
   pmap_dfr(generate_data_RDD) 
@@ -271,7 +270,7 @@ baseline_param_RDD %>%
 
 Then, we quickly look at the distributions of the different variables.
 
-```{r}
+```{r explore_distrib_RDD, echo=FALSE}
 ex_data_RDD %>% 
   pivot_longer(
     cols = c(final0, final1),
@@ -319,7 +318,7 @@ ex_data_RDD %>%
 
 We then look at the relations between the variables:
 
-```{r}
+```{r explore_relations_RDD, echo=FALSE}
 ex_data_RDD %>% 
   define_bw(0.5) %>%
   ggplot(aes(x = final, y = u, color = treated_bw)) + 
@@ -382,11 +381,11 @@ We can now run a simulation, combining `generate_data_RDD` and `estimate_RDD`. T
 
 ```{r compute_sim_RDD}
 compute_sim_RDD <- function(N,
-                            sigma_u,
-                            mu_h,
-                            sigma_h,
-                            sigma_e,
-                            alpha,
+                            bound_u,
+                            alpha_q,
+                            sigma_q,
+                            sigma_f,
+                            alpha_f,
                             beta,
                             gamma,
                             delta,
@@ -395,11 +394,11 @@ compute_sim_RDD <- function(N,
   
   data <- generate_data_RDD(
     N = N,
-    sigma_u = sigma_u,
-    mu_h = mu_h,
-    sigma_h = sigma_h,
-    sigma_e = sigma_e,
-    alpha = alpha,
+    bound_u = bound_u,
+    alpha_q = alpha_q,
+    sigma_q = sigma_q,
+    sigma_f = sigma_f,
+    alpha_f = alpha_f,
     beta = beta,
     gamma = gamma,
     delta = delta,
@@ -426,11 +425,11 @@ We will run the simulations for different sets of parameters by mapping our `com
 ```{r set_param_RDD}
 # simple_param_RDD <- tibble(
 #   N = 1000,
-#   sigma_u = 1,
-#   mu_h = 0,
-#   sigma_h = 1,
-#   sigma_e = 0.5,
-#   alpha = 1,
+#   bound_u = 1,
+#   alpha_q = 0,
+#   sigma_q = 1,
+#   sigma_f = 0.5,
+#   alpha_f = 1,
 #   beta = 0.7,
 #   gamma = 0.7,
 #   q_c = 0.5,
@@ -441,9 +440,9 @@ We will run the simulations for different sets of parameters by mapping our `com
 fixed_param_RDD <- baseline_param_RDD %>% #%>% rbind(...)
   mutate(vect_bw = 0.1)
 # vect_bw <- seq(0.05, 0.4, 0.05)
-vect_bw <- c(seq(0.05, 0.4, 0.05), seq(0.4, 1, 0.1))
+vect_bw <- c(seq(0.1, 0.4, 0.05), seq(0.4, 0.9, 0.1))
 # vect_delta <- c(3)
-n_iter <- 100
+n_iter <- 1000
 
 param_rdd <- fixed_param_RDD %>% 
   select(-vect_bw) %>% #parameters we modify
@@ -474,7 +473,7 @@ First, we quickly explore the results. In the following figure, we can see that 
 sim_rdd <- readRDS(here("Outputs/sim_rdd.RDS"))
 
 sim_rdd %>%
-  # filter(bw == vect_bw[5]) %>%
+  filter(bw %in% seq(0.1, 0.9, 0.1)) %>% 
   mutate(bw_name = str_c("Bandwidth: ", bw)) %>% 
   ggplot(aes(x = estimate)) +
   geom_density() +
@@ -558,6 +557,7 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_RDD, echo=FALSE}
 summary_sim_rdd %>% 
+  filter(bw > 0.05) %>% 
   pivot_longer(cols = c(type_m, bias_all), names_to = "measure") %>% 
   mutate(
     measure = ifelse(measure == "type_m", "Significants", "All"),
@@ -590,14 +590,20 @@ summary_sim_rdd %>%
     x = "Bandwidth size", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     linetype = "Estimates",
-    color = "Estimates",
+    color = "Estimates"
     # subtitle = "For several values of OVB intensity",
-    caption = "Bandwidth size as a proportion of the total number of observations"
+    # caption = "Bandwidth size as a proportion of the total number of observations"
   ) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 5)) +
-  theme_mediocre(base_family = "Lora") 
+  theme_mediocre(base_family = "Lora", pal = "coty") +
+  theme(
+    legend.title = element_text(size = rel(0.9)),
+    legend.text = element_text(size = rel(0.9))
+  )
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
+
+ggsave("main_graph_RDD_paper.pdf", path = "images", width = 6.2, height = 3.7)
 ```
 
 We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.

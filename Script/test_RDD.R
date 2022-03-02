@@ -9,13 +9,13 @@ alpha <- 1
 delta <- 1
 beta <- 1
 gamma <- 1
-bw <- 0.4 #bw as the proportion of observations considered below or above the threshold
+bw <- 0.2 #bw as the proportion of observations considered below or above the threshold
 
 for (i in 1:n_iter) {
-  u <- rnorm(n, 0, 1)
+  u <- runif(n, 0, 1)
   x <- rnorm(n, 0, 1)  + delta*u
   treated <-  ifelse(x < median(x), 1, 0)
-  in_bw <- dplyr::between(x, quantile(x, 0.5 - bw), quantile(x, 0.5 + bw))
+  in_bw <- dplyr::between(x, quantile(x, 0.3 - bw), quantile(x, 0.3 + bw))
   e <- rnorm(n, 0, 0.5)
   # y <- alpha + rnorm(n, 1, 1)*treated + gamma*x + delta*u + e #non constant effect
   y <- alpha + beta*treated + gamma*x + delta*u^3 + e
@@ -106,6 +106,39 @@ mean(res) - 1
 # 
 # print(mean(res) - 1)
 
+### Test generation u
+n <- 5000
 
+test_u <- tibble(id = 1:n) %>% 
+  mutate(
+    u = runif(n, -10, 10),
+    qual = 27*(u^3+4*u) + rnorm(n, 1060, 100)
+    # qual = 40*qual
+  )
+
+test_u$qual %>% sd()
+
+test_u %>% 
+  ggplot() +
+  geom_point(aes(x = u, y = qual))
+
+
+test_u$qual %>% qplot()
+
+
+
+
+
+
+
+  
+
+  
+  
+  
+  
+  
+  
+  
 
 

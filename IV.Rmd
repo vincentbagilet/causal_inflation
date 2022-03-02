@@ -211,7 +211,7 @@ baseline_param_IV <- tibble(
   gamma = 59,
   treatment_effect = -0.1,
   iv_strength = -0.5, 
-  ovb_intensity = -0.2
+  ovb_intensity = 0.2
 )
 
 baseline_param_IV %>% kable()
@@ -375,7 +375,7 @@ compute_sim_IV <- function(N,
 We will run the simulations for different sets of parameters by mapping our `compute_sim_IV` function on each set of parameters. We thus create a table with all the values of the parameters we want to test, `param_IV`. Note that in this table each set of parameters appears `n_iter` times as we want to run the analysis $n_{iter}$ times for each set of parameters.
 
 ```{r set_param_IV, echo=FALSE}
-vect_iv_strength <- c(seq(0.05, 0.4, 0.05), seq(0.4, 0.8, 0.1))
+vect_iv_strength <- -c(seq(0.1, 0.4, 0.05), seq(0.4, 0.8, 0.1))
 n_iter <- 1000
 
 param_IV <- baseline_param_IV %>% 
@@ -536,10 +536,10 @@ summary_sim_IV %>%
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
-  ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
+  ggplot(aes(x = abs(iv_strength), y = bias_signif, color = model)) + 
   geom_line(size = 0.8) +
   labs(
-    x = "IV strength", 
+    x = "|IV strength|", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Model",
     title = "Evolution of bias with intensity of the IV",
@@ -561,15 +561,19 @@ summary_sim_IV %>%
   labs(
     x = "IV strength", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
-    color = "Model",
-    caption = "Only for statistically significant estimates"
+    color = "Model"
+    # caption = "Only for statistically significant estimates"
   ) +
-  theme_mediocre(base_family = "Lora") +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 7))
+  theme_mediocre(base_family = "Lora", pal = "coty") +
+  scale_y_continuous(breaks = scales::pretty_breaks(n = 7)) +
+  theme(
+    legend.title = element_text(size = rel(0.9)),
+    legend.text = element_text(size = rel(0.9))
+  )
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
 
-ggsave("main_graph_IV_paper.pdf", path = "images", width = 7.4, height = 4.4)
+ggsave("main_graph_IV_paper.pdf", path = "images", width = 6.2, height = 3.7)
 ```
 
 We notice that, if the IV strength is low, on average, statistically significant estimates overestimate the true effect. If the IV strength is too low, it might even be the case that the benefit of the IV is overturned by the exaggeration issue. The IV yields an unbiased estimate and enables to get rid of the OVB
@@ -716,11 +720,15 @@ sim_IV %>%
     y = expression(paste(frac("Estimate", "True Effect"))),
     color = "Estimate"
   ) +
-  theme_mediocre(base_family = "Lora") 
+  theme_mediocre(base_family = "Lora", pal = "coty") +
+  theme(
+    legend.title = element_text(size = rel(0.9)),
+    legend.text = element_text(size = rel(0.9))
+  )
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
 
-ggsave("fstat_bias_graph_paper.pdf", path = "images", width = 7.4, height = 4.4)
+ggsave("fstat_bias_graph_paper.pdf", path = "images", width = 6.2, height = 3.7)
 ```
 
 We notice that, even when the F-statistic is greater than the usual but arbitrary threshold of 10, statistically significant estimates may, on average overestimate the true effect.
