@@ -199,38 +199,55 @@ data_graph_distrib <- rnorm(random_study$erep, random_study$seorig, n = n_iter) 
     significant = ifelse(non_significant, "Non significant", "Significant") 
   ) 
 
-data_graph_distrib %>% 
+graph_original <- data_graph_distrib %>% 
   ggplot(aes(x = n, y = value, color = significant)) + 
-  geom_point(alpha = 0.8) +
   #original study
   geom_point(aes(x = -30, y = random_study$eorig), color = "darkred", size = 2) +
   geom_linerange(aes(
     x = -30,
     ymin = random_study$eorig - 1.96*random_study$seorig,
     ymax = random_study$eorig + 1.96*random_study$seorig), color = "darkred") +
+  labs(
+    title = "Illustration of the exaggeration and power issues",
+    subtitle = "500 draws of an estimate ~ N(Effect size in replication, std err in original study)",
+    x = "Draw",
+    y = "Point estimate"
+  ) +
+  scale_color_discrete(name = "") +
+  xlim(c(-30, 500)) +
+  ylim(c(-0.25, 0.4))
+
+ggsave("graph_retrodesign_camerer_1.pdf", path = "images", width = 9, height = 4.5)
+
+graph_rep <- graph_original +
   #replication 
   geom_point(aes(x = -20, y = random_study$erep), color = "darkblue", size = 2) +
   geom_linerange(aes(
     x = -20,
     ymin = random_study$erep - 1.96*random_study$serep,
-    ymax = random_study$erep + 1.96*random_study$serep), color = "darkblue") +
+    ymax = random_study$erep + 1.96*random_study$serep), color = "darkblue") 
+
+ggsave("graph_retrodesign_camerer_2.pdf", path = "images", width = 9, height = 4.5)
+
+graph_rep_original <- graph_rep +
   #repliccation with design of the original study
   geom_point(aes(x = -10, y = random_study$erep), color = "gray50", size = 2) +
   geom_linerange(aes(
     x = -10,
     ymin = random_study$erep - 1.96*random_study$seorig,
-    ymax = random_study$erep + 1.96*random_study$seorig), color = "gray50") +
+    ymax = random_study$erep + 1.96*random_study$seorig), color = "gray50")
+
+ggsave("graph_retrodesign_camerer_3.pdf", path = "images", width = 9, height = 4.5)
+
+graph_rep_original <- graph_rep_original +
   # geom_hline(aes(yintercept = mean(value)), size = 0.8) +
-  geom_hline(aes(yintercept = 0), size = 0.3, linetype = "solid") +
-  labs(
-    title = "Illustration of type M errors",
-    subtitle = "500 draws of an estimate ~ N(Effect size in replication, std err in original study)",
-    x = "Draw",
-    y = "Point estimate",
-    caption = "The red dot represents the estimate found in the original study"
-  ) +
-  scale_color_discrete(name = "") 
+  geom_point(alpha = 0.8) +
+  geom_hline(aes(yintercept = 0), size = 0.3, linetype = "solid") 
   # transition_layers(layer_length = 2, from_blank = FALSE) #to animate
+
+ggsave("graph_retrodesign_camerer_4.pdf", path = "images", width = 9, height = 4.5)
+
+graph_rep_original
 ```
 
 - In red is the estimate from the original study and its 95% confidence interval

@@ -115,7 +115,7 @@ More precisely, we set:
 - $Qual_i = \alpha^q + \delta U_i^{3} + e^q_i$ where $e^q \sim \mathcal{N}(0, \sigma_q^{2})$
 - $T_i = \mathbb{I}[Qual_{i} < q_c]$ where for now and for simplicity, $q_c$ is a fixed grade threshold given as the quantile in the qualification score distribution.
 - $e^f \sim \mathcal{N}(0, \sigma_f^2)$
-- $Final_{i} = \alpha^F  + \beta T_i + \gamma Qual_{i} +  \delta (1-\gamma) U_i^{3} + e^f_{i}$
+- $Final_{i} = \alpha^f  + \beta T_i + \gamma Qual_{i} +  \delta^f U_i^{3} + e^f_{i}$ (where $\delta^f = \delta (1-\gamma)$)
 
 ### Data generation
 
@@ -149,8 +149,6 @@ generate_data_RDD <- function(N,
       final = final0 + beta*treated,
       q_c = q_c
     )
-  
-  return(data)
 }
 ```
 
@@ -597,5 +595,44 @@ summary_sim_rdd %>%
     title = "Evolution of power with bandwith size",
     caption = "Bandwidth size as a proportion of the total number of observations"
   ) 
+```
+
+## The results in more details
+
+```{r}
+sim_rdd %>% 
+  mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
+  ggplot() +
+  ggridges::geom_density_ridges(
+    aes(x = estimate, y = factor(bw), fill = significant, color = significant), 
+    # stat = "binline",
+    draw_baseline = FALSE, bins = 50, alpha = 0.6
+  ) +
+  coord_flip()
+
+```
+
+```{r}
+sim_rdd %>% 
+  filter(factor(bw) %in% seq(0.1, 0.9, 0.1)) %>%
+  mutate(
+    significant = ifelse(p_value < 0.05, "Significant", "Non significant"),
+    ratio = estimate/true_effect
+  ) %>% 
+  ggplot(aes(x = ratio, fill = significant)) + 
+  geom_histogram(bins = 45, alpha = 0.8) +
+  facet_grid(~bw, switch="x") +
+  geom_vline(xintercept = 1) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  scale_y_continuous(breaks = NULL) +
+  labs(
+    y = "Bandwidth size", 
+    x = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    fill = "Estimate",
+    title = "Distribution of estimates for different bandwidth",
+    subtitle = "Conditional on significativity"
+  )
+
 ```
 

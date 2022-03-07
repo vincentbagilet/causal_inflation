@@ -1,6 +1,6 @@
 ---
-title: "Addressing the power issue"
-description: "Under construction. In this document, we discuss and illustrate how to run power calculations."
+title: "Computing and reporting power calculations"
+description: "Under construction. In this document, we will discuss and illustrate how to run power calculations."
 author:
   - name: Vincent Bagilet 
     url: https://vincentbagilet.github.io/

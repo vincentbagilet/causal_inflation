@@ -147,8 +147,10 @@ baseline_param_match %>% kable()
 We run one iteration of the function `generate_data_matching()` to explore the resulting data with 500 units:
 
 ```{r display_dataset, echo=FALSE}
-# run the function for a sample of 500 units
-data <- baseline_param_match %>% pmap_dfr(generate_data_matching)
+# run the function for a sample of 1000 units
+data <- baseline_param_match %>%
+  mutate(sample_size = 1000) %>% 
+  pmap_dfr(generate_data_matching)
 
 # display the table
 data %>%
@@ -161,12 +163,12 @@ About `r 100*mean(data$treatment)`% of units are treated. We display below the t
 ```{r graph_true_ps, echo = FALSE}
 data %>%
   mutate(treatment = ifelse(treatment == 1, "Treated", "Control")) %>%
-  ggplot(., aes(x = true_ps, fill = treatment)) +
-  geom_density(colour = NA) +
+  ggplot(., aes(x = true_ps, fill = treatment, colour = treatment)) +
+  geom_density() +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  ggtitle("Distribution of the True Propensity Scores of Units by Treatment Groups") +
+  ggtitle("Distribution of the True Propensity Scores by Treatment Group") +
   xlab("True Propensity Score") + ylab("Density") +
-  labs(fill = 'Status:')
+  labs(fill = 'Status:', color = 'Status:')
 ```
 
 The distribution of potential outcomes Y(0) should be different across the two groups:
@@ -174,12 +176,12 @@ The distribution of potential outcomes Y(0) should be different across the two g
 ```{r graph_true_ps_2, echo = FALSE}
 data %>%
   mutate(treatment = ifelse(treatment == 1, "Treated", "Control")) %>%
-  ggplot(., aes(x = y_0, fill = treatment)) +
-  geom_density(colour = NA) +
+  ggplot(., aes(x = y_0, fill = treatment, colour = treatment)) +
+  geom_density() +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  ggtitle("Distribution of the Potential Outcomes Y(0) of Units by Treatment Groups") +
+  ggtitle("Distribution of the Potential Outcomes Y(0) of Units by Treatment Group") +
   xlab("Potential Outcomes Y(0)") + ylab("Density") +
-  labs(fill = 'Status:')
+  labs(fill = 'Status:', color = 'Status:')
 ```
 
 We can also see how the observed revenue is distributed across the two groups:
@@ -187,12 +189,12 @@ We can also see how the observed revenue is distributed across the two groups:
 ```{r graph_y_obs, echo = FALSE}
 data %>%
   mutate(treatment = ifelse(treatment == 1, "Treated", "Control")) %>%
-  ggplot(., aes(x = y_obs, fill = treatment)) +
-  geom_density(colour = NA) +
+  ggplot(., aes(x = y_obs, fill = treatment, colour = treatment)) +
+  geom_density() +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
-  ggtitle("Distribution of the Potential Outcomes Y(0) of Units by Treatment Groups") +
+  ggtitle("Distribution of the Revenue of Units by Treatment Group") +
   xlab("Revenue (in euros)") + ylab("Density") +
-  labs(fill = 'Status:')
+  labs(fill = 'Status:', color = 'Status:')
 ```
 
 We can check whether the ATT and ATC were correctly simulated. The ATT is computed such as:
@@ -392,7 +394,7 @@ We apply the function to `data_simulations` and plot the results:
 summary_sim_matching <- summarise_sim_matching(sim_matching)
 ```
 
-```{r graph_results_matching, echo = FALSE}
+```{r main_graph_matching, echo = FALSE}
 summary_sim_matching %>% 
   pivot_longer(cols = c(bias_signif, bias_all), names_to = "measure") %>% 
   mutate(
