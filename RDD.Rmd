@@ -488,7 +488,7 @@ sim_rdd %>%
     fill = "",
     caption = "The solid line represents the average mean effect for significant 
     estimates (in absolute value), the dashed line represents the true effect"
-  ) 
+  )
 
 # sim_rdd %>% 
 #   filter(bw == 0.2) %>% 
@@ -585,7 +585,7 @@ ggsave("main_graph_RDD_paper.pdf", path = "images", width = 6.2, height = 3.7)
 
 We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.
 
-```{r graph_results_RDD_power}
+```{r graph_results_RDD_power, echo=FALSE}
 summary_sim_rdd %>% 
   ggplot(aes(x = bw, y = power)) + 
   geom_line(size = 0.8) +
@@ -597,22 +597,9 @@ summary_sim_rdd %>%
   ) 
 ```
 
-## The results in more details
+We can then look in more details to the distribution of the estimates for different bandwidths. Statistically significant estimates, when power is low (*ie* when the bandwidth is small) are located in the tail of the distribution all estimates that is itself centered around the true effect.
 
-```{r}
-sim_rdd %>% 
-  mutate(significant = ifelse(p_value < 0.05, "Significant", "Non significant")) %>% 
-  ggplot() +
-  ggridges::geom_density_ridges(
-    aes(x = estimate, y = factor(bw), fill = significant, color = significant), 
-    # stat = "binline",
-    draw_baseline = FALSE, bins = 50, alpha = 0.6
-  ) +
-  coord_flip()
-
-```
-
-```{r}
+```{r graph_result_distrib_RDD, echo=FALSE}
 sim_rdd %>% 
   filter(factor(bw) %in% seq(0.1, 0.9, 0.1)) %>%
   mutate(
@@ -620,7 +607,7 @@ sim_rdd %>%
     ratio = estimate/true_effect
   ) %>% 
   ggplot(aes(x = ratio, fill = significant)) + 
-  geom_histogram(bins = 45, alpha = 0.8) +
+  geom_histogram(bins = 45, alpha = 0.85) +
   facet_grid(~bw, switch="x") +
   geom_vline(xintercept = 1) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
@@ -633,6 +620,7 @@ sim_rdd %>%
     title = "Distribution of estimates for different bandwidth",
     subtitle = "Conditional on significativity"
   )
-
 ```
+
+
 

@@ -2217,7 +2217,6 @@ Simulations
 <li><a href="#computing-the-bias-and-exaggeration-ratio">Computing the bias and exaggeration ratio</a></li>
 <li><a href="#graph">Graph</a></li>
 </ul></li>
-<li><a href="#the-results-in-more-details">The results in more details</a></li>
 </ul>
 </nav>
 </div>
@@ -2737,61 +2736,11 @@ text-align: justify}
 </div>
 <p>We notice that, the smaller the bandwidth size, the closer the average of all estimates is to the true effect. Yet, when the bandwidth gets small significant estimates overestimate the true effect. This arises because of a loss of power, as shown in the graph below.</p>
 <div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>summary_sim_rdd</span> <span class='op'>%&gt;%</span> 
-  <span class='fu'>ggplot</span><span class='op'>(</span><span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>bw</span>, y <span class='op'>=</span> <span class='va'>power</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
-  <span class='fu'>geom_line</span><span class='op'>(</span>size <span class='op'>=</span> <span class='fl'>0.8</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>labs</span><span class='op'>(</span>
-    x <span class='op'>=</span> <span class='st'>"Bandwidth size"</span>,
-    y <span class='op'>=</span> <span class='st'>"Power"</span>,
-    title <span class='op'>=</span> <span class='st'>"Evolution of power with bandwith size"</span>,
-    caption <span class='op'>=</span> <span class='st'>"Bandwidth size as a proportion of the total number of observations"</span>
-  <span class='op'>)</span> 
-</code></pre>
-</div>
 <p><img src="images/graph_results_RDD_power-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
-<h2 id="the-results-in-more-details">The results in more details</h2>
+<p>We can then look in more details to the distribution of the estimates for different bandwidths. Statistically significant estimates, when power is low (<em>ie</em> when the bandwidth is small) are located in the tail of the distribution all estimates that is itself centered around the true effect.</p>
 <div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>sim_rdd</span> <span class='op'>%&gt;%</span> 
-  <span class='fu'>mutate</span><span class='op'>(</span>significant <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>p_value</span> <span class='op'>&lt;</span> <span class='fl'>0.05</span>, <span class='st'>"Significant"</span>, <span class='st'>"Non significant"</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span> 
-  <span class='fu'>ggplot</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>ggridges</span><span class='fu'>::</span><span class='fu'><a href='https://wilkelab.org/ggridges/reference/geom_density_ridges.html'>geom_density_ridges</a></span><span class='op'>(</span>
-    <span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>estimate</span>, y <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>bw</span><span class='op'>)</span>, fill <span class='op'>=</span> <span class='va'>significant</span>, color <span class='op'>=</span> <span class='va'>significant</span><span class='op'>)</span>, 
-    <span class='co'># stat = "binline",</span>
-    draw_baseline <span class='op'>=</span> <span class='cn'>FALSE</span>, bins <span class='op'>=</span> <span class='fl'>50</span>, alpha <span class='op'>=</span> <span class='fl'>0.6</span>
-  <span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>coord_flip</span><span class='op'>(</span><span class='op'>)</span>
-</code></pre>
-</div>
-<p><img src="images/unnamed-chunk-1-1.png" width="85%" style="display: block; margin: auto;" /></p>
-</div>
-<div class="layout-chunk" data-layout="l-body">
-<div class="sourceCode">
-<pre class="sourceCode r"><code class="sourceCode r"><span class='va'>sim_rdd</span> <span class='op'>%&gt;%</span> 
-  <span class='fu'><a href='https://rdrr.io/r/stats/filter.html'>filter</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/factor.html'>factor</a></span><span class='op'>(</span><span class='va'>bw</span><span class='op'>)</span> <span class='op'>%in%</span> <span class='fu'><a href='https://rdrr.io/r/base/seq.html'>seq</a></span><span class='op'>(</span><span class='fl'>0.1</span>, <span class='fl'>0.9</span>, <span class='fl'>0.1</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>%&gt;%</span>
-  <span class='fu'>mutate</span><span class='op'>(</span>
-    significant <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/ifelse.html'>ifelse</a></span><span class='op'>(</span><span class='va'>p_value</span> <span class='op'>&lt;</span> <span class='fl'>0.05</span>, <span class='st'>"Significant"</span>, <span class='st'>"Non significant"</span><span class='op'>)</span>,
-    ratio <span class='op'>=</span> <span class='va'>estimate</span><span class='op'>/</span><span class='va'>true_effect</span>
-  <span class='op'>)</span> <span class='op'>%&gt;%</span> 
-  <span class='fu'>ggplot</span><span class='op'>(</span><span class='fu'>aes</span><span class='op'>(</span>x <span class='op'>=</span> <span class='va'>ratio</span>, fill <span class='op'>=</span> <span class='va'>significant</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span> 
-  <span class='fu'>geom_histogram</span><span class='op'>(</span>bins <span class='op'>=</span> <span class='fl'>45</span>, alpha <span class='op'>=</span> <span class='fl'>0.8</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>facet_grid</span><span class='op'>(</span><span class='op'>~</span><span class='va'>bw</span>, switch<span class='op'>=</span><span class='st'>"x"</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>geom_vline</span><span class='op'>(</span>xintercept <span class='op'>=</span> <span class='fl'>1</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>scale_x_continuous</span><span class='op'>(</span>breaks <span class='op'>=</span> <span class='fu'>scales</span><span class='fu'>::</span><span class='fu'><a href='https://scales.r-lib.org/reference/breaks_pretty.html'>pretty_breaks</a></span><span class='op'>(</span>n <span class='op'>=</span> <span class='fl'>10</span><span class='op'>)</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>coord_flip</span><span class='op'>(</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>scale_y_continuous</span><span class='op'>(</span>breaks <span class='op'>=</span> <span class='cn'>NULL</span><span class='op'>)</span> <span class='op'>+</span>
-  <span class='fu'>labs</span><span class='op'>(</span>
-    y <span class='op'>=</span> <span class='st'>"Bandwidth size"</span>, 
-    x <span class='op'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/expression.html'>expression</a></span><span class='op'>(</span><span class='fu'><a href='https://rdrr.io/r/base/paste.html'>paste</a></span><span class='op'>(</span><span class='st'>"Average  "</span>, <span class='fu'><a href='https://rdrr.io/r/grDevices/plotmath.html'>frac</a></span><span class='op'>(</span><span class='st'>"Estimate"</span>, <span class='st'>"True Effect"</span><span class='op'>)</span><span class='op'>)</span><span class='op'>)</span>,
-    fill <span class='op'>=</span> <span class='st'>"Estimate"</span>,
-    title <span class='op'>=</span> <span class='st'>"Distribution of estimates for different bandwidth"</span>,
-    subtitle <span class='op'>=</span> <span class='st'>"Conditional on significativity"</span>
-  <span class='op'>)</span>
-</code></pre>
-</div>
-<p><img src="images/unnamed-chunk-2-1.png" width="85%" style="display: block; margin: auto;" /></p>
+<p><img src="images/graph_result_distrib_RDD-1.png" width="85%" style="display: block; margin: auto;" /></p>
 </div>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r distill-force-highlighting-css"><code class="sourceCode r"></code></pre></div>
 <!--radix_placeholder_article_footer-->
