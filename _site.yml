@@ -25,8 +25,8 @@ navbar:
           href: DID.html
         - text: "Crosscutting issues"
           href: crosscutting-issues.html
-    - text: "Solutions"
-      href: addressing_issues.html
+    - text: "Reporting"
+      href: reporting.html
   source_url: https://github.com/vincentbagilet/causal_inflation
   search: false
 output: distill::distill_article

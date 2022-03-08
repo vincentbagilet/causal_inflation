@@ -28,6 +28,6 @@ The website is still under construction. It is structured as follows:
 - A plain language summary is available in the "[Summary](summary.html)" tab.
 - The "[Intuition](intuition.html)" tab describes, though an example, how inflation of statistically estimates may arise.
 - The "Simulations" tab describes the simulations for each identification strategy. 
-- In the tab "[Solutions](addressing_issues.html)" we will describe how to run power calculations.
+- In the tab "[Reporting](reporting.html)" we will describe how to run power calculations.
 <!-- - In the tab "[Avoiding traps](traps.html)", we put ourselves in the shoes of a researcher interested in running a study on the short term health effects of air pollution and through an example, we suggest a methodology to address the issues raised in our paper. -->
 - All the R code for this project is available in [its GitHub directory](https://github.com/vincentbagilet/causal_inflation).
