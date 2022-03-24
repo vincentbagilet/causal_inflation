@@ -1,14 +1,14 @@
 ---
 title: "Plain language summary"
 description: |
-  In this paper, we show that, combined with current academic publication practices, front line empirical methods, efficient to identify how a factor causes another, may be more likely to exaggerate the size of the effect of interest."
+  In this paper, we show that, combined with current academic publication practices, front line empirical methods, efficient to identify how a factor causes another, may be more likely to exaggerate the size of the effect of interest.
 site: distill::distill_website
 ---
 
-Empirical studies often aim to get a sense of how a factor *causes* another. For instance, one may want to evaluate the impact of a professional training program on wages. Such effects are often challenging to estimate. A simple difference between the wages of people who participated in the program or not may not reflect the actual wage increase brought by the program. It might be the case that people who participated in the program would have earned higher wages even if they did not take the training. To measure the actual magnitude of the effect of the program, researchers use a particular set of methods. These methods can however be imprecise: they produce results that are likely far away from the true effect.
+Empirical studies often aim to get a sense of how a factor *causes* another. For instance, one may want to evaluate the impact of a professional training program on wages. Such effects are often challenging to estimate. A simple difference between the wages of people who participated in the program or not may not reflect the actual wage increase brought by the program. It might be the case that people who participated in the program would have earned higher wages even if they did not take the training. To measure the actual magnitude of the effect of the program, researchers use a particular set of methods. These methods while convincing may be imprecise: they can produce results that are far away from the true effect.
 <!-- In this paper, we show how academic publication practices can lead these otherwise effective methods to yield incorrect estimates of the effect size.  -->
 
-On the other hand, previous research has shown that publication practices favor results that are very likely different from zero. If the true effect is close to zero and a given study imprecise, it is likely that its result will be far away from both the true effect and zero. Publication practices will make this result more likely to be published. The publish result will be far away from the true effect: it will exaggerate it.
+On the other hand, previous research has shown that publication practices favor results that are very likely different from zero. If the true effect is close to zero a published result will likely be far away from zero. If the study is imprecise, it will also be far away from the true effect. Publication practices will make this result more likely to be published. The publish result will be far away from the true effect: it will exaggerate it.
 
 The set of methods mentioned above enable to convincingly measure the effect of a factor on another. However, they are also more subject to the publication problem and may be more likely to exaggerate effect sizes. In this paper, we show that there is a trade-off between these two aspects.
 

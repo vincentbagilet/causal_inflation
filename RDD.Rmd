@@ -215,7 +215,7 @@ We check the standard deviation and means of the generated exam scores to make s
 
 ```{r check_sd_mean_RDD, echo=FALSE}
 ex_data_RDD <- baseline_param_RDD %>% 
-  mutate(N = 100000) %>% 
+  # mutate(N = 10000) %>% 
   pmap_dfr(generate_data_RDD) 
 
 ex_data_RDD_mean <- ex_data_RDD %>% 
@@ -620,6 +620,30 @@ sim_rdd %>%
     title = "Distribution of estimates for different bandwidth",
     subtitle = "Conditional on significativity"
   )
+
+
+sim_rdd %>% 
+  filter(factor(bw) %in% seq(0.1, 0.9, 0.1)) %>%
+  mutate(
+    significant = ifelse(p_value < 0.05, "Significant", "Non significant"),
+    ratio = estimate/true_effect
+  ) %>% 
+  ggplot(aes(x = ratio, fill = significant)) + 
+  geom_area(stat ="bin", bins = 50, alpha = 0.85) +
+  # geom_histogram(bins = 45, alpha = 0.85) +
+  facet_grid(~bw, switch="x") +
+  geom_vline(xintercept = 1) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  scale_y_continuous(breaks = NULL) +
+  labs(
+    y = "Bandwidth size", 
+    x = expression(paste("Average  ", frac("Estimate", "True Effect"))),
+    fill = "Estimate",
+    title = "Distribution of estimates for different bandwidth",
+    subtitle = "Conditional on significativity"
+  )
+
 ```
 
 

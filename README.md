@@ -1,3 +1,5 @@
 # Causal inflation
 
-This repository contains the work by Léo Zabrocki and Vincent Bagilet for the paper "Unbiased but Inflated Causal Effects".
+This repository contains the work by Léo Zabrocki and Vincent Bagilet for the paper "Unconfounded but Inflated Causal Effects".
+
+A companion website displays most of these documents in a reader-friendly format: [https://vincentbagilet.github.io/causal_inflation/](https://vincentbagilet.github.io/causal_inflation/)
