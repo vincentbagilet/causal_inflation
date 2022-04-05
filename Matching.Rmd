@@ -405,7 +405,7 @@ summary_sim_matching %>%
     x = "Caliper", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Estimates",
-    title = "Evolution of the Inflation of Estimates with the Caliper") 
+    title = "Evolution of the bias with the caliper for matching") 
 ```
 
 ```{r main_graph_matching_paper, dpi=600, include=FALSE}

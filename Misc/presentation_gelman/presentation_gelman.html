@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="" xml:lang="">
   <head>
-    <title>Unbiased but Inflated Causal Effects</title>
+    <title>Unconfounded but Inflated Causal Estimates</title>
     <meta charset="utf-8" />
     <meta name="author" content="Vincent Bagilet, with Leo Zabrocki" />
-    <meta name="date" content="2021-12-08" />
+    <meta name="date" content="2022-03-29" />
     <link rel="stylesheet" href="mediocre-themer.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
 class: center, middle, inverse, title-slide
 
-# Unbiased but Inflated Causal Effects
+# Unconfounded but Inflated Causal Estimates
 ### Vincent Bagilet, with Leo Zabrocki
-### 2021-12-08
+### 2022-03-29
 
 ---
 
@@ -23,7 +23,7 @@ class: center, middle, inverse, title-slide
 
 ## Quick summary of the project
 
-- Use fake data simulations to illustrate a trade off between confounders and type M error
+- Use fake data simulations to illustrate the existence of a trade off between confounders and type M error
 
 - Audience: researchers in econ using observational data
 
@@ -35,7 +35,7 @@ class: center, middle, inverse, title-slide
 
 ---
 
-## The trade-off we are trying to illustrate
+## The trade-off we illustrate
 
 --
 
@@ -73,18 +73,15 @@ class: center, middle, inverse, title-slide
 
 - **Matching**: only uses a fraction of the sample
 
-- **DiD/event study**: limits variation in x by considering only a small number of events and limit data to observations close to the treatment date
+- **DiD/event study**: limits variation in X by considering only a small number of events 
 
 ---
 
-## What we did (or are finishing)
+## What we did
 
 - Build fake data simulations: replicate example from a different econ field for each method
 
-- Discuss "solutions": how do researchers address the issue we underline?
-
- - Run simulations
- - Run robustness retrodesign calculations
+- Advocate reporting power calculations for alternative effect sizes
 
 ## What we still need to do
 
@@ -98,15 +95,27 @@ class: center, middle, inverse, title-slide
 
 ---
 
-## Preliminary results for IV
+## Results for IV
 
-&lt;img src="images/graph_results_IV-1.png" width="700" style="display: block; margin: auto;" /&gt;
+&lt;img src="images/main_graph_IV-1.png" width="700" style="display: block; margin: auto;" /&gt;
 
 ---
 
-## Preliminary results for RDD
+## Results for RDD
 
-&lt;img src="images/graph_results_RDD-1.png" width="800" style="display: block; margin: auto;" /&gt;
+&lt;img src="images/main_graph_RDD-1.png" width="800" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Results for DiD
+
+&lt;img src="images/main_graph_DID-1.png" width="800" style="display: block; margin: auto;" /&gt;
+---
+
+## Results for matching
+
+&lt;img src="images/main_graph_matching-1.png" width="800" style="display: block; margin: auto;" /&gt;
+
 
 ---
 

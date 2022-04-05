@@ -1,14 +1,58 @@
 ---
-title: "Plain language summary"
+title: "Summaries"
 description: |
-  In this paper, we show that, combined with current academic publication practices, front line empirical methods, efficient to identify how a factor causes another, may be more likely to exaggerate the size of the effect of interest.
-site: distill::distill_website
+  This page gathers a set of summaries intended for different audiences.
+# site: distill::distill_website
+author:
+  - name: Vincent Bagilet 
+    url: https://vincentbagilet.github.io/
+    affiliation: Columbia University
+    affiliation_url: https://www.columbia.edu/
+  - name: Léo Zabrocki 
+    url: https://www.parisschoolofeconomics.eu/en/
+    affiliation: Paris School of Economics
+    affiliation_url: https://www.parisschoolofeconomics.eu/en/
+date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+editor_options: 
+  chunk_output_type: console
 ---
+
+```{r setup_summary, include=FALSE, results='hide', warning=FALSE}
+library(knitr)
+opts_chunk$set(fig.path = "images/",
+               cache.path = "cache/",
+               cache = FALSE,
+               echo = TRUE, #set to false to hide code
+               message = FALSE,
+               warning = FALSE,
+               out.width = "85%",
+               dpi = 300,
+               fig.align = "center",
+               dev.args = list(bg="transparent"))  
+```  
+
+```{r packages_summary, message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse) 
+library(knitr) 
+library(mediocrethemes)
+
+set.seed(3)
+
+set_mediocre_all(pal = "coty")
+```
+
+## Plain language summary
+
+*In this paper, we show that, combined with current academic publication practices, front line empirical methods, efficient to identify how a factor causes another, may be more likely to exaggerate the size of the effect of interest.*
 
 Empirical studies often aim to get a sense of how a factor *causes* another. For instance, one may want to evaluate the impact of a professional training program on wages. Such effects are often challenging to estimate. A simple difference between the wages of people who participated in the program or not may not reflect the actual wage increase brought by the program. It might be the case that people who participated in the program would have earned higher wages even if they did not take the training. To measure the actual magnitude of the effect of the program, researchers use a particular set of methods. These methods while convincing may be imprecise: they can produce results that are far away from the true effect.
 <!-- In this paper, we show how academic publication practices can lead these otherwise effective methods to yield incorrect estimates of the effect size.  -->
 
 On the other hand, previous research has shown that publication practices favor results that are very likely different from zero. If the true effect is close to zero a published result will likely be far away from zero. If the study is imprecise, it will also be far away from the true effect. Publication practices will make this result more likely to be published. The publish result will be far away from the true effect: it will exaggerate it.
+<!-- Effects that are too small to -->
 
 The set of methods mentioned above enable to convincingly measure the effect of a factor on another. However, they are also more subject to the publication problem and may be more likely to exaggerate effect sizes. In this paper, we show that there is a trade-off between these two aspects.
 
@@ -28,8 +72,99 @@ To avoid published effects to exaggerate true effect sizes, we advocate computin
 <!-- ``` -->
 
 
+## A Twitter summary
 
-## A geeky summary
+#### Tweet 1/N
+
+We published a working paper arguing that causal inference methods create a trade-off between confounding and exaggerating true effect sizes. 
+
+The same aspect that makes causal identification strategies credible can create another type of bias.
+
+#### Tweet 2/N
+
+When power is low, the distribution of estimates is spread out. Only estimates that are 2 sd away from 0 are significant. Significant estimates overestimate the true effect size.
+
+```{r illustration_typeM, echo = FALSE}
+n_iter <- 5000
+true_effect <- 0.8
+sd <- 1
+
+tibble(estimate = rnorm(true_effect, sd, n = n_iter)) %>% 
+  mutate(
+    n = row_number(),
+    non_significant = dplyr::between(
+      estimate, 
+      - 1.96*sd(estimate), 
+      1.96*sd(estimate)
+    ),
+    significant = ifelse(non_significant, "Non significant", "Significant") 
+  ) %>% 
+  ggplot(aes(x = estimate, fill = significant)) +
+  geom_histogram() +
+  geom_vline(xintercept = true_effect) +
+  labs(
+    title = "Illustration of the exaggeration and power issues",
+    subtitle = str_c(
+      "Distribution of ", n_iter,
+      " draws of an estimate ~ N(", true_effect, ",", sd, ")"),
+    x = "Point estimate",
+    y = "Count",
+    fill = "",
+    caption = "The vertical line represents the true effect"
+  ) 
+  
+```
+
+#### Tweet 3/N
+
+Causal id strat throw out part of the variation, reducing power, leading significant estimates to exaggerate true effects sizes. We build fake data MC simulations to illustrate this.
+
+#### Tweet 4/N
+
+RDD discards variation, only considering observations within the bandwidth, decreasing the effective sample size. 
+
+On average significant estimates may never get close to the true effect.
+
+```{r echo=FALSE, fig.align="center"} 
+knitr::include_graphics("images/graph_result_distrib_RDD-1.png")
+knitr::include_graphics("images/main_graph_RDD-1.png")
+```
+
+#### Tweet 5/N
+
+IV only uses part of the variation in the treatment, the portion explained by the instrument. When the "strength" of the instrument is low, the IV is imprecise. 
+
+A "naive" OLS can, on average, produce significant estimates that are closer to the true effect than the IV.
+
+```{r echo=FALSE, fig.align="center"} 
+knitr::include_graphics("images/main_graph_IV-1.png")
+```
+
+#### Tweet 6/N
+
+In DiD event studies, the variation used to identify an effect sometimes only comes from a limited number of treated observations. Power can thus be low. 
+
+```{r echo=FALSE, fig.align="center"} 
+knitr::include_graphics("images/main_graph_DID-1.png")
+```
+
+#### Tweet 7/N
+
+Matching prunes treated units that cannot be matched to untreated ones, reducing the effective sample size.
+
+On average significant estimates may never get close to the true effect.
+
+```{r echo=FALSE, fig.align="center"} 
+knitr::include_graphics("images/main_graph_matching-1.png")
+```
+
+#### Tweet 8/N
+
+A systematic reporting of pre and post analysis power calculations in observational studies would help gauge the risk of falling into this low power trap.
+
+#### Tweet N/N
+
+The paper summed up in a picture:
 
 ```{r echo=FALSE, out.width=400, fig.align="center"} 
 knitr::include_graphics("images/drowning.jpg")
@@ -39,7 +174,9 @@ knitr::include_graphics("images/drowning.jpg")
 
 
 
+## Abstract
 
+Convincing research designs make empirical economics credible. To avoid confounding, quasi-experimental studies focus on specific sources of variation. This often leads to a reduction in statistical power. Yet, published estimates can overestimate true effects sizes when power is low. Using fake data simulations, we show that for all causal inference methods, there can be a trade-off between confounding and exaggerating true effect sizes due to a loss in power. We then discuss how reporting power calculations could help address this issue.
 
 
 

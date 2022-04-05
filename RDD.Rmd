@@ -546,8 +546,8 @@ summary_sim_rdd %>%
     x = "Bandwidth size", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
     color = "Estimates",
-    title = "Evolution of bias with bandwidth size, conditional on significativity",
-    # subtitle = "For several values of OVB intensity",
+    title = "Evolution of the bias with bandwidth size for the RDD",
+    subtitle = "Conditional on significativity",
     caption = "Bandwidth size as a proportion of the total number of observations"
   ) +
   scale_y_continuous(breaks = scales::pretty_breaks(n = 5))
@@ -615,10 +615,11 @@ sim_rdd %>%
   scale_y_continuous(breaks = NULL) +
   labs(
     y = "Bandwidth size", 
-    x = expression(paste("Average  ", frac("Estimate", "True Effect"))),
-    fill = "Estimate",
-    title = "Distribution of estimates for different bandwidth",
-    subtitle = "Conditional on significativity"
+    x = "Estimate",
+    fill = "",
+    title = "Distribution of RDD estimates for different bandwidth",
+    subtitle = "Conditional on significativity", 
+    caption = "The horizontal line represents the true effect size"
   )
 
 
@@ -638,10 +639,11 @@ sim_rdd %>%
   scale_y_continuous(breaks = NULL) +
   labs(
     y = "Bandwidth size", 
-    x = expression(paste("Average  ", frac("Estimate", "True Effect"))),
-    fill = "Estimate",
-    title = "Distribution of estimates for different bandwidth",
-    subtitle = "Conditional on significativity"
+    x = "Estimate",
+    fill = "",
+    title = "Distribution of RDD estimates for different bandwidth",
+    subtitle = "Conditional on significativity", 
+    caption = "The horizontal line represents the true effect size"
   )
 
 ```

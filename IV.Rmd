@@ -532,7 +532,7 @@ To analyze our results, we build a unique and simple graph:
 
 ```{r main_graph_IV, echo=FALSE, fig.asp=0.7}
 summary_sim_IV %>% 
-  # filter(model %in% c("OLS", "IV")) %>% 
+  filter(model %in% c("OLS", "IV")) %>%
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%

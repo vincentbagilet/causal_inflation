@@ -1,5 +1,5 @@
 ---
-title: "Unbiased but Inflated Causal Effects"
+title: "Unconfounded but Inflated Causal Estimates"
 author: "Vincent Bagilet, with Leo Zabrocki"
 date: "`r Sys.Date()`"
 output:
@@ -34,7 +34,7 @@ set.seed(1)
 
 ## Quick summary of the project
 
-- Use fake data simulations to illustrate a trade off between confounders and type M error
+- Use fake data simulations to illustrate the existence of a trade off between confounders and type M error
 
 - Audience: researchers in econ using observational data
 
@@ -46,7 +46,7 @@ set.seed(1)
 
 ---
 
-## The trade-off we are trying to illustrate
+## The trade-off we illustrate
 
 --
 
@@ -84,18 +84,15 @@ set.seed(1)
 
 - **Matching**: only uses a fraction of the sample
 
-- **DiD/event study**: limits variation in x by considering only a small number of events and limit data to observations close to the treatment date
+- **DiD/event study**: limits variation in X by considering only a small number of events 
 
 ---
 
-## What we did (or are finishing)
+## What we did
 
 - Build fake data simulations: replicate example from a different econ field for each method
 
-- Discuss "solutions": how do researchers address the issue we underline?
-
- - Run simulations
- - Run robustness retrodesign calculations
+- Advocate reporting power calculations for alternative effect sizes
 
 ## What we still need to do
 
@@ -109,19 +106,35 @@ set.seed(1)
 
 ---
 
-## Preliminary results for IV
+## Results for IV
 
 ```{r echo=FALSE, out.width=700, fig.align="center"} 
-knitr::include_graphics("images/graph_results_IV-1.png")
+knitr::include_graphics("images/main_graph_IV-1.png")
 ```
 
 ---
 
-## Preliminary results for RDD
+## Results for RDD
 
 ```{r echo=FALSE, out.width=800, fig.align="center"} 
-knitr::include_graphics("images/graph_results_RDD-1.png")
+knitr::include_graphics("images/main_graph_RDD-1.png")
 ```
+
+---
+
+## Results for DiD
+
+```{r echo=FALSE, out.width=800, fig.align="center"} 
+knitr::include_graphics("images/main_graph_DID-1.png")
+```
+---
+
+## Results for matching
+
+```{r echo=FALSE, out.width=800, fig.align="center"} 
+knitr::include_graphics("images/main_graph_matching-1.png")
+```
+
 
 ---
 

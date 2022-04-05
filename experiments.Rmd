@@ -23,7 +23,7 @@ body {
 text-align: justify}
 </style>
 
-```{r setup_IV, include=FALSE, results='hide', warning=FALSE}
+```{r setup_experiments, include=FALSE, results='hide', warning=FALSE}
 library(knitr)
 opts_chunk$set(fig.path = "images/",
                cache.path = "cache/",
@@ -37,7 +37,7 @@ opts_chunk$set(fig.path = "images/",
                dev.args = list(bg="transparent"))  
 ```  
 
-```{r packages_IV, message=FALSE, warning=FALSE, include=FALSE}
+```{r packages_experiments, message=FALSE, warning=FALSE, include=FALSE}
 library(tidyverse) 
 library(knitr) 
 library(mediocrethemes)
