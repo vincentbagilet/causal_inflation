@@ -76,13 +76,13 @@ To avoid published effects to exaggerate true effect sizes, we advocate computin
 
 #### Tweet 1/N
 
-We published a working paper arguing that causal inference methods create a trade-off between confounding and exaggerating true effect sizes. 
+We published a working paper arguing that causal inference methods can produce inflated published estimates.
 
-The same aspect that makes causal identification strategies credible can create another type of bias.
+They intrinsically reduce statistical power. It creates a trade-off between confounding and exaggerating true effect sizes.
 
 #### Tweet 2/N
 
-When power is low, the distribution of estimates is spread out. Only estimates that are 2 sd away from 0 are significant. Significant estimates overestimate the true effect size.
+When power is low, the distribution of estimates is spread out. Only estimates that are roughly 2 sd away from 0 are statistically significant. Significant estimates overestimate the true effect size.
 
 ```{r illustration_typeM, echo = FALSE}
 n_iter <- 5000
@@ -117,11 +117,13 @@ tibble(estimate = rnorm(true_effect, sd, n = n_iter)) %>%
 
 #### Tweet 3/N
 
-Causal id strat throw out part of the variation, reducing power, leading significant estimates to exaggerate true effects sizes. We build fake data MC simulations to illustrate this.
+Causal id strat throw out part of the variation, reducing power, leading significant estimates to exaggerate true effects sizes. The same aspect that makes causal identification strategies credible can also induce "bias".
+
+We build fake data MC simulations to illustrate this.
 
 #### Tweet 4/N
 
-RDD discards variation, only considering observations within the bandwidth, decreasing the effective sample size. 
+RDD discards variation by only considering observations within the bandwidth. It decreases the effective sample size.
 
 On average significant estimates may never get close to the true effect.
 
@@ -142,7 +144,7 @@ knitr::include_graphics("images/main_graph_IV-1.png")
 
 #### Tweet 6/N
 
-In DiD event studies, the variation used to identify an effect sometimes only comes from a limited number of treated observations. Power can thus be low. 
+In DiD event studies, the variation used to identify an effect sometimes only comes from a limited number of treated observations. Power can thus be low and estimates inflated.
 
 ```{r echo=FALSE, fig.align="center"} 
 knitr::include_graphics("images/main_graph_DID-1.png")

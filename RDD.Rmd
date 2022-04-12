@@ -617,9 +617,9 @@ sim_rdd %>%
     y = "Bandwidth size", 
     x = "Estimate",
     fill = "",
-    title = "Distribution of RDD estimates for different bandwidth",
+    title = "Distribution of RDD estimates for different bandwidths",
     subtitle = "Conditional on significativity", 
-    caption = "The horizontal line represents the true effect size"
+    caption = "Bandwidth size as a proportion of the total number of observations \n The horizontal line represents the true effect size"
   )
 
 
@@ -641,9 +641,9 @@ sim_rdd %>%
     y = "Bandwidth size", 
     x = "Estimate",
     fill = "",
-    title = "Distribution of RDD estimates for different bandwidth",
+    title = "Distribution of RDD estimates for different bandwidths",
     subtitle = "Conditional on significativity", 
-    caption = "The horizontal line represents the true effect size"
+    caption = "Bandwidth size as a proportion of the total number of observations \n The horizontal line represents the true effect size"
   )
 
 ```
