@@ -38,3 +38,6 @@ res %>%
   geom_vline(aes(xintercept = 1), linetype = "dashed")
 
 mean(res) - 1
+
+
+

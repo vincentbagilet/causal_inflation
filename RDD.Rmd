@@ -418,7 +418,7 @@ We will run the simulations for different sets of parameters by mapping our `com
 fixed_param_RDD <- baseline_param_RDD %>% #%>% rbind(...)
   mutate(vect_bw = 0.1)
 # vect_bw <- seq(0.05, 0.4, 0.05)
-vect_bw <- c(seq(0.1, 0.4, 0.05), seq(0.4, 0.9, 0.1))
+vect_bw <- c(seq(0.1, 0.4, 0.05), seq(0.5, 0.9, 0.1))
 # vect_delta <- c(3)
 n_iter <- 1000
 
@@ -608,7 +608,7 @@ sim_rdd %>%
   ) %>% 
   ggplot(aes(x = ratio, fill = significant)) + 
   geom_histogram(bins = 45, alpha = 0.85) +
-  facet_grid(~bw, switch="x") +
+  facet_grid(~bw, switch = "x") +
   geom_vline(xintercept = 1) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
   coord_flip() +
@@ -632,7 +632,7 @@ sim_rdd %>%
   ggplot(aes(x = ratio, fill = significant)) + 
   geom_area(stat ="bin", bins = 50, alpha = 0.85) +
   # geom_histogram(bins = 45, alpha = 0.85) +
-  facet_grid(~bw, switch="x") +
+  facet_grid(~bw, switch = "x") +
   geom_vline(xintercept = 1) +
   scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
   coord_flip() +
@@ -649,4 +649,28 @@ sim_rdd %>%
 ```
 
 
+```{r graph_result_distrib_RDD_pres, eval=FALSE, include=FALSE}
+sim_rdd %>% 
+  filter(factor(bw) %in% seq(0.1, 0.9, 0.1)) %>%
+  mutate(
+    significant = ifelse(p_value < 0.05, "Significant", "Non significant"),
+    all = "All estimates",
+    ratio = estimate/true_effect
+  ) %>% 
+  ggplot(aes(x = ratio, fill = all)) + 
+  geom_histogram(bins = 45, alpha = 0.85) +
+  facet_grid(~bw, switch = "x") +
+  geom_vline(xintercept = 1) +
+  scale_x_continuous(breaks = scales::pretty_breaks(n = 10)) +
+  coord_flip() +
+  scale_y_continuous(breaks = NULL) +
+  labs(
+    y = "Bandwidth size", 
+    x = "Estimate",
+    fill = "",
+    title = "Distribution of RDD estimates for different bandwidths",
+    subtitle = "Unconditional on significativity", 
+    caption = "Bandwidth size as a proportion of the total number of observations \n The horizontal line represents the true effect size"
+  )
+```
 

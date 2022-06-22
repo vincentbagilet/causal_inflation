@@ -533,11 +533,12 @@ To analyze our results, we build a unique and simple graph:
 ```{r main_graph_IV, echo=FALSE, fig.asp=0.7}
 summary_sim_IV %>% 
   filter(model %in% c("OLS", "IV")) %>%
+  filter(iv_strength > 0.1) %>% 
   mutate(
     ovb_intensity_name = paste("OVB intensity:", ovb_intensity)
   ) %>%
   ggplot(aes(x = abs(iv_strength), y = bias_signif, color = model)) + 
-  geom_line(size = 0.8) +
+  geom_line(size = 1, alpha = 0.75) +
   labs(
     x = "|IV strength|", 
     y = expression(paste("Average  ", frac("Estimate", "True Effect"))),
@@ -545,7 +546,8 @@ summary_sim_IV %>%
     title = "Evolution of bias with intensity of the IV",
     subtitle = "For statistically significant estimates"
   ) +
-  scale_y_continuous(breaks = scales::pretty_breaks(n = 7))
+  scale_mediocre_d(pal = "coty", second_pair = TRUE)
+  # scale_y_continuous(breaks = scales::pretty_breaks(n = 7)) 
 
 # summary_sim_IV %>% 
 #   pivot_longer(c(bias_signif, bias_all), names_to = "bias_type", values_to = "bias") %>% 
@@ -556,6 +558,7 @@ summary_sim_IV %>%
 ```{r main_graph_IV_paper, dpi=600, include=FALSE}
 summary_sim_IV %>% 
   filter(model %in% c("OLS", "IV")) %>%
+  filter(iv_strength > 0.1) %>% 
   ggplot(aes(x = iv_strength, y = bias_signif, color = model)) + 
   geom_line(size = 0.8) +
   labs(
@@ -569,7 +572,8 @@ summary_sim_IV %>%
   theme(
     legend.title = element_text(size = rel(0.9)),
     legend.text = element_text(size = rel(0.9))
-  )
+  ) +
+  scale_mediocre_d(pal = "coty", second_pair = TRUE)
   # theme_mediocre(pal = "blackandwhite", base_family = "Lora") +
   # scale_mediocre_d(pal = "blackandwhite")
 
